@@ -8,7 +8,6 @@ import { LCPSyncProvider } from '/src/network.js';
 
 // Import core primitives
 import '/src/primitives.js';
-import '/src/router-component.js';
 
 // Import our custom components
 import './components/layout.js';
@@ -31,3 +30,6 @@ globalAuthManager.persist = {
 // 3. Hydrate Session
 // RouterEngine will automatically wait for this to finish before evaluating routes
 globalAuthManager.hydrate();
+
+// 4. Mount Router (Dynamically imported to prevent hoisting race conditions with Auth Hydration)
+import('/src/router-component.js');

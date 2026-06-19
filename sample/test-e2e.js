@@ -54,6 +54,14 @@ async function delay(ms) {
     assert.ok(url.endsWith('http://localhost:3000/'), 'Should redirect to / after login');
     console.log('✓ Dashboard navigation validated');
 
+    // 3.5 Test Regression: Page Refresh
+    console.log('Refreshing page to test hydration...');
+    await page1.reload({ waitUntil: 'networkidle0' });
+    await delay(1000); // Give view transition and hydration time
+    url = page1.url();
+    assert.ok(url.endsWith('http://localhost:3000/'), 'Should stay on Dashboard after refresh');
+    console.log('✓ Hydration and persistence validated (No regression)');
+
     // 4. Add a Task to To Do
     console.log('Adding a task...');
     await page1.evaluate(() => {

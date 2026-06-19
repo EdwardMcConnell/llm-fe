@@ -58,10 +58,7 @@ class SampleGrid extends FeElement {
   bind() {
     const grid = this.root.querySelector('#massive-grid');
     
-    // Inject the row styles directly into the <fe-grid> shadow DOM
-    // since the virtualized elements exist within its isolated tree.
-    const rowStyles = document.createElement('style');
-    rowStyles.textContent = `
+    const gridStyles = `
       .row {
         display: flex;
         align-items: center;
@@ -99,7 +96,6 @@ class SampleGrid extends FeElement {
       .status-pending { background: rgba(234, 179, 8, 0.2); color: #facc15; }
       .status-error { background: rgba(239, 68, 68, 0.2); color: #f87171; }
     `;
-    grid.shadowRoot.appendChild(rowStyles);
 
     // Generate 100,000 dummy records
     console.log('Generating 100,000 records for the virtual grid...');
@@ -132,7 +128,7 @@ class SampleGrid extends FeElement {
           </span>
         </div>
       `;
-    }, { itemHeight: 48, overscan: 10 });
+    }, { itemHeight: 48, overscan: 10, styles: gridStyles });
   }
 }
 
