@@ -16,10 +16,6 @@ class SampleGrid extends FeElement {
         }
 
         .controls-card {
-          background: rgba(30, 41, 59, 0.5);
-          border-radius: 12px;
-          border: 1px solid var(--glass-border);
-          padding: 1rem;
           display: flex;
           flex-direction: column;
           gap: 1rem;
@@ -87,10 +83,8 @@ class SampleGrid extends FeElement {
           flex-direction: column;
           flex: 1;
           min-height: 0;
-          background: rgba(30, 41, 59, 0.5);
-          border-radius: 12px;
-          border: 1px solid var(--glass-border);
           overflow: hidden;
+          padding: 0;
         }
 
         .header {
@@ -177,17 +171,19 @@ class SampleGrid extends FeElement {
         }
       </style>
 
-      <div class="controls-card">
-        <div class="features-toggles">
-          <strong>Grid Features:</strong>
-          <label><input type="checkbox" id="t-pagination" checked> Pagination</label>
-          <label><input type="checkbox" id="t-sorting" checked> Column Sorting</label>
-          <label><input type="checkbox" id="t-colfilter" checked> Column Filters</label>
-          <label><input type="checkbox" id="t-search" checked> Quick Search</label>
-          <label><input type="checkbox" id="t-select" checked> Selectable Rows</label>
-          <label><input type="checkbox" id="t-edit" checked> Editable Cells</label>
-          <label><input type="checkbox" id="t-resize" checked> Resizable Columns</label>
-        </div>
+      <fe-card class="controls-card">
+        <fe-accordion class="features-accordion">
+          <span slot="header" style="font-weight:600; color:var(--text-secondary);">Grid Features Configuration</span>
+          <div class="features-toggles">
+            <label><input type="checkbox" id="t-pagination" checked> Pagination</label>
+            <label><input type="checkbox" id="t-sorting" checked> Column Sorting</label>
+            <label><input type="checkbox" id="t-colfilter" checked> Column Filters</label>
+            <label><input type="checkbox" id="t-search" checked> Quick Search</label>
+            <label><input type="checkbox" id="t-select" checked> Selectable Rows</label>
+            <label><input type="checkbox" id="t-edit" checked> Editable Cells</label>
+            <label><input type="checkbox" id="t-resize" checked> Resizable Columns</label>
+          </div>
+        </fe-accordion>
 
         <div class="toolbar">
           <div id="search-container">
@@ -211,13 +207,13 @@ class SampleGrid extends FeElement {
             <fe-button variant="outline" id="btn-next">&gt;</fe-button>
           </div>
         </div>
-      </div>
+      </fe-card>
       
-      <div class="grid-card">
+      <fe-card class="grid-card">
         <div class="header" id="grid-header"></div>
         <div class="filter-row" id="grid-filters" style="display: none;"></div>
         <fe-grid id="massive-grid"></fe-grid>
-      </div>
+      </fe-card>
     `;
   }
 

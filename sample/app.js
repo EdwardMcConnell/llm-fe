@@ -8,6 +8,7 @@ import { LCPSyncProvider } from '/src/network.js';
 
 // Import core primitives
 import '/src/primitives.js';
+import '/src/ui.js';
 
 // Import our custom components
 import './components/layout.js';

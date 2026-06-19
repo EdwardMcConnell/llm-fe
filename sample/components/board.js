@@ -4,6 +4,7 @@ import { globalSharedMap } from '/src/store.js';
 import { createEffect, createTransitionEffect } from '/src/reactivity.js';
 import { createFormSignal } from '/src/form.js';
 import { globalAuthManager } from '/src/auth.js';
+import { globalToast } from '/src/ui.js';
 
 function getCurrentUser() {
   const token = globalAuthManager.getToken();
@@ -32,12 +33,7 @@ class SampleBoard extends FeElement {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: rgba(30, 41, 59, 0.5);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
           padding: 1.5rem;
-          border-radius: 12px;
-          border: 1px solid var(--glass-border);
         }
 
         .board-header h2 {
@@ -83,10 +79,6 @@ class SampleBoard extends FeElement {
 
         .column {
           flex: 1;
-          background: rgba(0, 0, 0, 0.2);
-          border-radius: 12px;
-          border: 1px solid var(--glass-border);
-          padding: 1rem;
           min-height: 400px;
           display: flex;
           flex-direction: column;
@@ -107,10 +99,6 @@ class SampleBoard extends FeElement {
         .col-done .column-header { color: var(--kanban-done); border-bottom-color: var(--kanban-done); }
 
         .card {
-          background: rgba(30, 41, 59, 0.8);
-          border: 1px solid var(--glass-border);
-          border-radius: 8px;
-          padding: 1rem;
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
@@ -199,7 +187,7 @@ class SampleBoard extends FeElement {
         }
       </style>
 
-      <div class="board-header">
+      <fe-card class="board-header">
         <h2>Multiplayer Kanban</h2>
         
         <fe-form id="add-task-form">
@@ -208,32 +196,32 @@ class SampleBoard extends FeElement {
             <fe-button type="submit">Add Task</fe-button>
           </div>
         </fe-form>
-      </div>
+      </fe-card>
 
       <div class="board-columns">
-        <div class="column col-todo">
+        <fe-card class="column col-todo">
           <div class="column-header">
             <span>To Do</span>
             <span class="badge" id="count-todo">0</span>
           </div>
           <div class="card-list" id="list-todo"></div>
-        </div>
+        </fe-card>
 
-        <div class="column col-in-progress">
+        <fe-card class="column col-in-progress">
           <div class="column-header">
             <span>In Progress</span>
             <span class="badge" id="count-in-progress">0</span>
           </div>
           <div class="card-list" id="list-in-progress"></div>
-        </div>
+        </fe-card>
 
-        <div class="column col-done">
+        <fe-card class="column col-done">
           <div class="column-header">
             <span>Done</span>
             <span class="badge" id="count-done">0</span>
           </div>
           <div class="card-list" id="list-done"></div>
-        </div>
+        </fe-card>
       </div>
     `;
   }
@@ -267,21 +255,22 @@ class SampleBoard extends FeElement {
         const isoDate = item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString();
 
         listsHtml[item.status] += `
-          <div class="${cardClass}" data-id="${item.id}" ${dragAttr}>
+          <fe-card class="${cardClass}" data-id="${item.id}" ${dragAttr}>
             ${lockHtml}
             <div class="card-title" ${editableAttr} spellcheck="false">${this.escapeHtml(item.title)}</div>
             <div class="card-meta">
               <fe-time datetime="${isoDate}" format="relative"></fe-time>
             </div>
             <div class="card-actions" ${actionsStyle}>
-              <button class="delete-btn" data-id="${item.id}">Delete</button>
+              <button class="delete-btn" id="del-${item.id}" data-id="${item.id}">Delete</button>
+              <fe-tooltip trigger="del-${item.id}">Delete this task permanently</fe-tooltip>
             </div>
-          </div>
+          </fe-card>
         `;
       });
 
       return `
-        <div class="column col-todo">
+        <fe-card class="column col-todo">
           <div class="column-header">
             <span>To Do</span>
             <span class="badge" id="count-todo">${statusCounts['todo']}</span>
@@ -289,9 +278,9 @@ class SampleBoard extends FeElement {
           <div class="card-list" id="list-todo">
             ${listsHtml['todo']}
           </div>
-        </div>
+        </fe-card>
 
-        <div class="column col-in-progress">
+        <fe-card class="column col-in-progress">
           <div class="column-header">
             <span>In Progress</span>
             <span class="badge" id="count-in-progress">${statusCounts['in-progress']}</span>
@@ -299,9 +288,9 @@ class SampleBoard extends FeElement {
           <div class="card-list" id="list-in-progress">
             ${listsHtml['in-progress']}
           </div>
-        </div>
+        </fe-card>
 
-        <div class="column col-done">
+        <fe-card class="column col-done">
           <div class="column-header">
             <span>Done</span>
             <span class="badge" id="count-done">${statusCounts['done']}</span>
@@ -309,7 +298,7 @@ class SampleBoard extends FeElement {
           <div class="card-list" id="list-done">
             ${listsHtml['done']}
           </div>
-        </div>
+        </fe-card>
       `;
     });
 
@@ -345,6 +334,7 @@ class SampleBoard extends FeElement {
           return i;
         });
         setItems(updatedItems);
+        if (newStatus) globalToast.show(`Task moved to ${newStatus}`);
       }
     });
 
@@ -389,6 +379,7 @@ class SampleBoard extends FeElement {
       };
       
       setItems([...items, newItem]);
+      globalToast.show(`Task added: ${newItem.title}`);
       
       actions.resetForm();
     });
@@ -423,6 +414,7 @@ class SampleBoard extends FeElement {
     const items = getItems() || [];
     const updatedItems = items.filter(item => item.id !== id);
     setItems(updatedItems);
+    globalToast.show('Task deleted successfully');
   }
 }
 

@@ -1,6 +1,7 @@
 import { FeElement } from '/src/component.js';
 import { globalAuthManager } from '/src/auth.js';
 import { globalRouter } from '/src/router.js';
+import { globalToast } from '/src/ui.js';
 
 class SampleLayout extends FeElement {
   template() {
@@ -63,6 +64,7 @@ class SampleLayout extends FeElement {
           display: flex;
           align-items: center;
           justify-content: flex-end;
+          gap: 1rem;
           padding: 1rem 2rem;
           border-bottom: 1px solid var(--glass-border);
           background: rgba(10, 15, 30, 0.3);
@@ -97,14 +99,39 @@ class SampleLayout extends FeElement {
       <aside class="drawer">
         <a href="/" class="brand">Fe UI</a>
         <nav class="nav-links">
-          <fe-link href="/">Kanban Board</fe-link>
-          <fe-link href="/grid">Data Grid</fe-link>
+          <fe-accordion-group>
+            <fe-accordion open>
+              <span slot="header">Applications</span>
+              <div style="display:flex; flex-direction:column; gap:0.5rem; padding-left:1rem;">
+                <fe-link href="/">Kanban Board</fe-link>
+                <fe-link href="/grid">Data Grid</fe-link>
+              </div>
+            </fe-accordion>
+            <fe-accordion>
+              <span slot="header">Settings</span>
+              <div style="display:flex; flex-direction:column; gap:0.5rem; padding-left:1rem;">
+                <fe-link href="#">Profile</fe-link>
+                <fe-link href="#">Preferences</fe-link>
+              </div>
+            </fe-accordion>
+          </fe-accordion-group>
         </nav>
       </aside>
 
       <div class="main-pane">
         <header class="topbar">
+          <fe-button id="toast-btn" variant="outline">Test Toast</fe-button>
+          
+          <fe-button id="settings-btn" variant="outline">Menu</fe-button>
+          <fe-menu trigger="settings-btn">
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+               <a href="#" style="color:#000; text-decoration:none;">My Account</a>
+               <a href="#" style="color:#000; text-decoration:none;">Theme</a>
+            </div>
+          </fe-menu>
+
           <fe-button id="logout-btn" variant="outline" style="display: none;">Logout</fe-button>
+          <fe-tooltip trigger="logout-btn">Log out of your session securely</fe-tooltip>
         </header>
 
         <main class="content">
@@ -126,6 +153,10 @@ class SampleLayout extends FeElement {
     this.bindEvent('#logout-btn', 'click', async () => {
       await globalAuthManager.logout();
       globalRouter.navigate('/login');
+    });
+
+    this.bindEvent('#toast-btn', 'click', () => {
+      globalToast.show("Test toast message! " + new Date().toLocaleTimeString());
     });
   }
 }

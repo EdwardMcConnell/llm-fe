@@ -16,15 +16,9 @@ class SampleLogin extends FeElement {
         }
 
         .login-box {
-          background: rgba(30, 41, 59, 0.7);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
           padding: 3rem;
           width: 100%;
           max-width: 400px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
           animation: fadeInSlideUp 0.5s ease-out;
         }
 
@@ -95,7 +89,7 @@ class SampleLogin extends FeElement {
         }
       </style>
 
-      <div class="login-box">
+      <fe-card class="login-box">
         <h2>Welcome Back</h2>
         <fe-form id="login-form">
           <div class="form-group">
@@ -112,7 +106,7 @@ class SampleLogin extends FeElement {
 
           <fe-button type="submit">Access Workspace</fe-button>
         </fe-form>
-      </div>
+      </fe-card>
     `;
   }
 
