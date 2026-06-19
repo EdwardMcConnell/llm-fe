@@ -134,11 +134,13 @@ class SampleLogin extends FeElement {
     this.bindForm('#login-form', formSignalTuple, async (values) => {
       // Simulate network request
       await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const mockJwt = btoa(JSON.stringify({ user: values.username, exp: Date.now() + 86400000 }));
-      localStorage.setItem('fe_sample_token', mockJwt);
-      globalAuthManager.login(mockJwt);
-      globalRouter.navigate('/');
+      const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+      const payload = btoa(JSON.stringify({ user: values.username, exp: Math.floor(Date.now() / 1000) + 86400 }));
+      const mockJwt = `${header}.${payload}.mocksignature`;
+      const success = await globalAuthManager.login(mockJwt);
+      if (success) {
+        globalRouter.navigate('/');
+      }
     });
 
     // Workaround: make fe-button manually submit the fe-form if clicked

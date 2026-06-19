@@ -20,15 +20,15 @@ const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 const wsUrl = `${wsProtocol}//${window.location.host}`;
 const networkProvider = new LCPSyncProvider(wsUrl, globalSharedMap);
 
-// 2. Restore Session from LocalStorage
-const savedToken = localStorage.getItem('fe_sample_token');
-if (savedToken) {
-  try {
-    globalAuthManager.login(savedToken);
-  } catch (e) {
-    localStorage.removeItem('fe_sample_token');
-  }
-}
+// 2. Configure Auth Persistence & Hydrate Session
+globalAuthManager.persist = {
+  read: () => localStorage.getItem('fe_sample_token'),
+  write: (token) => localStorage.setItem('fe_sample_token', token),
+  clear: () => localStorage.removeItem('fe_sample_token')
+};
 
-// 3. Trigger initial route render
+await globalAuthManager.hydrate();
+
+// 3. Mount Router and Trigger initial route render
+document.body.appendChild(document.createElement('fe-router'));
 globalRouter.navigate(window.location.pathname);
