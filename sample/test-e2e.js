@@ -78,32 +78,22 @@ async function delay(ms) {
     assert.ok(todoText.includes('Build the native WebSockets backend'), 'Task should appear in To Do');
     console.log('✓ Task creation validated in To Do column');
 
-    // 6. Move Task to In Progress via Drag and Drop
-    console.log('Moving task to In Progress via Drag & Drop...');
-    const cardRect = await page1.evaluate(() => {
+    // 6. Move Task to In Progress via HTML5 Drag and Drop
+    console.log('Moving task to In Progress via HTML5 Drag & Drop...');
+    await page1.evaluate(() => {
       const board = document.querySelector('fe-router').shadowRoot
         .querySelector('sample-layout').querySelector('sample-board').shadowRoot;
       const card = board.querySelector('#list-todo .card');
-      return JSON.parse(JSON.stringify(card.getBoundingClientRect()));
-    });
-    
-    const colRect = await page1.evaluate(() => {
-      const board = document.querySelector('fe-router').shadowRoot
-        .querySelector('sample-layout').querySelector('sample-board').shadowRoot;
-      const col = board.querySelector('.col-in-progress');
-      return JSON.parse(JSON.stringify(col.getBoundingClientRect()));
-    });
+      const targetCol = board.querySelector('.col-in-progress');
 
-    await page1.mouse.move(cardRect.x + 10, cardRect.y + 10);
-    await page1.mouse.down();
-    await delay(100);
-    // Move to trigger threshold
-    await page1.mouse.move(cardRect.x + 50, cardRect.y + 50, { steps: 5 });
-    await delay(100);
-    // Move to target column
-    await page1.mouse.move(colRect.x + 50, colRect.y + 50, { steps: 10 });
-    await delay(100);
-    await page1.mouse.up();
+      const dataTransfer = new DataTransfer();
+
+      card.dispatchEvent(new DragEvent('dragstart', { bubbles: true, dataTransfer }));
+      targetCol.dispatchEvent(new DragEvent('dragenter', { bubbles: true, dataTransfer }));
+      targetCol.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer }));
+      targetCol.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }));
+      card.dispatchEvent(new DragEvent('dragend', { bubbles: true, dataTransfer }));
+    });
 
     await delay(500);
 

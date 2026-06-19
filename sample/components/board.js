@@ -115,10 +115,7 @@ class SampleBoard extends FeElement {
           flex-direction: column;
           gap: 0.5rem;
           transition: transform 0.2s, border-color 0.2s;
-          touch-action: none;
           cursor: grab;
-          user-select: none;
-          -webkit-user-select: none;
         }
 
         .card:hover {
@@ -139,17 +136,6 @@ class SampleBoard extends FeElement {
 
         .card.locked [contenteditable] {
           pointer-events: none;
-        }
-
-        .card.dragging {
-          opacity: 0.3;
-        }
-
-        .dragging-clone {
-          pointer-events: none;
-          z-index: 1000;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-          transition: transform 0.1s ease;
         }
 
         .lock-badge {
@@ -273,6 +259,7 @@ class SampleBoard extends FeElement {
         const lockedByOther = isLocked && item.lockedBy !== currentUser;
         
         const cardClass = lockedByOther ? 'card locked' : 'card';
+        const dragAttr = lockedByOther ? '' : 'draggable="true"';
         const lockHtml = lockedByOther ? `<div class="lock-badge">🔒 Locked by ${this.escapeHtml(item.lockedBy)}</div>` : '';
         const editableAttr = lockedByOther ? 'contenteditable="false"' : 'contenteditable="true"';
         const actionsStyle = lockedByOther ? 'style="display: none;"' : '';
@@ -280,7 +267,7 @@ class SampleBoard extends FeElement {
         const isoDate = item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString();
 
         listsHtml[item.status] += `
-          <div class="${cardClass}" data-id="${item.id}">
+          <div class="${cardClass}" data-id="${item.id}" ${dragAttr}>
             ${lockHtml}
             <div class="card-title" ${editableAttr} spellcheck="false">${this.escapeHtml(item.title)}</div>
             <div class="card-meta">
@@ -326,109 +313,39 @@ class SampleBoard extends FeElement {
       `;
     });
 
-    let activeDragId = null;
-    let dragClone = null;
-    let dragStartX = 0;
-    let dragStartY = 0;
-    let dragStartRect = null;
-    let isDraggingThresholdMet = false;
+    // 3. HTML5 Native Drag-and-Drop via Framework
+    this.bindDragAndDrop({
+      dropSelector: '.column',
+      onDragStart: (dragEl, e) => {
+        if (e.target.closest('.card-title') || e.target.closest('button')) return false;
 
-    this.bindEvent('.board-columns', 'pointerdown', (e) => {
-      const card = e.target.closest('.card');
-      if (!card || card.classList.contains('locked')) return;
-      if (e.target.closest('button') || e.target.closest('.card-title')) return;
-
-      const id = card.getAttribute('data-id');
-      
-      activeDragId = id;
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
-      dragStartRect = card.getBoundingClientRect();
-      isDraggingThresholdMet = false;
-
-      // Capture pointer so we get move/up events everywhere
-      card.setPointerCapture(e.pointerId);
-    });
-
-    this.bindEvent('.board-columns', 'pointermove', (e) => {
-      if (!activeDragId) return;
-
-      const dx = e.clientX - dragStartX;
-      const dy = e.clientY - dragStartY;
-
-      // Threshold to start drag (e.g. 5 pixels)
-      if (!isDraggingThresholdMet && Math.abs(dx) + Math.abs(dy) > 5) {
-        isDraggingThresholdMet = true;
+        const id = dragEl.getAttribute('data-id');
+        const items = getItems() || [];
+        const item = items.find(i => i.id === id);
+        if (!item || item.lockedBy) return false;
 
         // Broadcast lock to network
-        const items = getItems() || [];
-        const currentUser = getCurrentUser();
-        const updatedItems = items.map(i => i.id === activeDragId ? { ...i, lockedBy: currentUser, lockedAt: new Date().toISOString() } : i);
+        const updatedItems = items.map(i => i.id === id ? { ...i, lockedBy: getCurrentUser(), lockedAt: new Date().toISOString() } : i);
         setItems(updatedItems);
-
-        // Create visual clone
-        const card = this.root.querySelector(`.card[data-id="${activeDragId}"]`);
-        if (card) {
-          card.classList.add('dragging');
-          dragClone = card.cloneNode(true);
-          dragClone.classList.add('dragging-clone');
-          dragClone.classList.remove('dragging');
-          dragClone.style.position = 'fixed';
-          dragClone.style.top = dragStartRect.top + 'px';
-          dragClone.style.left = dragStartRect.left + 'px';
-          dragClone.style.width = dragStartRect.width + 'px';
-          dragClone.style.height = dragStartRect.height + 'px';
-          this.root.appendChild(dragClone);
-        }
-      }
-
-      if (isDraggingThresholdMet && dragClone) {
-        dragClone.style.transform = `translate(${dx}px, ${dy}px) scale(1.05)`;
-      }
-    });
-
-    this.bindEvent('.board-columns', 'pointerup', (e) => {
-      if (!activeDragId) return;
-      
-      const card = e.target.closest('.card');
-      if (card) {
-        card.releasePointerCapture(e.pointerId);
-        card.classList.remove('dragging');
-      }
-
-      if (isDraggingThresholdMet && dragClone) {
-        // Find drop target. Hide clone first so elementFromPoint works.
-        dragClone.style.display = 'none';
-        const dropEl = this.root.elementFromPoint(e.clientX, e.clientY);
-        const dropCol = dropEl?.closest('.column');
-        
+      },
+      onDrop: (dragEl, dropZoneEl, e) => {
+        const id = dragEl.getAttribute('data-id');
         let newStatus = null;
-        if (dropCol) {
-          if (dropCol.classList.contains('col-todo')) newStatus = 'todo';
-          if (dropCol.classList.contains('col-in-progress')) newStatus = 'in-progress';
-          if (dropCol.classList.contains('col-done')) newStatus = 'done';
+        if (dropZoneEl) {
+          if (dropZoneEl.classList.contains('col-todo')) newStatus = 'todo';
+          if (dropZoneEl.classList.contains('col-in-progress')) newStatus = 'in-progress';
+          if (dropZoneEl.classList.contains('col-done')) newStatus = 'done';
         }
 
         const items = getItems() || [];
         const updatedItems = items.map(i => {
-          if (i.id === activeDragId) {
+          if (i.id === id) {
             return { ...i, lockedBy: null, lockedAt: null, status: newStatus ? newStatus : i.status };
           }
           return i;
         });
         setItems(updatedItems);
-
-        dragClone.remove();
-        dragClone = null;
-      } else {
-        // Click without threshold met, just unlock
-        const items = getItems() || [];
-        const updatedItems = items.map(i => i.id === activeDragId ? { ...i, lockedBy: null, lockedAt: null } : i);
-        setItems(updatedItems);
       }
-
-      activeDragId = null;
-      isDraggingThresholdMet = false;
     });
 
     // Delete Button Delegation
