@@ -118,6 +118,21 @@ export class ThemeProvider {
     
     cssText += `}\n`;
     
+    // Phase 19: Shadow DOM Modern Reset
+    // Obliterates the need for global normalize.css by natively normalizing every component
+    cssText += `
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+button, input, textarea, select {
+  font: inherit;
+}
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+  margin: 0;
+}
+`;
+
     // Apply globally to the shared Constructable Stylesheet
     this.sheet.replaceSync(cssText);
   }
