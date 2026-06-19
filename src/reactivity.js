@@ -114,10 +114,18 @@ export function createTransitionEffect(fn) {
   const effect = () => {
     if (!isFirstRun && document.startViewTransition) {
       // Hardware-accelerated morphing on state change
-      document.startViewTransition(() => {
+      try {
+        document.startViewTransition(() => {
+          activeEffect = effect;
+          try { fn(); } finally { activeEffect = null; }
+        });
+      } catch (err) {
+        // Phase 18: Headless Browser / E2E Testing Self-Healing
+        // If the document isn't fully active (Puppeteer) and throws InvalidStateError,
+        // we natively catch it and fall back to synchronous rendering instantly.
         activeEffect = effect;
         try { fn(); } finally { activeEffect = null; }
-      });
+      }
     } else {
       // Synchronous run
       activeEffect = effect;

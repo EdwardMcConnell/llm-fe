@@ -319,9 +319,22 @@ export class FeGrid extends FeElement {
    * Binds a reactive array signal to the grid.
    * @param {() => Array<any>} getSignal 
    * @param {(item: any, index: number) => string} renderFn 
-   * @param {{ itemHeight: number, overscan?: number }} options 
+   * @param {{ itemHeight: number, overscan?: number, styles?: string }} options 
    */
   bindList(getSignal, renderFn, options) {
+    if (options.styles) {
+      // Autonomously construct and inject custom Shadow DOM styles exactly once
+      let styleEl = this.root.querySelector('#injected-styles');
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'injected-styles';
+        styleEl.textContent = options.styles;
+        this.root.appendChild(styleEl);
+      } else {
+        styleEl.textContent = options.styles;
+      }
+    }
+
     const ghost = this.root.querySelector('#ghost');
     const viewport = this.root.querySelector('#viewport');
     

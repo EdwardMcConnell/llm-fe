@@ -36,7 +36,10 @@ export class AuthManager {
     this.token = null;
     this.refreshTimeoutId = null;
     this.listeners = new Set();
-    this.isHydrating = false;
+    
+    // Phase 18 Update: Secure deterministic startup
+    // If persist is configured, the router must wait. If not, boot instantly.
+    this.isHydrating = persist !== null;
   }
 
   /**
