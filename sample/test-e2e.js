@@ -78,14 +78,32 @@ async function delay(ms) {
     assert.ok(todoText.includes('Build the native WebSockets backend'), 'Task should appear in To Do');
     console.log('✓ Task creation validated in To Do column');
 
-    // 6. Move Task to In Progress
-    console.log('Moving task to In Progress...');
-    await page1.evaluate(() => {
+    // 6. Move Task to In Progress via Drag and Drop
+    console.log('Moving task to In Progress via Drag & Drop...');
+    const cardRect = await page1.evaluate(() => {
       const board = document.querySelector('fe-router').shadowRoot
         .querySelector('sample-layout').querySelector('sample-board').shadowRoot;
-      const btn = board.querySelector('#list-todo .move-btn[data-target="in-progress"]');
-      btn.click();
+      const card = board.querySelector('#list-todo .card');
+      return JSON.parse(JSON.stringify(card.getBoundingClientRect()));
     });
+    
+    const colRect = await page1.evaluate(() => {
+      const board = document.querySelector('fe-router').shadowRoot
+        .querySelector('sample-layout').querySelector('sample-board').shadowRoot;
+      const col = board.querySelector('.col-in-progress');
+      return JSON.parse(JSON.stringify(col.getBoundingClientRect()));
+    });
+
+    await page1.mouse.move(cardRect.x + 10, cardRect.y + 10);
+    await page1.mouse.down();
+    await delay(100);
+    // Move to trigger threshold
+    await page1.mouse.move(cardRect.x + 50, cardRect.y + 50, { steps: 5 });
+    await delay(100);
+    // Move to target column
+    await page1.mouse.move(colRect.x + 50, colRect.y + 50, { steps: 10 });
+    await delay(100);
+    await page1.mouse.up();
 
     await delay(500);
 

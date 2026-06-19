@@ -3,6 +3,18 @@ import { createSharedSignal } from '/src/shared.js';
 import { globalSharedMap } from '/src/store.js';
 import { createEffect, createTransitionEffect } from '/src/reactivity.js';
 import { createFormSignal } from '/src/form.js';
+import { globalAuthManager } from '/src/auth.js';
+
+function getCurrentUser() {
+  const token = globalAuthManager.getToken();
+  if (!token) return 'anonymous';
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.user || 'anonymous';
+  } catch (e) {
+    return 'anonymous';
+  }
+}
 
 class SampleBoard extends FeElement {
   template() {
@@ -103,11 +115,51 @@ class SampleBoard extends FeElement {
           flex-direction: column;
           gap: 0.5rem;
           transition: transform 0.2s, border-color 0.2s;
+          touch-action: none;
+          cursor: grab;
+          user-select: none;
+          -webkit-user-select: none;
         }
 
         .card:hover {
           transform: translateY(-2px);
           border-color: var(--brand-primary);
+        }
+
+        .card:active {
+          cursor: grabbing;
+        }
+
+        .card.locked {
+          opacity: 0.5;
+          border-color: #ef4444;
+          cursor: not-allowed;
+          pointer-events: none;
+        }
+
+        .card.locked [contenteditable] {
+          pointer-events: none;
+        }
+
+        .card.dragging {
+          opacity: 0.3;
+        }
+
+        .dragging-clone {
+          pointer-events: none;
+          z-index: 1000;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+          transition: transform 0.1s ease;
+        }
+
+        .lock-badge {
+          background: rgba(239, 68, 68, 0.2);
+          color: #fca5a5;
+          padding: 0.2rem 0.5rem;
+          border-radius: 4px;
+          font-size: 0.65rem;
+          display: inline-block;
+          margin-bottom: 0.5rem;
         }
 
         .card-title {
@@ -216,28 +268,25 @@ class SampleBoard extends FeElement {
       sortedItems.forEach(item => {
         statusCounts[item.status]++;
         
-        let actionsHtml = '';
-        if (item.status === 'todo') {
-          actionsHtml = `<button class="move-btn" data-id="${item.id}" data-target="in-progress">Start ➡️</button>`;
-        } else if (item.status === 'in-progress') {
-          actionsHtml = `
-            <button class="move-btn" data-id="${item.id}" data-target="todo">⬅️ To Do</button>
-            <button class="move-btn" data-id="${item.id}" data-target="done">Done ➡️</button>
-          `;
-        } else if (item.status === 'done') {
-          actionsHtml = `<button class="move-btn" data-id="${item.id}" data-target="in-progress">⬅️ Reopen</button>`;
-        }
+        const currentUser = getCurrentUser();
+        const isLocked = item.lockedBy && item.lockedAt && (Date.now() - new Date(item.lockedAt).getTime() < 60000);
+        const lockedByOther = isLocked && item.lockedBy !== currentUser;
+        
+        const cardClass = lockedByOther ? 'card locked' : 'card';
+        const lockHtml = lockedByOther ? `<div class="lock-badge">🔒 Locked by ${this.escapeHtml(item.lockedBy)}</div>` : '';
+        const editableAttr = lockedByOther ? 'contenteditable="false"' : 'contenteditable="true"';
+        const actionsStyle = lockedByOther ? 'style="display: none;"' : '';
 
         const isoDate = item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString();
 
         listsHtml[item.status] += `
-          <div class="card" data-id="${item.id}">
-            <div class="card-title" contenteditable="true" spellcheck="false">${this.escapeHtml(item.title)}</div>
+          <div class="${cardClass}" data-id="${item.id}">
+            ${lockHtml}
+            <div class="card-title" ${editableAttr} spellcheck="false">${this.escapeHtml(item.title)}</div>
             <div class="card-meta">
               <fe-time datetime="${isoDate}" format="relative"></fe-time>
             </div>
-            <div class="card-actions">
-              ${actionsHtml}
+            <div class="card-actions" ${actionsStyle}>
               <button class="delete-btn" data-id="${item.id}">Delete</button>
             </div>
           </div>
@@ -277,16 +326,113 @@ class SampleBoard extends FeElement {
       `;
     });
 
-    // Event Delegation for dynamically morphed buttons
-    this.bindEvent('.board-columns', 'click', (e) => {
-      const moveBtn = e.target.closest('.move-btn');
-      if (moveBtn) {
-        const id = moveBtn.getAttribute('data-id');
-        const targetStatus = moveBtn.getAttribute('data-target');
-        this.moveItem(id, targetStatus, getItems, setItems);
-        return;
-      }
+    let activeDragId = null;
+    let dragClone = null;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragStartRect = null;
+    let isDraggingThresholdMet = false;
+
+    this.bindEvent('.board-columns', 'pointerdown', (e) => {
+      const card = e.target.closest('.card');
+      if (!card || card.classList.contains('locked')) return;
+      if (e.target.closest('button') || e.target.closest('.card-title')) return;
+
+      const id = card.getAttribute('data-id');
       
+      activeDragId = id;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragStartRect = card.getBoundingClientRect();
+      isDraggingThresholdMet = false;
+
+      // Capture pointer so we get move/up events everywhere
+      card.setPointerCapture(e.pointerId);
+    });
+
+    this.bindEvent('.board-columns', 'pointermove', (e) => {
+      if (!activeDragId) return;
+
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+
+      // Threshold to start drag (e.g. 5 pixels)
+      if (!isDraggingThresholdMet && Math.abs(dx) + Math.abs(dy) > 5) {
+        isDraggingThresholdMet = true;
+
+        // Broadcast lock to network
+        const items = getItems() || [];
+        const currentUser = getCurrentUser();
+        const updatedItems = items.map(i => i.id === activeDragId ? { ...i, lockedBy: currentUser, lockedAt: new Date().toISOString() } : i);
+        setItems(updatedItems);
+
+        // Create visual clone
+        const card = this.root.querySelector(`.card[data-id="${activeDragId}"]`);
+        if (card) {
+          card.classList.add('dragging');
+          dragClone = card.cloneNode(true);
+          dragClone.classList.add('dragging-clone');
+          dragClone.classList.remove('dragging');
+          dragClone.style.position = 'fixed';
+          dragClone.style.top = dragStartRect.top + 'px';
+          dragClone.style.left = dragStartRect.left + 'px';
+          dragClone.style.width = dragStartRect.width + 'px';
+          dragClone.style.height = dragStartRect.height + 'px';
+          this.root.appendChild(dragClone);
+        }
+      }
+
+      if (isDraggingThresholdMet && dragClone) {
+        dragClone.style.transform = `translate(${dx}px, ${dy}px) scale(1.05)`;
+      }
+    });
+
+    this.bindEvent('.board-columns', 'pointerup', (e) => {
+      if (!activeDragId) return;
+      
+      const card = e.target.closest('.card');
+      if (card) {
+        card.releasePointerCapture(e.pointerId);
+        card.classList.remove('dragging');
+      }
+
+      if (isDraggingThresholdMet && dragClone) {
+        // Find drop target. Hide clone first so elementFromPoint works.
+        dragClone.style.display = 'none';
+        const dropEl = this.root.elementFromPoint(e.clientX, e.clientY);
+        const dropCol = dropEl?.closest('.column');
+        
+        let newStatus = null;
+        if (dropCol) {
+          if (dropCol.classList.contains('col-todo')) newStatus = 'todo';
+          if (dropCol.classList.contains('col-in-progress')) newStatus = 'in-progress';
+          if (dropCol.classList.contains('col-done')) newStatus = 'done';
+        }
+
+        const items = getItems() || [];
+        const updatedItems = items.map(i => {
+          if (i.id === activeDragId) {
+            return { ...i, lockedBy: null, lockedAt: null, status: newStatus ? newStatus : i.status };
+          }
+          return i;
+        });
+        setItems(updatedItems);
+
+        dragClone.remove();
+        dragClone = null;
+      } else {
+        // Click without threshold met, just unlock
+        const items = getItems() || [];
+        const updatedItems = items.map(i => i.id === activeDragId ? { ...i, lockedBy: null, lockedAt: null } : i);
+        setItems(updatedItems);
+      }
+
+      activeDragId = null;
+      isDraggingThresholdMet = false;
+    });
+
+    // Delete Button Delegation
+    this.bindEvent('.board-columns', 'click', (e) => {
       const delBtn = e.target.closest('.delete-btn');
       if (delBtn) {
         const id = delBtn.getAttribute('data-id');
