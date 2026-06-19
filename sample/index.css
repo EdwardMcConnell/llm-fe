@@ -1,0 +1,97 @@
+:root {
+  /* Vibrant OKLCH Color Palette */
+  --surface-1: oklch(25% 0.05 260);     /* Deep Slate Blue */
+  --surface-2: oklch(35% 0.06 260);     /* Lighter Slate */
+  --brand-primary: oklch(65% 0.25 260); /* Vibrant Electric Blue */
+  --brand-accent: oklch(70% 0.2 320);   /* Vibrant Pink/Purple */
+  
+  --text-primary: oklch(95% 0.02 260);  /* Almost White */
+  --text-secondary: oklch(75% 0.03 260);/* Soft Silver */
+  
+  --glass-bg: color-mix(in oklch, var(--surface-1) 70%, transparent);
+  --glass-border: color-mix(in oklch, var(--text-primary) 10%, transparent);
+  
+  --kanban-todo: oklch(40% 0.1 240);    /* Muted Blue */
+  --kanban-prog: oklch(45% 0.15 60);    /* Vibrant Amber */
+  --kanban-done: oklch(50% 0.15 150);   /* Mint Green */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Outfit', sans-serif;
+  background: linear-gradient(135deg, oklch(15% 0.05 260), oklch(20% 0.08 280));
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+  word-break: break-word;
+  outline: none;
+  padding: 2px 4px;
+  margin-left: -4px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.card-title[contenteditable="true"]:hover {
+  background: rgba(255, 255, 255, 0.1);
+  cursor: text;
+}
+
+.card-title[contenteditable="true"]:focus {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px var(--brand-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Base Router Styles */
+ag-router {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+}
+
+/* Shared Glassmorphism Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Animations */
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseBorder {
+  0% { border-color: var(--glass-border); }
+  50% { border-color: var(--brand-primary); }
+  100% { border-color: var(--glass-border); }
+}

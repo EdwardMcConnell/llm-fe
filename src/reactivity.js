@@ -1,0 +1,130 @@
+/**
+ * Core Reactivity System for Fe UI.
+ * Pure Vanilla JS with JSDoc typing for LLM consumption.
+ * Zero build step required.
+ */
+
+/** @type {(() => void) | null} */
+export let activeEffect = null;
+
+/**
+ * A reactive signal primitive.
+ * @template T
+ */
+export class Signal {
+  /**
+   * @param {T} initialValue 
+   */
+  constructor(initialValue) {
+    /** @type {T} */
+    this._value = initialValue;
+    /** @type {Set<() => void>} */
+    this.subscribers = new Set();
+  }
+
+  /**
+   * Gets the current value and registers the active effect as a subscriber.
+   * @returns {T}
+   */
+  get() {
+    if (activeEffect) {
+      this.subscribers.add(activeEffect);
+    }
+    return this._value;
+  }
+
+  /**
+   * Sets a new value and triggers all subscribed effects.
+   * @param {T} newValue 
+   */
+  set(newValue) {
+    if (this._value !== newValue) {
+      this._value = newValue;
+      this.notify();
+    }
+  }
+
+  /**
+   * Updates the value using a mutator function.
+   * @param {(prev: T) => T} updater 
+   */
+  update(updater) {
+    this.set(updater(this._value));
+  }
+
+  notify() {
+    for (const effect of this.subscribers) {
+      effect();
+    }
+  }
+}
+
+/**
+ * Creates a reactive signal.
+ * 
+ * @template T
+ * @param {T} initialValue - The starting value of the signal.
+ * @returns {[() => T, (val: T | ((prev: T) => T)) => void]} A tuple containing a getter function and a setter function.
+ */
+export function createSignal(initialValue) {
+  const signal = new Signal(initialValue);
+  
+  const getter = () => signal.get();
+  
+  /** @param {T | ((prev: T) => T)} val */
+  const setter = (val) => {
+    if (typeof val === 'function') {
+      signal.update(/** @type {(prev: T) => T} */ (val));
+    } else {
+      signal.set(val);
+    }
+  };
+
+  return [getter, setter];
+}
+
+/**
+ * Creates an effect that automatically re-runs when its dependencies change.
+ * 
+ * @param {() => void} fn - The function to execute. Any signals read inside this function will become dependencies.
+ */
+export function createEffect(fn) {
+  const effect = () => {
+    activeEffect = effect;
+    try {
+      fn();
+    } finally {
+      activeEffect = null;
+    }
+  };
+  
+  // Run immediately to establish initial dependencies
+  effect();
+}
+
+/**
+ * Creates an effect that wraps DOM mutations in the View Transitions API.
+ * Provides hardware-accelerated native morphing.
+ * 
+ * @param {() => void} fn
+ */
+export function createTransitionEffect(fn) {
+  let isFirstRun = true;
+
+  const effect = () => {
+    if (!isFirstRun && document.startViewTransition) {
+      // Hardware-accelerated morphing on state change
+      document.startViewTransition(() => {
+        activeEffect = effect;
+        try { fn(); } finally { activeEffect = null; }
+      });
+    } else {
+      // Synchronous run
+      activeEffect = effect;
+      try { fn(); } finally { activeEffect = null; }
+      isFirstRun = false;
+    }
+  };
+  
+  effect();
+}
