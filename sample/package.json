@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "node test-e2e-kanban.js && node test-e2e-grid.js",
+    "test:kanban": "node test-e2e-kanban.js",
+    "test:grid": "node test-e2e-grid.js"
   },
   "keywords": [],
   "author": "",
