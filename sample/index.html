@@ -12,6 +12,12 @@
   <!-- The Fe UI Router will mount the entire SPA here -->
   <fe-router></fe-router>
 
+  <!-- Workaround: Set isHydrating true before Router connects to prevent 404 race condition -->
+  <script type="module">
+    import { globalAuthManager } from '/src/auth.js';
+    globalAuthManager.isHydrating = true;
+  </script>
+
   <!-- Load the SPA application bundle -->
   <script type="module" src="/app.js"></script>
 </body>

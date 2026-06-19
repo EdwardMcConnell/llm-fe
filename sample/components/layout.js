@@ -7,22 +7,23 @@ class SampleLayout extends FeElement {
     return `
       <style>
         :host {
-          display: flex;
-          flex-direction: column;
+          display: grid;
+          grid-template-columns: 250px 1fr;
           min-height: 100vh;
         }
 
-        .navbar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 1rem 2rem;
-          background: rgba(10, 15, 30, 0.5);
+        /* Left Drawer */
+        .drawer {
+          background: rgba(10, 15, 30, 0.7);
           backdrop-filter: blur(10px);
-          border-bottom: 1px solid var(--glass-border);
+          border-right: 1px solid var(--glass-border);
+          display: flex;
+          flex-direction: column;
+          padding: 2rem 1.5rem;
+          gap: 2rem;
           position: sticky;
           top: 0;
-          z-index: 100;
+          height: 100vh;
         }
 
         .brand {
@@ -34,25 +35,47 @@ class SampleLayout extends FeElement {
 
         .nav-links {
           display: flex;
-          gap: 1.5rem;
-          align-items: center;
+          flex-direction: column;
+          gap: 1rem;
         }
 
         fe-link {
           color: var(--text-secondary);
           transition: color 0.2s ease;
+          font-size: 1.1rem;
+          font-weight: 500;
+          padding: 0.5rem 0;
         }
 
         fe-link:hover {
           color: var(--brand-primary);
         }
 
+        /* Main Content Area */
+        .main-pane {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+          overflow-x: hidden;
+        }
+
+        .topbar {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          padding: 1rem 2rem;
+          border-bottom: 1px solid var(--glass-border);
+          background: rgba(10, 15, 30, 0.3);
+          backdrop-filter: blur(5px);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+        }
+
         .content {
           flex: 1;
           display: flex;
           padding: 2rem;
-          max-width: 1400px;
-          margin: 0 auto;
           width: 100%;
         }
 
@@ -71,16 +94,23 @@ class SampleLayout extends FeElement {
         }
       </style>
 
-      <nav class="navbar">
-        <a href="/" class="brand">Fe Kanban</a>
-        <div class="nav-links">
-          <fe-button id="logout-btn" variant="outline" style="display: none;">Logout</fe-button>
-        </div>
-      </nav>
+      <aside class="drawer">
+        <a href="/" class="brand">Fe UI</a>
+        <nav class="nav-links">
+          <fe-link href="/">Kanban Board</fe-link>
+          <fe-link href="/grid">Data Grid</fe-link>
+        </nav>
+      </aside>
 
-      <main class="content">
-        <slot name="content"></slot>
-      </main>
+      <div class="main-pane">
+        <header class="topbar">
+          <fe-button id="logout-btn" variant="outline" style="display: none;">Logout</fe-button>
+        </header>
+
+        <main class="content">
+          <slot name="content"></slot>
+        </main>
+      </div>
     `;
   }
 

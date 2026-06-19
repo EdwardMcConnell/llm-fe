@@ -14,6 +14,7 @@ import '/src/router-component.js';
 import './components/layout.js';
 import './components/login.js';
 import './components/board.js';
+import './components/grid.js';
 
 // 1. Setup global CRDT Map and Network sync via the WebSocket Hub
 const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';

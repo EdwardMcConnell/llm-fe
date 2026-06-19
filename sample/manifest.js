@@ -15,5 +15,12 @@ globalRouter.manifest = {
       content: 'sample-login'
     },
     requiresAuth: false
+  },
+  '/grid': {
+    layout: 'sample-layout',
+    slots: {
+      content: 'sample-grid'
+    },
+    requiresAuth: true
   }
 };

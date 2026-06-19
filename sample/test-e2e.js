@@ -170,6 +170,49 @@ async function delay(ms) {
     console.log('\\n=========================================');
     console.log('SUCCESS: All E2E Kanban functionality validated!');
     console.log('=========================================');
+
+    // 11. Navigate to Grid View and Verify Render
+    console.log('Navigating to Massive Data Grid...');
+    await page1.evaluate(() => {
+      const layout = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').shadowRoot;
+      const link = layout.querySelector('fe-link[href="/grid"]');
+      link.click();
+    });
+    
+    await delay(1000); // Wait for transition and render
+
+    // 12. Verify Grid rendered 100k items properly using virtualizer
+    console.log('Verifying grid virtualization...');
+    const gridStats = await page1.evaluate(() => {
+      const gridNode = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-grid');
+      const innerGrid = gridNode.shadowRoot.querySelector('fe-grid');
+      
+      if (innerGrid._renderWindow) {
+        console.log('Forcing innerGrid._renderWindow()...');
+        innerGrid._renderWindow();
+      } else {
+        console.log('innerGrid._renderWindow is missing!');
+      }
+
+      const ghost = innerGrid.shadowRoot.querySelector('#ghost');
+      const viewport = innerGrid.shadowRoot.querySelector('#viewport');
+      return {
+        hostHeight: innerGrid.clientHeight,
+        parentHeight: gridNode.clientHeight,
+        ghostHeight: ghost.style.height,
+        renderedNodes: viewport.children.length
+      };
+    });
+    console.log('GRID STATS:', gridStats);
+    
+    const parsedHeight = parseFloat(gridStats.ghostHeight);
+    assert.ok(parsedHeight === 4800000 || gridStats.ghostHeight === '4.8e+06px', 'Ghost element should reflect 100,000 items * 48px height');
+    assert.ok(gridStats.renderedNodes > 0 && gridStats.renderedNodes < 100, 'Virtual DOM pool should only render a minimal number of nodes');
+    console.log('✓ Massive Data Grid virtualization verified successfully!');
+
+    console.log('\\n=========================================');
+    console.log('SUCCESS: All E2E Tests Passed!');
+    console.log('=========================================');
     
   } catch (err) {
     console.error('E2E Test Failed:', err);
