@@ -27,8 +27,6 @@ globalAuthManager.persist = {
   clear: () => localStorage.removeItem('fe_sample_token')
 };
 
-await globalAuthManager.hydrate();
-
-// 3. Mount Router and Trigger initial route render
-document.body.appendChild(document.createElement('fe-router'));
-globalRouter.navigate(window.location.pathname);
+// 3. Hydrate Session
+// RouterEngine will automatically wait for this to finish before evaluating routes
+globalAuthManager.hydrate();

@@ -87,15 +87,10 @@ class SampleLayout extends FeElement {
   bind() {
     const logoutBtn = this.root.querySelector('#logout-btn');
 
-    const updateVisibility = (isAuth) => {
-      logoutBtn.style.display = isAuth ? 'inline-flex' : 'none';
-    };
-
-    // Set initial state
-    updateVisibility(globalAuthManager.isAuthenticated());
-
     // Make logout button visible only when authenticated
-    const unsub = globalAuthManager.onAuthStateChanged(updateVisibility);
+    const unsub = globalAuthManager.onAuthStateChanged((isAuth) => {
+      logoutBtn.style.display = isAuth ? 'inline-flex' : 'none';
+    });
     this._cleanups.push(unsub);
 
     this.bindEvent('#logout-btn', 'click', async () => {
