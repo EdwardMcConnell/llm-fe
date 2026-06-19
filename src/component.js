@@ -331,6 +331,83 @@ export class FeElement extends HTMLElement {
       });
     });
   }
+
+  /**
+   * Binds Native HTML5 Drag and Drop events using Shadow DOM Event Delegation.
+   * Enforces Native-First Architecture by completely bypassing JS pointer-event polyfills.
+   * 
+   * @param {Object} options 
+   * @param {string} [options.dropSelector] - CSS selector for valid drop zones.
+   * @param {(dragEl: HTMLElement, e: DragEvent) => boolean|void} [options.onDragStart] - Return false to cancel.
+   * @param {(dragEl: HTMLElement, dropZoneEl: HTMLElement, e: DragEvent) => void} [options.onDrop] 
+   */
+  bindDragAndDrop(options) {
+    let currentDragEl = null;
+
+    const handleDragStart = (e) => {
+      const el = e.target.closest('[draggable="true"]');
+      if (!el) return;
+
+      if (options.onDragStart) {
+        if (options.onDragStart(el, e) === false) {
+          e.preventDefault();
+          return;
+        }
+      }
+      currentDragEl = el;
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    };
+
+    const handleDragEnd = () => {
+      currentDragEl = null;
+    };
+
+    const handleDragOver = (e) => {
+      const dropZone = options.dropSelector ? e.target.closest(options.dropSelector) : e.target;
+      if (!dropZone || !currentDragEl) return;
+      
+      // Essential for native DnD: prevent default to unlock the drop zone
+      e.preventDefault();
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'move';
+      }
+    };
+
+    const handleDragEnter = (e) => {
+      const dropZone = options.dropSelector ? e.target.closest(options.dropSelector) : e.target;
+      if (!dropZone || !currentDragEl) return;
+      e.preventDefault();
+    };
+
+    const handleDrop = (e) => {
+      const dropZone = options.dropSelector ? e.target.closest(options.dropSelector) : e.target;
+      if (!dropZone || !currentDragEl) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (options.onDrop) {
+        options.onDrop(currentDragEl, dropZone, e);
+      }
+      currentDragEl = null;
+    };
+
+    this.root.addEventListener('dragstart', handleDragStart);
+    this.root.addEventListener('dragend', handleDragEnd);
+    this.root.addEventListener('dragover', handleDragOver);
+    this.root.addEventListener('dragenter', handleDragEnter);
+    this.root.addEventListener('drop', handleDrop);
+
+    this._cleanups.push(() => {
+      this.root.removeEventListener('dragstart', handleDragStart);
+      this.root.removeEventListener('dragend', handleDragEnd);
+      this.root.removeEventListener('dragover', handleDragOver);
+      this.root.removeEventListener('dragenter', handleDragEnter);
+      this.root.removeEventListener('drop', handleDrop);
+    });
+  }
 }
 
 // Development Warning for Unregistered Custom Elements
