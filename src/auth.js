@@ -36,6 +36,7 @@ export class AuthManager {
     this.token = null;
     this.refreshTimeoutId = null;
     this.listeners = new Set();
+    this.isHydrating = false;
   }
 
   /**
@@ -45,15 +46,20 @@ export class AuthManager {
    */
   async hydrate() {
     if (!this.persist) return false;
+    
+    this.isHydrating = true;
     try {
       const savedToken = await this.persist.read();
       if (savedToken) {
-        return await this.login(savedToken);
+        await this.login(savedToken);
       }
     } catch (err) {
       console.warn('Fe AuthManager: Hydration failed.', err);
     }
-    return false;
+    this.isHydrating = false;
+    this._notify();
+    
+    return this.isAuthenticated();
   }
 
   /**
@@ -147,6 +153,7 @@ export class AuthManager {
 
   onAuthStateChanged(callback) {
     this.listeners.add(callback);
+    callback(this.isAuthenticated());
     return () => this.listeners.delete(callback);
   }
 

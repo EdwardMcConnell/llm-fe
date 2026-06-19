@@ -23,8 +23,18 @@ export class RouterEngine {
     const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
     const [getPath, setPath] = createSignal(initialPath);
     
+    // Internal reactive trigger to force route re-evaluations (e.g. after auth hydration)
+    const [getRefreshTrigger, setRefreshTrigger] = createSignal(0);
+    this._getRefreshTrigger = getRefreshTrigger;
+    
     this.getPath = getPath;
     this._setPath = setPath;
+
+    // Phase 18: Hydration-Aware Routing Link
+    // When AuthManager finishes hydration (or state changes), force the router to re-evaluate
+    globalAuthManager.onAuthStateChanged(() => {
+      setRefreshTrigger(Math.random());
+    });
 
     if (typeof window !== 'undefined') {
       window.addEventListener('popstate', () => {
@@ -60,8 +70,17 @@ export class RouterEngine {
    * @returns {RouteEntry | null}
    */
   matchRoute(path) {
+    // Register the refresh trigger as a dependency for the route guard
+    this._getRefreshTrigger();
+    
     const route = this.manifest[path] || null;
     
+    // Phase 18: Hydration-Aware Routing Guard
+    if (globalAuthManager.isHydrating) {
+      // Suppress navigation and return null. <fe-router> will safely idle.
+      return null;
+    }
+
     // Phase 8: Enterprise Route Guard
     if (route && route.requiresAuth && !globalAuthManager.isAuthenticated()) {
       // Force redirect to login
