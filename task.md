@@ -1,6 +1,5 @@
-- [x] 1. Define `contracts/data-grid.contract.json` (State Schema & Trust Boundaries)
-- [x] 2. Create `ir/data-grid.ir.json` (Explicit UI Patch Operations)
-- [x] 3. Generate the component using `node generator/app-generator.js contracts/data-grid.contract.json`
-- [x] 4. Implement virtualization in the IR (Row recycling based on scroll)
-- [x] 5. Write E2E Tests for the Data Grid in `test/data-grid-e2e.test.js`
-- [x] 6. Integrate with Network Sync Layer (SSE)
+- [x] 1. Update `server/hot-path.js` to catch `app-generator.js` compilation errors.
+- [x] 2. Implement auto-healing logic in `server/hot-path.js`: Extract stderr, prompt LLM again with the context to fix the IR.
+- [x] 3. Allow up to 3 retry attempts before returning the final error to the client.
+- [x] 4. Send SSE status messages to the client during healing ("Compilation failed. Auto-healing attempt 1/3...").
+- [x] 5. Write a test case (or manual test) by injecting a bad prompt.

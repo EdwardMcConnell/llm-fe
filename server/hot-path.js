@@ -50,22 +50,31 @@ async function handlePrompt(req, res) {
   req.on('end', async () => {
     try {
       const { prompt } = JSON.parse(body);
-      broadcastMessage('Compiling intent...');
-
       const apiKey = process.env.OPENAI_API_KEY;
       if (!apiKey) throw new Error("OPENAI_API_KEY is not set.");
 
-      // Read current IR and Contract
-      const cardIrPath = path.join(rootDir, 'ir', 'kanban-card.ir.json');
-      const cardIr = fs.readFileSync(cardIrPath, 'utf8');
-      
-      const appIrPath = path.join(rootDir, 'ir', 'normalized-kanban.ir.json');
-      const appIr = fs.readFileSync(appIrPath, 'utf8');
-      
-      const contractPath = path.join(rootDir, 'contracts', 'kanban-card.contract.json');
-      const contractStr = fs.readFileSync(contractPath, 'utf8');
+      async function attemptCompile(userPrompt, isHealing = false, previousError = null, attemptsLeft = 3) {
+        if (attemptsLeft === 0) {
+          throw new Error(`Auto-healing failed after 3 attempts. Final error:\n${previousError}`);
+        }
 
-      const systemPrompt = `You are the Fe UI Application Compiler Hot-Path.
+        if (isHealing) {
+          broadcastMessage(`Compilation failed. Auto-healing attempt ${4 - attemptsLeft}/3...`);
+        } else {
+          broadcastMessage('Compiling intent...');
+        }
+
+        // Read current IR and Contract
+        const cardIrPath = path.join(rootDir, 'ir', 'kanban-card.ir.json');
+        const cardIr = fs.readFileSync(cardIrPath, 'utf8');
+        
+        const appIrPath = path.join(rootDir, 'ir', 'normalized-kanban.ir.json');
+        const appIr = fs.readFileSync(appIrPath, 'utf8');
+        
+        const contractPath = path.join(rootDir, 'contracts', 'kanban-card.contract.json');
+        const contractStr = fs.readFileSync(contractPath, 'utf8');
+
+        let systemPrompt = `You are the Fe UI Application Compiler Hot-Path.
 Your job is to read the user's intent and modify the Explicit JSON IR representing the application, as well as the JSON Contract if state fields are added.
 You must return valid JSON matching the exact schema. 
 Return a JSON object with up to three keys:
@@ -86,52 +95,68 @@ CURRENT normalized-kanban.ir.json:
 ${appIr}
 `;
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.2
-        })
-      });
+        if (isHealing) {
+          systemPrompt += `\n\nCRITICAL ERROR: Your previous IR modification caused a compiler crash. Please analyze the node.js stack trace below and fix your JSON IR output.\n\nSTACK TRACE:\n${previousError}\n\nORIGINAL USER INTENT: ${userPrompt}\n`;
+        }
 
-      if (!response.ok) {
-        throw new Error(`OpenAI API Error: ${await response.text()}`);
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: isHealing ? "Fix the compiler error." : userPrompt }
+            ],
+            temperature: 0.2
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`OpenAI API Error: ${await response.text()}`);
+        }
+
+        const data = await response.json();
+        let content = data.choices[0].message.content.trim();
+        
+        if (content.startsWith('\`\`\`json')) content = content.slice(7, -3);
+        if (content.startsWith('\`\`\`')) content = content.slice(3, -3);
+        
+        const mutations = JSON.parse(content);
+        
+        if (mutations['kanban-card.contract.json']) {
+          fs.writeFileSync(contractPath, JSON.stringify(mutations['kanban-card.contract.json'], null, 2));
+        }
+        if (mutations['kanban-card.ir.json']) {
+          fs.writeFileSync(cardIrPath, JSON.stringify(mutations['kanban-card.ir.json'], null, 2));
+        }
+        if (mutations['normalized-kanban.ir.json']) {
+          fs.writeFileSync(appIrPath, JSON.stringify(mutations['normalized-kanban.ir.json'], null, 2));
+        }
+
+        broadcastMessage('Generating optimal DOM patches...');
+        try {
+          // Use execSync to run the compiler and catch its output
+          execSync('node generator/app-generator.js contracts/kanban-app.contract.json', { stdio: 'pipe', cwd: rootDir });
+        } catch (execError) {
+          // Compilation failed! Trigger Auto-Healing
+          const errorOutput = execError.stderr ? execError.stderr.toString() : execError.message;
+          console.error("Compilation failed, triggering auto-healing:\n" + errorOutput);
+          await attemptCompile(userPrompt, true, errorOutput, attemptsLeft - 1);
+          return;
+        }
+
+        broadcastMessage('Done! Reloading browser...');
+        setTimeout(broadcastReload, 500); // Give JS time to write to disk
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
       }
 
-      const data = await response.json();
-      let content = data.choices[0].message.content.trim();
-      
-      if (content.startsWith('\`\`\`json')) content = content.slice(7, -3);
-      if (content.startsWith('\`\`\`')) content = content.slice(3, -3);
-      
-      const mutations = JSON.parse(content);
-      
-      if (mutations['kanban-card.contract.json']) {
-        fs.writeFileSync(contractPath, JSON.stringify(mutations['kanban-card.contract.json'], null, 2));
-      }
-      if (mutations['kanban-card.ir.json']) {
-        fs.writeFileSync(cardIrPath, JSON.stringify(mutations['kanban-card.ir.json'], null, 2));
-      }
-      if (mutations['normalized-kanban.ir.json']) {
-        fs.writeFileSync(appIrPath, JSON.stringify(mutations['normalized-kanban.ir.json'], null, 2));
-      }
-
-      broadcastMessage('Generating optimal DOM patches...');
-      execSync('node generator/app-generator.js contracts/kanban-app.contract.json', { stdio: 'inherit', cwd: rootDir });
-
-      broadcastMessage('Done! Reloading browser...');
-      setTimeout(broadcastReload, 500); // Give JS time to write to disk
-      
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ success: true }));
+      await attemptCompile(prompt, false, null, 3);
 
     } catch (e) {
       console.error(e);
