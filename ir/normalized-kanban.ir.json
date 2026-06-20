@@ -17,8 +17,15 @@
           "name": "patchStatus",
           "input": "status",
           "ops": [
-            { "op": "setTextContent", "ref": "titleNode" },
-            { "op": "setClassToken", "ref": "root", "prefix": "column-root column-" }
+            {
+              "op": "setTextContent",
+              "ref": "titleNode"
+            },
+            {
+              "op": "setClassToken",
+              "ref": "root",
+              "prefix": "column-root column-"
+            }
           ]
         }
       ],
@@ -41,9 +48,30 @@
         }
       },
       "children": [
-        { "name": "todoCol", "component": "kanban-column", "container": "columnsContainer", "staticProps": { "status": "todo" } },
-        { "name": "inProgressCol", "component": "kanban-column", "container": "columnsContainer", "staticProps": { "status": "in-progress" } },
-        { "name": "doneCol", "component": "kanban-column", "container": "columnsContainer", "staticProps": { "status": "done" } }
+        {
+          "name": "todoCol",
+          "component": "kanban-column",
+          "container": "columnsContainer",
+          "staticProps": {
+            "status": "todo"
+          }
+        },
+        {
+          "name": "inProgressCol",
+          "component": "kanban-column",
+          "container": "columnsContainer",
+          "staticProps": {
+            "status": "in-progress"
+          }
+        },
+        {
+          "name": "doneCol",
+          "component": "kanban-column",
+          "container": "columnsContainer",
+          "staticProps": {
+            "status": "done"
+          }
+        }
       ]
     }
   ],
@@ -64,6 +92,20 @@
           "targetComponent": "columnByStatus"
         }
       ]
-    }
+    },
+    "customWireups": [
+      {
+        "source": "generator/wireups/kanban-wireup.js",
+        "target": "kanban-app.generated.js"
+      },
+      {
+        "source": "generator/wireups/kanban-state.js",
+        "target": "kanban-state.generated.js"
+      },
+      {
+        "source": "generator/wireups/kanban-validators.js",
+        "target": "kanban-validators.generated.js"
+      }
+    ]
   }
 }

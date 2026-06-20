@@ -22,28 +22,68 @@
     {
       "input": "cartCount",
       "name": "patchCartCount",
-      "ops": [{ "op": "setTextContent", "ref": "cartCount" }]
+      "ops": [
+        {
+          "op": "setTextContent",
+          "ref": "cartCount"
+        }
+      ]
     },
     {
       "input": "showLoading",
       "name": "patchShowLoading",
-      "ops": [{ "op": "setStyleDisplay", "ref": "loadingState", "trueDisplay": "block", "falseDisplay": "none" }]
+      "ops": [
+        {
+          "op": "setStyleDisplay",
+          "ref": "loadingState",
+          "trueDisplay": "block",
+          "falseDisplay": "none"
+        }
+      ]
     },
     {
       "input": "showError",
       "name": "patchShowError",
-      "ops": [{ "op": "setStyleDisplay", "ref": "errorState", "trueDisplay": "block", "falseDisplay": "none" }]
+      "ops": [
+        {
+          "op": "setStyleDisplay",
+          "ref": "errorState",
+          "trueDisplay": "block",
+          "falseDisplay": "none"
+        }
+      ]
     },
     {
       "input": "showGrid",
       "name": "patchShowGrid",
-      "ops": [{ "op": "setStyleDisplay", "ref": "productGrid", "trueDisplay": "grid", "falseDisplay": "none" }]
+      "ops": [
+        {
+          "op": "setStyleDisplay",
+          "ref": "productGrid",
+          "trueDisplay": "grid",
+          "falseDisplay": "none"
+        }
+      ]
     },
     {
       "input": "productsIndex",
       "name": "patchProductsIndex",
-      "ops": [{ "op": "reconcileList", "listName": "products" }]
+      "ops": [
+        {
+          "op": "reconcileList",
+          "listName": "products"
+        }
+      ]
     }
   ],
-  "events": []
+  "events": [],
+  "customWireups": [
+    {
+      "source": "generator/wireups/product-catalog-wireup.js",
+      "target": "product-catalog-app-wireup.generated.js"
+    }
+  ],
+  "dependencies": [
+    "product-card.ir.json"
+  ]
 }

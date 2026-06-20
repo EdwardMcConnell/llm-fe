@@ -19,49 +19,102 @@
     {
       "input": "username",
       "name": "patchUsername",
-      "ops": [{ "op": "setInputProperty", "ref": "usernameInput" }]
+      "ops": [
+        {
+          "op": "setInputProperty",
+          "ref": "usernameInput"
+        }
+      ]
     },
     {
       "input": "email",
       "name": "patchEmail",
-      "ops": [{ "op": "setInputProperty", "ref": "emailInput" }]
+      "ops": [
+        {
+          "op": "setInputProperty",
+          "ref": "emailInput"
+        }
+      ]
     },
     {
       "input": "notificationsEnabled",
       "name": "patchNotifications",
-      "ops": [{ "op": "setCheckboxProperty", "ref": "notificationsInput" }]
+      "ops": [
+        {
+          "op": "setCheckboxProperty",
+          "ref": "notificationsInput"
+        }
+      ]
     },
     {
       "input": "theme",
       "name": "patchTheme",
-      "ops": [{ "op": "setInputProperty", "ref": "themeInput" }]
+      "ops": [
+        {
+          "op": "setInputProperty",
+          "ref": "themeInput"
+        }
+      ]
     },
     {
       "input": "usernameError",
       "name": "patchUsernameError",
-      "ops": [{ "op": "setTextContent", "ref": "usernameError" }]
+      "ops": [
+        {
+          "op": "setTextContent",
+          "ref": "usernameError"
+        }
+      ]
     },
     {
       "input": "usernameErrorVisible",
       "name": "patchUsernameErrorVisible",
-      "ops": [{ "op": "setClassName", "ref": "usernameError", "trueClass": "error-message visible", "falseClass": "error-message" }]
+      "ops": [
+        {
+          "op": "setClassName",
+          "ref": "usernameError",
+          "trueClass": "error-message visible",
+          "falseClass": "error-message"
+        }
+      ]
     },
     {
       "input": "emailError",
       "name": "patchEmailError",
-      "ops": [{ "op": "setTextContent", "ref": "emailError" }]
+      "ops": [
+        {
+          "op": "setTextContent",
+          "ref": "emailError"
+        }
+      ]
     },
     {
       "input": "emailErrorVisible",
       "name": "patchEmailErrorVisible",
-      "ops": [{ "op": "setClassName", "ref": "emailError", "trueClass": "error-message visible", "falseClass": "error-message" }]
+      "ops": [
+        {
+          "op": "setClassName",
+          "ref": "emailError",
+          "trueClass": "error-message visible",
+          "falseClass": "error-message"
+        }
+      ]
     },
     {
       "input": "isSubmitting",
       "name": "patchIsSubmitting",
       "ops": [
-        { "op": "setAttribute", "ref": "saveBtn", "attr": "disabled" },
-        { "op": "setClassName", "ref": "saveSpinner", "trueClass": "submit-spinner visible", "falseClass": "submit-spinner" }
+        {
+          "op": "setAttribute",
+          "ref": "saveBtn",
+          "attr": "disabled"
+        },
+        {
+          "op": "setClassName",
+          "ref": "saveSpinner",
+          "trueClass": "submit-spinner visible",
+          "falseClass": "submit-spinner"
+        }
       ]
     }
   ],
@@ -79,6 +132,12 @@
       "type": "input",
       "emits": "settings:input",
       "cleanup": true
+    }
+  ],
+  "customWireups": [
+    {
+      "source": "generator/wireups/settings-form-wireup.js",
+      "target": "settings-form-app-wireup.generated.js"
     }
   ]
 }

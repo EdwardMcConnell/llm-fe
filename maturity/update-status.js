@@ -74,9 +74,15 @@ function checkLevel3(reqs) {
 
 // Check Level 4
 function checkLevel4(reqs) {
+  const rootDir = process.cwd();
+  const hasAccessibilitySmokeTests = fs.existsSync(path.join(rootDir, 'test', 'accessibility.test.js'));
+  const hasSecurityTrustBoundaryTests = fs.existsSync(path.join(rootDir, 'test', 'security.test.js'));
+  const hasBrowserCompatibilityPolicy = fs.existsSync(path.join(rootDir, 'browser-compatibility.md'));
+
   const missing = [];
-  // For now, these files don't exist
-  missing.push('accessibilitySmokeTests', 'securityTrustBoundaryTests', 'browserCompatibilityPolicy');
+  if (!hasAccessibilitySmokeTests) missing.push('accessibilitySmokeTests');
+  if (!hasSecurityTrustBoundaryTests) missing.push('securityTrustBoundaryTests');
+  if (!hasBrowserCompatibilityPolicy) missing.push('browserCompatibilityPolicy');
   return missing;
 }
 

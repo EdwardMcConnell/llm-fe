@@ -1,4 +1,4 @@
-// Compiled deterministically from Live Dashboard App IR
+// Compiled deterministically from live-dashboard-app App IR
 import { createLiveDashboardApp } from './live-dashboard-app.generated.js';
 import { createLiveDashboardWidget } from './live-dashboard-widget.generated.js';
 
@@ -8,13 +8,13 @@ export function createDashboard(sharedMap) {
 
   function patchWidget(statePatch) {
     const id = statePatch.id;
-    let widget = widgets.get(id);
-    if (!widget) {
-      widget = createLiveDashboardWidget(statePatch);
-      widgets.set(id, widget);
-      app.insertWidgets(id, widget);
+    let instance = widgets.get(id);
+    if (!instance) {
+      instance = createLiveDashboardWidget(statePatch);
+      widgets.set(id, instance);
+      app.insertWidgets(id, instance);
     } else {
-      widget.patch(statePatch);
+      instance.patch(statePatch);
     }
   }
 
@@ -24,7 +24,7 @@ export function createDashboard(sharedMap) {
     for (const [key, val] of sharedMap.entries()) {
       if (key.startsWith('dashboard:widget:')) {
         patchWidget(val);
-      } else if (key === 'dashboard:index') {
+      } else       if (key === 'dashboard:index') {
         app.patch({ widgetsIndex: val.itemIds });
       }
     }
@@ -33,7 +33,7 @@ export function createDashboard(sharedMap) {
   const disposeSub = sharedMap.subscribe((key, val) => {
     if (key.startsWith('dashboard:widget:')) {
       if (val) patchWidget(val);
-    } else if (key === 'dashboard:index') {
+    } else     if (key === 'dashboard:index') {
       if (val) app.patch({ widgetsIndex: val.itemIds });
     }
   });
@@ -44,7 +44,7 @@ export function createDashboard(sharedMap) {
   return {
     root: app.root,
     dispose: () => {
-      for (const widget of widgets.values()) widget.dispose();
+      for (const instance of widgets.values()) instance.dispose();
       widgets.clear();
       app.dispose();
       cleanups.forEach(c => c());
