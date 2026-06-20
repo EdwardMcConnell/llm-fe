@@ -4,16 +4,18 @@ import { createKanbanApp } from '../generated-examples/normalized-kanban/kanban-
 class MockSharedMap {
   constructor() {
     this.store = new Map();
-    this.listeners = [];
+    this.listeners = new Set();
   }
   get(k) { return this.store.get(k); }
-  set(k, v) { this.store.set(k, v); this.notify([k]); }
-  delete(k) { this.store.delete(k); this.notify([k]); }
+  set(k, v) { this.store.set(k, v); this.notify(k, v); }
+  delete(k) { this.store.delete(k); this.notify(k, undefined); }
   entries() { return this.store.entries(); }
-  observe(cb) { this.listeners.push(cb); }
-  notify(keys) {
-    const s = new Set(keys);
-    this.listeners.forEach(cb => cb(s));
+  subscribe(cb) {
+    this.listeners.add(cb);
+    return () => this.listeners.delete(cb);
+  }
+  notify(key, value) {
+    this.listeners.forEach(cb => cb(key, value));
   }
 }
 
