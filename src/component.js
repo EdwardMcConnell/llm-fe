@@ -153,9 +153,10 @@ export class FeElement extends HTMLElement {
       return;
     }
     
-    createEffect(() => {
+    const dispose = createEffect(() => {
       el.textContent = getter();
     });
+    this._cleanups.push(dispose);
   }
 
   /**
@@ -172,7 +173,7 @@ export class FeElement extends HTMLElement {
       return;
     }
 
-    createEffect(() => {
+    const dispose = createEffect(() => {
       const val = getter();
       if (val === null) {
         el.removeAttribute(attribute);
@@ -180,6 +181,7 @@ export class FeElement extends HTMLElement {
         el.setAttribute(attribute, val);
       }
     });
+    this._cleanups.push(dispose);
   }
 
   /**
@@ -197,6 +199,7 @@ export class FeElement extends HTMLElement {
     }
     
     el.addEventListener(eventName, handler);
+    this._cleanups.push(() => el.removeEventListener(eventName, handler));
   }
 
   /**
@@ -213,7 +216,7 @@ export class FeElement extends HTMLElement {
       return;
     }
 
-    createEffect(() => {
+    const dispose = createEffect(() => {
       const newHtml = htmlGetter();
       const template = document.createElement('template');
       template.innerHTML = newHtml;
@@ -233,6 +236,7 @@ export class FeElement extends HTMLElement {
         }
       }
     });
+    this._cleanups.push(dispose);
   }
 
   /**
@@ -261,7 +265,7 @@ export class FeElement extends HTMLElement {
       if (!name) return;
 
       // Handle Input
-      input.addEventListener('input', (e) => {
+      const inputHandler = (e) => {
         let value = e.target.value;
         
         // Phase 11: Autonomous UTC Serialization
@@ -272,25 +276,29 @@ export class FeElement extends HTMLElement {
         }
 
         formActions.setFieldValue(name, value);
-      });
-
-
+      };
+      
+      input.addEventListener('input', inputHandler);
+      this._cleanups.push(() => input.removeEventListener('input', inputHandler));
     });
 
     // 2. Submit Interception
-    agForm.addEventListener('submit', (e) => {
+    const submitHandler = (e) => {
       e.preventDefault();
       formActions.submit(onSubmit);
-    });
+    };
+    agForm.addEventListener('submit', submitHandler);
+    this._cleanups.push(() => agForm.removeEventListener('submit', submitHandler));
 
     // Support catching submit bubbles from the native form inside ag-form
-    agForm.root.querySelector('form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      formActions.submit(onSubmit);
-    });
+    const innerForm = agForm.root.querySelector('form');
+    if (innerForm) {
+      innerForm.addEventListener('submit', submitHandler);
+      this._cleanups.push(() => innerForm.removeEventListener('submit', submitHandler));
+    }
 
     // 3. Reactive UI Updates (Accessibility & Values)
-    createEffect(() => {
+    const dispose = createEffect(() => {
       const state = getFormState();
 
       // Update submit buttons
@@ -330,6 +338,7 @@ export class FeElement extends HTMLElement {
         }
       });
     });
+    this._cleanups.push(dispose);
   }
 
   /**

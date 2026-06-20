@@ -87,6 +87,25 @@ export class SharedMap {
    * @param {LCPPatch} patch 
    */
   merge(patch) {
+    // Phase 20: Boundary Validation (LLM Contract Enforcement)
+    // External data cannot be trusted. We explicitly validate the shape.
+    if (!patch || typeof patch !== 'object') {
+      console.error('CRDT: Rejected malformed patch (not an object)', patch);
+      return;
+    }
+    if (typeof patch.key !== 'string' || !patch.key) {
+      console.error('CRDT: Rejected malformed patch (invalid key)', patch);
+      return;
+    }
+    if (typeof patch.clock !== 'number') {
+      console.error('CRDT: Rejected malformed patch (invalid clock)', patch);
+      return;
+    }
+    if (typeof patch.client !== 'string' || !patch.client) {
+      console.error('CRDT: Rejected malformed patch (invalid client)', patch);
+      return;
+    }
+
     if (patch.type === 'set') {
       this._applySet(patch.key, patch.value, patch.clock, patch.client);
     }

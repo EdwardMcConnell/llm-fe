@@ -63,7 +63,7 @@ const form = createFormSignal({
 Bind it using `<fe-form>` and `<input name="email">`. The framework autonomously locks buttons and injects `aria-invalid`.
 
 ### 5. Data Validation & The LLM Contract
-**Do not build runtime JavaScript Schema Validators (like Zod or Joi).** Runtime validators exist to catch human typos. As an LLM, you do not make typos when provided with explicit context. Instead, define explicit contracts using JSDoc `@typedef` comments or a `SCHEMA.md` file. The frontend LLM guarantees the payload structure is mathematically correct, and the backend LLM gatekeeps malicious payloads.
+**Do not build heavy runtime JavaScript Schema Validation engines (like Zod or Joi).** However, **internal generated code may trust framework primitives, but external input MUST be checked**. You must add tiny, purpose-built validators at trust boundaries (e.g., validating CRDT patches before merge, parsing WebSockets, and sanitizing forms). LLMs perform best when APIs are explicit, narrow, example-backed, mechanically verified, and runtime-observable.
 
 ### 6. The Backend Protocol (Agnostic Hub)
 Fe UI is strictly a frontend architecture. It does not dictate backend languages or frameworks. However, the backend **must** implement a WebSocket Hub that adheres to the mathematical CRDT protocol.

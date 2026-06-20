@@ -7,6 +7,11 @@
 /** @type {(() => void) | null} */
 export let activeEffect = null;
 
+// Phase 20: Memory Leak Annihilation
+// To properly dispose of an effect, we must track which signals the active effect is subscribed to.
+/** @type {Set<Signal<any>> | null} */
+export let activeEffectSignals = null;
+
 /**
  * A reactive signal primitive.
  * @template T
@@ -29,6 +34,9 @@ export class Signal {
   get() {
     if (activeEffect) {
       this.subscribers.add(activeEffect);
+      if (activeEffectSignals) {
+        activeEffectSignals.add(this);
+      }
     }
     return this._value;
   }
@@ -53,7 +61,9 @@ export class Signal {
   }
 
   notify() {
-    for (const effect of this.subscribers) {
+    // Clone the set to avoid infinite loops if effects re-subscribe during iteration
+    const subs = Array.from(this.subscribers);
+    for (const effect of subs) {
       effect();
     }
   }
@@ -87,19 +97,41 @@ export function createSignal(initialValue) {
  * Creates an effect that automatically re-runs when its dependencies change.
  * 
  * @param {() => void} fn - The function to execute. Any signals read inside this function will become dependencies.
+ * @returns {() => void} A disposer function that removes the effect from all signal subscriptions.
  */
 export function createEffect(fn) {
+  /** @type {Set<Signal<any>>} */
+  const signals = new Set();
+
   const effect = () => {
     activeEffect = effect;
+    activeEffectSignals = signals;
+    
+    // Clear previous dependencies before re-running
+    for (const signal of signals) {
+      signal.subscribers.delete(effect);
+    }
+    signals.clear();
+
     try {
       fn();
     } finally {
       activeEffect = null;
+      activeEffectSignals = null;
     }
   };
   
   // Run immediately to establish initial dependencies
   effect();
+  
+  // Phase 20: Memory Leak Annihilation
+  // Return a deterministic disposer
+  return () => {
+    for (const signal of signals) {
+      signal.subscribers.delete(effect);
+    }
+    signals.clear();
+  };
 }
 
 /**

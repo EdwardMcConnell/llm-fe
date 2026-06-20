@@ -74,4 +74,35 @@ describe('FeElement Component Base', () => {
     
     document.body.removeChild(el);
   });
+
+  it('should completely annihilate memory leaks on unmount (Priority 5)', () => {
+    const el = document.createElement('test-counter');
+    document.body.appendChild(el);
+
+    // Grab the signal and the element
+    const [getCount, setCount] = el.count;
+    const root = el.shadowRoot;
+    const valueSpan = root.querySelector('#counter-value');
+    const btn = root.querySelector('#increment-btn');
+
+    // Mutate and verify
+    setCount(5);
+    expect(valueSpan.textContent).toBe('5');
+
+    // UNMOUNT THE COMPONENT (Disconnects from DOM, triggering disconnectedCallback)
+    document.body.removeChild(el);
+
+    // Mutate the signal again globally
+    setCount(10);
+
+    // The effect should NOT have run, because `this._cleanups` removed the active effect from the signal's subscribers.
+    expect(valueSpan.textContent).toBe('5');
+
+    // The event listener should NOT fire
+    let listenerFired = false;
+    btn.addEventListener('click', () => listenerFired = true); // This is just to test if we can still click it, wait
+    // Actually, to test if `bindEvent` cleaned up, we simulate a click and see if the signal changes
+    btn.click();
+    expect(getCount()).toBe(10); // Still 10, not 11, because the framework `removeEventListener` detached the `setCount` binding.
+  });
 });
