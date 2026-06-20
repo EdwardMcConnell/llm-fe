@@ -1,0 +1,39 @@
+{
+  "app": "live-dashboard",
+  "component": "live-dashboard-app",
+  "kind": "application",
+  "state": {
+    "widgetsIndex": {
+      "type": "array",
+      "trust": "external-value"
+    }
+  },
+  "ownedNodes": {
+    "root": {
+      "tag": "div",
+      "class": "dashboard-app-root"
+    },
+    "header": {
+      "tag": "header",
+      "class": "dashboard-header"
+    },
+    "title": {
+      "tag": "h1",
+      "class": "dashboard-title"
+    },
+    "grid": {
+      "tag": "div",
+      "class": "dashboard-grid"
+    }
+  },
+  "events": {},
+  "externalInputs": [
+    "widgetsIndex"
+  ],
+  "cleanup": [],
+  "browserFeatures": [],
+  "performanceBudget": {
+    "patchOps": 2,
+    "skipSameValue": true
+  }
+}

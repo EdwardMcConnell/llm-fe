@@ -1,0 +1,32 @@
+{
+  "module": "generated-examples/live-dashboard/live-dashboard-app.generated.js",
+  "create": {
+    "template": "<div class=\"dashboard-app-root\" data-node=\"root\"><header class=\"dashboard-header\" data-node=\"header\"><h1 class=\"dashboard-title\" data-node=\"title\">Live Telemetry</h1></header><div class=\"dashboard-grid\" data-node=\"grid\"></div></div>",
+    "refs": {
+      "root": "[data-node=\"root\"]",
+      "header": "[data-node=\"header\"]",
+      "title": "[data-node=\"title\"]",
+      "grid": "[data-node=\"grid\"]"
+    }
+  },
+  "lists": [
+    {
+      "name": "widgets",
+      "itemKey": "id",
+      "ref": "grid"
+    }
+  ],
+  "patches": [
+    {
+      "name": "patchWidgetsIndex",
+      "input": "widgetsIndex",
+      "ops": [
+        {
+          "op": "reconcileList",
+          "listName": "widgets"
+        }
+      ]
+    }
+  ],
+  "events": []
+}

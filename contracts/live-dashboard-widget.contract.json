@@ -1,0 +1,64 @@
+{
+  "component": "dashboard-widget",
+  "kind": "component",
+  "state": {
+    "id": {
+      "type": "string",
+      "trust": "external-value"
+    },
+    "title": {
+      "type": "string",
+      "trust": "external-text"
+    },
+    "currentValue": {
+      "type": "number",
+      "trust": "external-value"
+    },
+    "history": {
+      "type": "array",
+      "trust": "external-value"
+    },
+    "status": {
+      "type": "enum",
+      "values": ["normal", "warning", "critical"],
+      "trust": "external-enum"
+    }
+  },
+  "ownedNodes": {
+    "root": {
+      "tag": "div",
+      "class": "widget-root"
+    },
+    "titleNode": {
+      "tag": "h3",
+      "class": "widget-title"
+    },
+    "valueNode": {
+      "tag": "div",
+      "class": "widget-value"
+    },
+    "svgRoot": {
+      "tag": "svg",
+      "class": "widget-sparkline"
+    },
+    "svgPath": {
+      "tag": "path",
+      "class": "sparkline-path"
+    }
+  },
+  "events": {},
+  "externalInputs": [
+    "title",
+    "currentValue",
+    "history",
+    "status"
+  ],
+  "cleanup": [],
+  "browserFeatures": [
+    "SVG"
+  ],
+  "performanceBudget": {
+    "patchOps": 5,
+    "skipSameValue": true
+  }
+}

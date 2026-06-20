@@ -1,0 +1,68 @@
+{
+  "module": "generated-examples/live-dashboard/live-dashboard-widget.generated.js",
+  "create": {
+    "template": "<div class=\"widget-root\" data-node=\"root\"><h3 class=\"widget-title\" data-node=\"titleNode\"></h3><div class=\"widget-value\" data-node=\"valueNode\"></div><svg class=\"widget-sparkline\" data-node=\"svgRoot\" viewBox=\"0 0 100 30\" preserveAspectRatio=\"none\"><path class=\"sparkline-path\" data-node=\"svgPath\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"></path></svg></div>",
+    "refs": {
+      "root": "[data-node=\"root\"]",
+      "titleNode": "[data-node=\"titleNode\"]",
+      "valueNode": "[data-node=\"valueNode\"]",
+      "svgRoot": "[data-node=\"svgRoot\"]",
+      "svgPath": "[data-node=\"svgPath\"]"
+    }
+  },
+  "patches": [
+    {
+      "name": "patchId",
+      "input": "id",
+      "ops": [
+        {
+          "op": "setAttribute",
+          "ref": "root",
+          "attr": "data-widget-id"
+        }
+      ]
+    },
+    {
+      "name": "patchTitle",
+      "input": "title",
+      "ops": [
+        {
+          "op": "setTextContent",
+          "ref": "titleNode"
+        }
+      ]
+    },
+    {
+      "name": "patchCurrentValue",
+      "input": "currentValue",
+      "ops": [
+        {
+          "op": "setTextNodeValue",
+          "ref": "valueNode"
+        }
+      ]
+    },
+    {
+      "name": "patchHistory",
+      "input": "history",
+      "ops": [
+        {
+          "op": "setSparklinePath",
+          "ref": "svgPath"
+        }
+      ]
+    },
+    {
+      "name": "patchStatus",
+      "input": "status",
+      "ops": [
+        {
+          "op": "setClassToken",
+          "ref": "root",
+          "prefix": "widget-root status-"
+        }
+      ]
+    }
+  ],
+  "events": []
+}

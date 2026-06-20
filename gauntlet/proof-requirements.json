@@ -64,16 +64,31 @@
   },
   "live-dashboard": {
     "tests": [
-      "renders initial dashboard metrics at 0",
-      "updates DOM reactively when shared map changes",
-      "applies danger class when CPU exceeds 85%",
-      "cleans up reactive effects when disconnected"
+      "app wireup renders dashboard and observes state",
+      "initial render null/missing values gracefully",
+      "HTML-looking title renders as safe text, not markup",
+      "patch id precisely updates DOM",
+      "patch title precisely updates DOM",
+      "patch currentValue precisely updates DOM",
+      "patch history precisely updates DOM",
+      "patch status precisely updates DOM",
+      "events are emitted and cleaned up on dispose"
     ],
     "benchmarks": [
-      "Patch Dashboard High Frequency"
+      "create dashboard with 10 widgets",
+      "patch one widget 10,000 times (high-frequency stream)"
     ],
-    "contracts": [],
-    "generatedArtifacts": []
+    "contracts": [
+      "live-dashboard-app.contract.json",
+      "live-dashboard-widget.contract.json"
+    ],
+    "generatedArtifacts": [
+      "live-dashboard-app.generated.js",
+      "live-dashboard-widget.generated.js",
+      "live-dashboard-app-wireup.generated.js",
+      "live-dashboard-app.generated.test.js",
+      "live-dashboard-widget.generated.test.js"
+    ]
   },
   "product-catalog": {
     "tests": [

@@ -10,12 +10,13 @@
     "bench": "vitest bench",
     "generate": "node generator/index.js ir/kanban-card.ir.json generated-examples/kanban-card/kanban-card.generated.js",
     "generate:kanban": "node generator/app-generator.js contracts/kanban-app.contract.json",
+    "generate:dashboard": "node generator/app-generator.js contracts/live-dashboard-app.contract.json",
     "gauntlet": "node gauntlet/run.js",
     "verify:generated": "node generator/verify-generated.js",
     "maturity": "node maturity/update-status.js",
     "prompt": "node bin/prompt.js",
     "chat": "node bin/ask-chatgpt.js",
-    "verify:all": "npm run generate && npm run generate:kanban && npm run verify:generated && npm test && npm run bench && npm run gauntlet && npm run maturity"
+    "verify:all": "npm run generate && npm run generate:kanban && npm run generate:dashboard && npm run verify:generated && npm test && npm run bench && npm run gauntlet && npm run maturity"
   },
   "keywords": [],
   "author": "",

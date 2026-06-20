@@ -12,13 +12,14 @@ Generated application code is assumed to be continued by future LLMs, not mainta
 
 Fe is experimental.
 
-The only fully canonical generated application proof is currently:
+The only fully canonical generated application proofs are currently:
 
 ```text
 generated-examples/normalized-kanban/
+generated-examples/live-dashboard/
 ```
 
-This app demonstrates the Contract → IR → Generated Direct DOM pipeline for a normalized Kanban workflow application.
+These apps demonstrate the Contract → IR → Generated Direct DOM pipeline.
 
 Do not generalize this proof to arbitrary web applications yet.
 

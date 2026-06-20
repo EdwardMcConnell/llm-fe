@@ -25,14 +25,14 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "create board with 10 cards": 5.0637,
-          "create board with 100 cards": 45.9209,
-          "create board with 1,000 cards": 455.24,
-          "patch one card title 10,000 times": 83.2747,
-          "move one card between columns 1,000 times": 18.8664,
-          "Render 100 cards (Mount)": 101.34,
-          "Patch Card Title (Hot Path)": 0.0086,
-          "Move Card Between Columns": 0.1211
+          "create board with 10 cards": 4.8421,
+          "create board with 100 cards": 47.1836,
+          "create board with 1,000 cards": 455.32,
+          "patch one card title 10,000 times": 86.4548,
+          "move one card between columns 1,000 times": 19.3192,
+          "Render 100 cards (Mount)": 105.98,
+          "Patch Card Title (Hot Path)": 0.0089,
+          "Move Card Between Columns": 0.1351
         },
         "notes": []
       },
@@ -46,6 +46,49 @@
         "status": "pass",
         "source": "Generated Output",
         "proof": "kanban-app.generated.js, kanban-board.generated.js, kanban-column.generated.js, kanban-card.generated.js, kanban-state.generated.js, kanban-validators.generated.js, normalized-kanban.generated.test.js, kanban-card.generated.test.js",
+        "notes": []
+      }
+    },
+    {
+      "app": "live-dashboard",
+      "tests": {
+        "status": "pass",
+        "source": "Unit/Cleanup Tests",
+        "proof": "12 tests passed",
+        "notes": []
+      },
+      "cleanup": {
+        "status": "pass",
+        "source": "Cleanup Proof",
+        "proof": "Cleanup requirements satisfied",
+        "notes": []
+      },
+      "safeRendering": {
+        "status": "pass",
+        "source": "Safe Rendering Proof",
+        "proof": "Safe rendering constraints verified",
+        "notes": []
+      },
+      "benchmarks": {
+        "status": "pass",
+        "source": "Benchmarks",
+        "proof": "All required benchmarks executed successfully",
+        "results": {
+          "create dashboard with 10 widgets": 1.3893,
+          "patch one widget 10,000 times (high-frequency stream)": 18.3254
+        },
+        "notes": []
+      },
+      "contracts": {
+        "status": "pass",
+        "source": "Contracts",
+        "proof": "live-dashboard-app.contract.json, live-dashboard-widget.contract.json",
+        "notes": []
+      },
+      "generatedArtifacts": {
+        "status": "pass",
+        "source": "Generated Output",
+        "proof": "live-dashboard-app.generated.js, live-dashboard-widget.generated.js, live-dashboard-app-wireup.generated.js, live-dashboard-app.generated.test.js, live-dashboard-widget.generated.test.js",
         "notes": []
       }
     }

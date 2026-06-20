@@ -16,7 +16,6 @@
   "missingForNextLevel": [
     "gauntletAppProof: data-grid",
     "gauntletAppProof: settings-form",
-    "gauntletAppProof: live-dashboard",
     "gauntletAppProof: product-catalog",
     "browserCapabilityManifest"
   ]

@@ -171,6 +171,17 @@ export function ${fnName}(initialState = {}, eventSink = () => {}) {
         code += `    if (nextVal) { ${target}.setAttribute('${op.attr}', '${op.trueValue}'); } else { ${target}.setAttribute('${op.attr}', '${op.falseValue}'); }\n`;
       } else if (op.op === 'setStyleDisplay') {
         code += `    ${target}.style.display = nextVal ? '${op.trueDisplay}' : '${op.falseDisplay}';\n`;
+      } else if (op.op === 'setSparklinePath') {
+        code += `    if (!nextVal || !nextVal.length) { ${target}.setAttribute('d', ''); } else {
+      const max = Math.max(...nextVal);
+      const min = Math.min(...nextVal);
+      const range = max - min || 1;
+      const step = 100 / (nextVal.length - 1 || 1);
+      const d = nextVal.map((v, i) => (i === 0 ? 'M' : 'L') + (i * step) + ',' + (30 - ((v - min) / range) * 30)).join(' ');
+      ${target}.setAttribute('d', d);
+    }\n`;
+      } else if (op.op === 'reconcileList') {
+        code += `    reconcile${op.listName.charAt(0).toUpperCase() + op.listName.slice(1)}Order(nextVal);\n`;
       }
     }
     code += `  }\n\n`;

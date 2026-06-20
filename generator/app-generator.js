@@ -57,6 +57,28 @@ async function generateApp() {
     generateStateFromIR(outDir);
     generateAppWireupFromIR(appIr.app, outDir);
     generateValidators(outDir);
+  } else if (appName === 'live-dashboard') {
+    const { generateComponent, validateRuntimeAPI } = await import('./index.js');
+    const widgetIr = loadJson('ir/live-dashboard-widget.ir.json');
+    validateRuntimeAPI(widgetIr);
+    generateComponent(
+      loadJson('contracts/live-dashboard-widget.contract.json'), 
+      widgetIr, 
+      'contracts/live-dashboard-widget.contract.json', 
+      'ir/live-dashboard-widget.ir.json', 
+      path.join(outDir, 'live-dashboard-widget.generated.js')
+    );
+
+    validateRuntimeAPI(appIr);
+    generateComponent(
+      loadJson('contracts/live-dashboard-app.contract.json'), 
+      appIr, 
+      'contracts/live-dashboard-app.contract.json', 
+      'ir/live-dashboard-app.ir.json', 
+      path.join(outDir, 'live-dashboard-app.generated.js')
+    );
+
+    generateDashboardAppWireup(outDir);
   } else if (appName === 'data-grid') {
     const { generateDataGrid } = await import('./data-grid-generator.js');
     generateDataGrid(appContract, appIr, outDir);
@@ -226,4 +248,62 @@ try {
 } catch (e) {
   console.error(e.message);
   process.exit(1);
+}
+
+function generateDashboardAppWireup(outDir) {
+  let code = `// Compiled deterministically from Live Dashboard App IR
+import { createLiveDashboardApp } from './live-dashboard-app.generated.js';
+import { createLiveDashboardWidget } from './live-dashboard-widget.generated.js';
+
+export function createDashboard(sharedMap) {
+  const app = createLiveDashboardApp({});
+  const widgets = new Map();
+
+  function patchWidget(statePatch) {
+    const id = statePatch.id;
+    let widget = widgets.get(id);
+    if (!widget) {
+      widget = createLiveDashboardWidget(statePatch);
+      widgets.set(id, widget);
+      app.insertWidgets(id, widget);
+    } else {
+      widget.patch(statePatch);
+    }
+  }
+
+  const cleanups = [];
+
+  const observeMap = () => {
+    for (const [key, val] of sharedMap.entries()) {
+      if (key.startsWith('dashboard:widget:')) {
+        patchWidget(val);
+      } else if (key === 'dashboard:index') {
+        app.patch({ widgetsIndex: val.itemIds });
+      }
+    }
+  };
+
+  const disposeSub = sharedMap.subscribe((key, val) => {
+    if (key.startsWith('dashboard:widget:')) {
+      if (val) patchWidget(val);
+    } else if (key === 'dashboard:index') {
+      if (val) app.patch({ widgetsIndex: val.itemIds });
+    }
+  });
+  
+  cleanups.push(disposeSub);
+  observeMap();
+
+  return {
+    root: app.root,
+    dispose: () => {
+      for (const widget of widgets.values()) widget.dispose();
+      widgets.clear();
+      app.dispose();
+      cleanups.forEach(c => c());
+    }
+  };
+}
+`;
+  fs.writeFileSync(path.join(outDir, 'live-dashboard-app-wireup.generated.js'), code);
 }
