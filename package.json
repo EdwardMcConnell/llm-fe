@@ -13,12 +13,13 @@
     "generate:dashboard": "node generator/app-generator.js contracts/live-dashboard-app.contract.json",
     "generate:settings": "node generator/app-generator.js contracts/settings-form.contract.json",
     "test:native": "vitest run --dir test",
+    "test:browser": "node gauntlet/apps/normalized-kanban/e2e.node.js",
     "gauntlet": "node gauntlet/run.js",
     "verify:generated": "node generator/verify-generated.js",
     "maturity": "node maturity/update-status.js",
     "prompt": "node bin/prompt.js",
     "chat": "node bin/ask-chatgpt.js",
-    "verify:all": "npm run generate && npm run generate:kanban && npm run generate:dashboard && npm run verify:generated && npm test && npm run bench && npm run gauntlet && npm run maturity"
+    "verify:all": "npm run generate && npm run generate:kanban && npm run generate:dashboard && npm run verify:generated && npm test && npm run test:browser && npm run bench && npm run gauntlet && npm run maturity"
   },
   "keywords": [],
   "author": "",

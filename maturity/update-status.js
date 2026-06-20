@@ -49,8 +49,8 @@ function checkLevel2(reqs) {
   
   if (reqs.gauntletAppProof) {
     const appRes = gauntlet && gauntlet.results ? gauntlet.results.find(r => r.app === reqs.gauntletAppProof) : null;
-    if (!appRes || appRes.tests.status !== 'pass') {
-      missing.push(`gauntletAppProof: ${reqs.gauntletAppProof}`);
+    if (!appRes || appRes.proofTier !== 'A') {
+      missing.push(`gauntletAppProof (Tier A required): ${reqs.gauntletAppProof}`);
     }
   }
   return missing;
@@ -62,8 +62,8 @@ function checkLevel3(reqs) {
   if (reqs.gauntletAppProof) {
     for (const app of reqs.gauntletAppProof) {
       const appRes = gauntlet && gauntlet.results ? gauntlet.results.find(r => r.app === app) : null;
-      if (!appRes || appRes.tests.status !== 'pass') {
-        missing.push(`gauntletAppProof: ${app}`);
+      if (!appRes || (appRes.proofTier !== 'A' && appRes.proofTier !== 'B')) {
+        missing.push(`gauntletAppProof (Tier A or B required): ${app}`);
       }
     }
   }

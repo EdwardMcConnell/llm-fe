@@ -186,6 +186,32 @@ async function processApp(app) {
     result.generatedArtifacts.status = "skipped";
   }
 
+  // 5. Browser Proof
+  if (reqs.browserProof) {
+    if (fs.existsSync(reqs.browserProof)) {
+      result.browserProof = { status: "pass", source: "Browser Proof", proof: reqs.browserProof, notes: [] };
+    } else {
+      result.browserProof = { status: "fail", source: "Browser Proof", proof: "missing", notes: [`Missing browser proof script: ${reqs.browserProof}`] };
+    }
+  } else {
+    result.browserProof = { status: "skipped", source: "Browser Proof", proof: "missing", notes: [] };
+  }
+
+  // 6. Compute Proof Tier
+  let hasContracts = result.contracts.status === "pass";
+  let hasArtifacts = result.generatedArtifacts.status === "pass";
+  let hasTests = result.tests.status === "pass";
+  let hasBenchmarks = result.benchmarks.status === "pass";
+  let hasBrowserProof = result.browserProof.status === "pass";
+
+  if (!hasContracts || !hasArtifacts) {
+    result.proofTier = fs.existsSync(app.path) ? "C" : "D";
+  } else if (hasTests && hasBenchmarks && hasBrowserProof) {
+    result.proofTier = "A";
+  } else {
+    result.proofTier = "B";
+  }
+
   return result;
 }
 

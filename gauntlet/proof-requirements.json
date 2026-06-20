@@ -34,7 +34,8 @@
       "kanban-validators.generated.js",
       "normalized-kanban.generated.test.js",
       "kanban-card.generated.test.js"
-    ]
+    ],
+    "browserProof": "gauntlet/apps/normalized-kanban/e2e.node.js"
   },
   "data-grid": {
     "tests": [

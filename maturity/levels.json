@@ -78,14 +78,19 @@
   },
   {
     "level": 3,
-    "name": "Scaffold Gauntlet Proof",
+    "name": "Multi-App Generated Example Gauntlet",
     "canClaim": [
-      "Fe has generated app proofs across multiple app categories",
-      "Fe is a validated LLM-native application scaffold"
+      "Fe has a verified generated normalized Kanban proof.",
+      "Fe has generated examples across multiple common enterprise UI shapes.",
+      "Fe has a runtime API contract and verification pipeline.",
+      "Fe has an emerging contract/IR/direct-DOM compiler path."
     ],
     "cannotClaim": [
-      "Fe is enterprise-ready",
-      "Fe guarantees security/trust-boundaries across all scenarios"
+      "enterprise readiness",
+      "arbitrary application support",
+      "general framework replacement",
+      "broad superiority over existing frontend frameworks",
+      "production-proven reliability"
     ],
     "requirements": {
       "level2": true,
