@@ -17,7 +17,7 @@ function formatCurrency(val) {
 
 export function createKanbanCard(initialState = {}, eventSink = () => {}) {
   const template = document.createElement('template');
-  template.innerHTML = `<fe-card class="card" data-node="root"><div class="drag-handle" data-node="dragHandle" draggable="true">:::</div><div class="lock-badge" data-node="lockIndicator"></div><div class="card-title" data-node="titleNode"></div><p class="card-desc" data-node="descNode"></p><div class="card-badges"><span class="badge-status" data-node="statusBadge"></span><span class="badge-priority" data-node="priorityBadge"></span></div><div class="card-assignee" data-node="assigneeNode"></div><div class="card-meta"><fe-time format="relative" data-node="timeNode"></fe-time></div><div class="card-actions"><button class="edit-btn" data-node="editBtn">Edit</button><button class="delete-btn" data-node="deleteBtn">Delete</button></div></fe-card>`;
+  template.innerHTML = `<fe-card class="card" data-node="root"><div class="drag-handle" data-node="dragHandle" draggable="true">:::</div><div class="lock-badge" data-node="lockIndicator"></div><div class="card-title" data-node="titleNode"></div><p class="card-desc" data-node="descNode"></p><p class="card-due-date" data-node="dueDateNode"></p><div class="card-badges"><span class="badge-status" data-node="statusBadge"></span><span class="badge-priority" data-node="priorityBadge"></span><span class="urgent-flag" data-node="urgentFlag">✔️</span></div><div class="card-assignee" data-node="assigneeNode"></div><div class="card-meta"><fe-time format="relative" data-node="timeNode"></fe-time></div><div class="card-actions"><button class="edit-btn" data-node="editBtn">Edit</button><button class="delete-btn" data-node="deleteBtn">Delete</button></div></fe-card>`;
   
   const root = template.content.firstElementChild.cloneNode(true);
   const dragHandleElement = root.matches(`[data-node="dragHandle"]`) ? root : root.querySelector(`[data-node="dragHandle"]`);
@@ -30,6 +30,8 @@ export function createKanbanCard(initialState = {}, eventSink = () => {}) {
   const timeNodeElement = root.matches(`[data-node="timeNode"]`) ? root : root.querySelector(`[data-node="timeNode"]`);
   const editBtnElement = root.matches(`[data-node="editBtn"]`) ? root : root.querySelector(`[data-node="editBtn"]`);
   const deleteBtnElement = root.matches(`[data-node="deleteBtn"]`) ? root : root.querySelector(`[data-node="deleteBtn"]`);
+  const urgentFlagElement = root.matches(`[data-node="urgentFlag"]`) ? root : root.querySelector(`[data-node="urgentFlag"]`);
+  const dueDateNodeElement = root.matches(`[data-node="dueDateNode"]`) ? root : root.querySelector(`[data-node="dueDateNode"]`);
 
   let currentId;
   let currentTitle;
@@ -39,6 +41,7 @@ export function createKanbanCard(initialState = {}, eventSink = () => {}) {
   let currentAssignee;
   let currentLockedBy;
   let currentUpdatedAt;
+  let currentDueDate;
 
   function patchId(nextVal) {
     if (currentId === nextVal) return;
@@ -70,6 +73,7 @@ export function createKanbanCard(initialState = {}, eventSink = () => {}) {
     currentPriority = nextVal;
     priorityBadgeElement.textContent = nextVal == null ? '' : String(nextVal);
     priorityBadgeElement.className = nextVal == null ? `badge-priority priority-` : `badge-priority priority-${safeClassToken(nextVal)}`;
+    urgentFlagElement.style.display = nextVal ? 'inline' : 'none';
   }
 
   function patchAssignee(nextVal) {
@@ -89,6 +93,12 @@ export function createKanbanCard(initialState = {}, eventSink = () => {}) {
     if (currentUpdatedAt === nextVal) return;
     currentUpdatedAt = nextVal;
     if (nextVal == null || nextVal === false) { timeNodeElement.removeAttribute('datetime'); } else { timeNodeElement.setAttribute('datetime', nextVal === true ? 'true' : nextVal); }
+  }
+
+  function patchDueDate(nextVal) {
+    if (currentDueDate === nextVal) return;
+    currentDueDate = nextVal;
+    dueDateNodeElement.textContent = nextVal == null ? '' : `Due Date: ${String(nextVal)}`;
   }
 
   function handleonEdit(event) {
@@ -121,6 +131,7 @@ export function createKanbanCard(initialState = {}, eventSink = () => {}) {
     if (nextState.assignee !== undefined) patchAssignee(nextState.assignee);
     if (nextState.lockedBy !== undefined) patchLockedBy(nextState.lockedBy);
     if (nextState.updatedAt !== undefined) patchUpdatedAt(nextState.updatedAt);
+    if (nextState.dueDate !== undefined) patchDueDate(nextState.dueDate);
   }
 
   function dispose() {

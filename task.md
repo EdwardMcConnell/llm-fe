@@ -1,5 +1,4 @@
-- [x] 1. Define the Runtime API Contract (`contracts/runtime-api.contract.json`)
-- [x] 2. Define the Explicit Kanban IR (`ir/normalized-kanban.ir.json`)
-- [x] 3. Rewrite the Deterministic Generator (`generator/app-generator.js`)
-- [x] 4. Create Browser Tests (`test/kanban-e2e.test.js`)
-- [x] 5. Run validations and benchmarks
+- [x] 1. Create `server/hot-path.js` (HTTP/SSE server)
+- [x] 2. Create `demo/index.html` and `demo/client.js` with Prompt Bar
+- [x] 3. Update `package.json` scripts (`npm run demo`)
+- [x] 4. Test the IR mutation loop locally with OpenAI

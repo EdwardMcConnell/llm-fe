@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run", "demo": "node server/hot-path.js",
     "test:watch": "vitest",
     "bench": "vitest bench",
     "generate": "node generator/index.js ir/kanban-card.ir.json generated-examples/kanban-card/kanban-card.generated.js",

@@ -2,36 +2,151 @@
   "component": "kanban-card",
   "kind": "component",
   "state": {
-    "id": { "type": "string", "trust": "external-value" },
-    "title": { "type": "string", "trust": "external-text" },
-    "description": { "type": "string", "trust": "external-text" },
-    "status": { "type": "enum", "values": ["todo", "in-progress", "done"], "trust": "external-enum" },
-    "priority": { "type": "enum", "values": ["low", "medium", "high", "urgent"], "trust": "external-enum" },
-    "assignee": { "type": "string", "trust": "external-text" },
-    "lockedBy": { "type": ["string", "null"], "trust": "external-value" },
-    "updatedAt": { "type": "time-token", "trust": "external-value" }
+    "id": {
+      "type": "string",
+      "trust": "external-value"
+    },
+    "title": {
+      "type": "string",
+      "trust": "external-text"
+    },
+    "description": {
+      "type": "string",
+      "trust": "external-text"
+    },
+    "status": {
+      "type": "enum",
+      "values": [
+        "todo",
+        "in-progress",
+        "done"
+      ],
+      "trust": "external-enum"
+    },
+    "priority": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "trust": "external-enum"
+    },
+    "assignee": {
+      "type": "string",
+      "trust": "external-text"
+    },
+    "lockedBy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "trust": "external-value"
+    },
+    "updatedAt": {
+      "type": "time-token",
+      "trust": "external-value"
+    },
+    "dueDate": {
+      "type": "string",
+      "trust": "external-text"
+    }
   },
   "ownedNodes": {
-    "root": { "tag": "fe-card" },
-    "titleNode": { "tag": "div", "class": "card-title" },
-    "descNode": { "tag": "p", "class": "card-desc" },
-    "statusBadge": { "tag": "span", "class": "badge-status" },
-    "priorityBadge": { "tag": "span", "class": "badge-priority" },
-    "assigneeNode": { "tag": "div", "class": "card-assignee" },
-    "lockIndicator": { "tag": "div", "class": "lock-badge" },
-    "timeNode": { "tag": "fe-time", "class": "card-time" },
-    "editBtn": { "tag": "button", "class": "edit-btn" },
-    "deleteBtn": { "tag": "button", "class": "delete-btn" },
-    "dragHandle": { "tag": "div", "class": "drag-handle" }
+    "root": {
+      "tag": "fe-card"
+    },
+    "titleNode": {
+      "tag": "div",
+      "class": "card-title"
+    },
+    "descNode": {
+      "tag": "p",
+      "class": "card-desc"
+    },
+    "statusBadge": {
+      "tag": "span",
+      "class": "badge-status"
+    },
+    "priorityBadge": {
+      "tag": "span",
+      "class": "badge-priority"
+    },
+    "assigneeNode": {
+      "tag": "div",
+      "class": "card-assignee"
+    },
+    "lockIndicator": {
+      "tag": "div",
+      "class": "lock-badge"
+    },
+    "timeNode": {
+      "tag": "fe-time",
+      "class": "card-time"
+    },
+    "editBtn": {
+      "tag": "button",
+      "class": "edit-btn"
+    },
+    "deleteBtn": {
+      "tag": "button",
+      "class": "delete-btn"
+    },
+    "dragHandle": {
+      "tag": "div",
+      "class": "drag-handle"
+    },
+    "urgentFlag": {
+      "tag": "span",
+      "class": "urgent-flag"
+    },
+    "dueDateNode": {
+      "tag": "p",
+      "class": "card-due-date"
+    }
   },
   "events": {
-    "edit": { "type": "click", "target": "editBtn", "emits": "kanban:item:edit" },
-    "delete": { "type": "click", "target": "deleteBtn", "emits": "kanban:item:delete" },
-    "select": { "type": "click", "target": "root", "emits": "kanban:item:select" },
-    "dragStart": { "type": "dragstart", "target": "dragHandle", "emits": "card:dragstart" }
+    "edit": {
+      "type": "click",
+      "target": "editBtn",
+      "emits": "kanban:item:edit"
+    },
+    "delete": {
+      "type": "click",
+      "target": "deleteBtn",
+      "emits": "kanban:item:delete"
+    },
+    "select": {
+      "type": "click",
+      "target": "root",
+      "emits": "kanban:item:select"
+    },
+    "dragStart": {
+      "type": "dragstart",
+      "target": "dragHandle",
+      "emits": "card:dragstart"
+    }
   },
-  "externalInputs": ["title", "description", "assignee", "status", "priority", "updatedAt", "lockedBy"],
-  "cleanup": ["removeEventListeners"],
-  "browserFeatures": ["HTML5 Drag and Drop", "fe-time Custom Element"],
-  "performanceBudget": { "patchOps": 10, "skipSameValue": true }
+  "externalInputs": [
+    "title",
+    "description",
+    "assignee",
+    "status",
+    "priority",
+    "updatedAt",
+    "lockedBy",
+    "dueDate"
+  ],
+  "cleanup": [
+    "removeEventListeners"
+  ],
+  "browserFeatures": [
+    "HTML5 Drag and Drop",
+    "fe-time Custom Element"
+  ],
+  "performanceBudget": {
+    "patchOps": 10,
+    "skipSameValue": true
+  }
 }

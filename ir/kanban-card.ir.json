@@ -1,7 +1,7 @@
 {
   "module": "generated-examples/kanban-card/kanban-card.generated.js",
   "create": {
-    "template": "<fe-card class=\"card\" data-node=\"root\"><div class=\"drag-handle\" data-node=\"dragHandle\" draggable=\"true\">:::</div><div class=\"lock-badge\" data-node=\"lockIndicator\"></div><div class=\"card-title\" data-node=\"titleNode\"></div><p class=\"card-desc\" data-node=\"descNode\"></p><div class=\"card-badges\"><span class=\"badge-status\" data-node=\"statusBadge\"></span><span class=\"badge-priority\" data-node=\"priorityBadge\"></span></div><div class=\"card-assignee\" data-node=\"assigneeNode\"></div><div class=\"card-meta\"><fe-time format=\"relative\" data-node=\"timeNode\"></fe-time></div><div class=\"card-actions\"><button class=\"edit-btn\" data-node=\"editBtn\">Edit</button><button class=\"delete-btn\" data-node=\"deleteBtn\">Delete</button></div></fe-card>",
+    "template": "<fe-card class=\"card\" data-node=\"root\"><div class=\"drag-handle\" data-node=\"dragHandle\" draggable=\"true\">:::</div><div class=\"lock-badge\" data-node=\"lockIndicator\"></div><div class=\"card-title\" data-node=\"titleNode\"></div><p class=\"card-desc\" data-node=\"descNode\"></p><p class=\"card-due-date\" data-node=\"dueDateNode\"></p><div class=\"card-badges\"><span class=\"badge-status\" data-node=\"statusBadge\"></span><span class=\"badge-priority\" data-node=\"priorityBadge\"></span><span class=\"urgent-flag\" data-node=\"urgentFlag\">✔️</span></div><div class=\"card-assignee\" data-node=\"assigneeNode\"></div><div class=\"card-meta\"><fe-time format=\"relative\" data-node=\"timeNode\"></fe-time></div><div class=\"card-actions\"><button class=\"edit-btn\" data-node=\"editBtn\">Edit</button><button class=\"delete-btn\" data-node=\"deleteBtn\">Delete</button></div></fe-card>",
     "refs": {
       "root": "[data-node=\"root\"]",
       "dragHandle": "[data-node=\"dragHandle\"]",
@@ -13,7 +13,9 @@
       "assigneeNode": "[data-node=\"assigneeNode\"]",
       "timeNode": "[data-node=\"timeNode\"]",
       "editBtn": "[data-node=\"editBtn\"]",
-      "deleteBtn": "[data-node=\"deleteBtn\"]"
+      "deleteBtn": "[data-node=\"deleteBtn\"]",
+      "urgentFlag": "[data-node=\"urgentFlag\"]",
+      "dueDateNode": "[data-node=\"dueDateNode\"]"
     }
   },
   "patches": [
@@ -21,66 +23,149 @@
       "name": "patchId",
       "input": "id",
       "ops": [
-        { "op": "setAttribute", "ref": "root", "attr": "data-id" }
+        {
+          "op": "setAttribute",
+          "ref": "root",
+          "attr": "data-id"
+        }
       ]
     },
     {
       "name": "patchTitle",
       "input": "title",
       "ops": [
-        { "op": "setTextContent", "ref": "titleNode" }
+        {
+          "op": "setTextContent",
+          "ref": "titleNode"
+        }
       ]
     },
     {
       "name": "patchDescription",
       "input": "description",
       "ops": [
-        { "op": "setTextContent", "ref": "descNode" }
+        {
+          "op": "setTextContent",
+          "ref": "descNode"
+        }
       ]
     },
     {
       "name": "patchStatus",
       "input": "status",
       "ops": [
-        { "op": "setTextContent", "ref": "statusBadge" },
-        { "op": "setClassToken", "ref": "statusBadge", "prefix": "badge-status status-" }
+        {
+          "op": "setTextContent",
+          "ref": "statusBadge"
+        },
+        {
+          "op": "setClassToken",
+          "ref": "statusBadge",
+          "prefix": "badge-status status-"
+        }
       ]
     },
     {
       "name": "patchPriority",
       "input": "priority",
       "ops": [
-        { "op": "setTextContent", "ref": "priorityBadge" },
-        { "op": "setClassToken", "ref": "priorityBadge", "prefix": "badge-priority priority-" }
+        {
+          "op": "setTextContent",
+          "ref": "priorityBadge"
+        },
+        {
+          "op": "setClassToken",
+          "ref": "priorityBadge",
+          "prefix": "badge-priority priority-"
+        },
+        {
+          "op": "setStyleDisplay",
+          "ref": "urgentFlag",
+          "trueDisplay": "inline",
+          "falseDisplay": "none",
+          "condition": "urgent"
+        }
       ]
     },
     {
       "name": "patchAssignee",
       "input": "assignee",
       "ops": [
-        { "op": "setTextContent", "ref": "assigneeNode", "prefix": "Assigned to: " }
+        {
+          "op": "setTextContent",
+          "ref": "assigneeNode",
+          "prefix": "Assigned to: "
+        }
       ]
     },
     {
       "name": "patchLockedBy",
       "input": "lockedBy",
       "ops": [
-        { "op": "setTextContent", "ref": "lockIndicator", "prefix": "🔒 Locked by " },
-        { "op": "setStyleDisplay", "ref": "lockIndicator", "trueDisplay": "inline-block", "falseDisplay": "none" }
+        {
+          "op": "setTextContent",
+          "ref": "lockIndicator",
+          "prefix": "🔒 Locked by "
+        },
+        {
+          "op": "setStyleDisplay",
+          "ref": "lockIndicator",
+          "trueDisplay": "inline-block",
+          "falseDisplay": "none"
+        }
       ]
     },
     {
       "name": "patchUpdatedAt",
       "input": "updatedAt",
       "ops": [
-        { "op": "setAttribute", "ref": "timeNode", "attr": "datetime" }
+        {
+          "op": "setAttribute",
+          "ref": "timeNode",
+          "attr": "datetime"
+        }
+      ]
+    },
+    {
+      "name": "patchDueDate",
+      "input": "dueDate",
+      "ops": [
+        {
+          "op": "setTextContent",
+          "ref": "dueDateNode",
+          "prefix": "Due Date: "
+        }
       ]
     }
   ],
   "events": [
-    { "name": "onEdit", "target": "editBtn", "type": "click", "emits": "kanban:item:edit", "cleanup": true },
-    { "name": "onDelete", "target": "deleteBtn", "type": "click", "emits": "kanban:item:delete", "cleanup": true },
-    { "name": "onSelect", "target": "root", "type": "click", "emits": "kanban:item:select", "cleanup": true },
-    { "name": "onDragStart", "target": "dragHandle", "type": "dragstart", "emits": "card:dragstart", "cleanup": true }
+    {
+      "name": "onEdit",
+      "target": "editBtn",
+      "type": "click",
+      "emits": "kanban:item:edit",
+      "cleanup": true
+    },
+    {
+      "name": "onDelete",
+      "target": "deleteBtn",
+      "type": "click",
+      "emits": "kanban:item:delete",
+      "cleanup": true
+    },
+    {
+      "name": "onSelect",
+      "target": "root",
+      "type": "click",
+      "emits": "kanban:item:select",
+      "cleanup": true
+    },
+    {
+      "name": "onDragStart",
+      "target": "dragHandle",
+      "type": "dragstart",
+      "emits": "card:dragstart",
+      "cleanup": true
+    }
   ]
 }
