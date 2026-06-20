@@ -16,7 +16,7 @@ You are permitted to write verbose, highly specialized, "ugly" code if it yields
 ### 2. The DOM Component Layer (`src/component.js`)
 - **`FeElement`**: A specialized `HTMLElement` base class leveraging Shadow DOM.
 - **Memory Annihilation**: Every subclass must utilize the built-in `this._cleanups` array. If you add an event listener, `createEffect`, or `setInterval`, you must push the teardown closure into `this._cleanups`. `disconnectedCallback` autonomously sweeps this array.
-- **Direct Morphing**: `bindMorph` surgically diffs nodes to prevent focus loss. Avoid resetting `innerHTML` reactively.
+- **Direct Morphing**: `bindMorphTrustedHTML` surgically diffs nodes to prevent focus loss. Avoid resetting `innerHTML` reactively.
 
 ### 3. The CRDT Network Layer (`src/crdt.js`)
 - **`SharedMap`**: A Last-Writer-Wins map using Lamport Clocks for deterministic multi-client conflict resolution.

@@ -7,6 +7,9 @@
 /** @type {(() => void) | null} */
 export let activeEffect = null;
 
+/** @type {{ allowSignalWrites?: boolean } | null} */
+export let activeEffectOptions = null;
+
 // Phase 20: Memory Leak Annihilation
 // To properly dispose of an effect, we must track which signals the active effect is subscribed to.
 /** @type {Set<Signal<any>> | null} */
@@ -46,6 +49,10 @@ export class Signal {
    * @param {T} newValue 
    */
   set(newValue) {
+    if (activeEffect && (!activeEffectOptions || !activeEffectOptions.allowSignalWrites)) {
+      throw new Error('[Fe UI Dev] Signal write detected inside an active effect. Effects should be for output synchronization only. Use { allowSignalWrites: true } to override.');
+    }
+
     if (this._value !== newValue) {
       this._value = newValue;
       this.notify();
@@ -97,14 +104,16 @@ export function createSignal(initialValue) {
  * Creates an effect that automatically re-runs when its dependencies change.
  * 
  * @param {() => void} fn - The function to execute. Any signals read inside this function will become dependencies.
+ * @param {{ allowSignalWrites?: boolean }} [options] - Effect execution options.
  * @returns {() => void} A disposer function that removes the effect from all signal subscriptions.
  */
-export function createEffect(fn) {
+export function createEffect(fn, options = {}) {
   /** @type {Set<Signal<any>>} */
   const signals = new Set();
 
   const effect = () => {
     activeEffect = effect;
+    activeEffectOptions = options;
     activeEffectSignals = signals;
     
     // Clear previous dependencies before re-running
@@ -117,6 +126,7 @@ export function createEffect(fn) {
       fn();
     } finally {
       activeEffect = null;
+      activeEffectOptions = null;
       activeEffectSignals = null;
     }
   };
@@ -139,15 +149,17 @@ export function createEffect(fn) {
  * Provides hardware-accelerated native morphing.
  * 
  * @param {() => void} fn
+ * @param {{ allowSignalWrites?: boolean }} [options] - Effect execution options.
  * @returns {() => void} A disposer function.
  */
-export function createTransitionEffect(fn) {
+export function createTransitionEffect(fn, options = {}) {
   let isFirstRun = true;
   /** @type {Set<Signal<any>>} */
   const signals = new Set();
 
   const effect = () => {
     activeEffect = effect;
+    activeEffectOptions = options;
     activeEffectSignals = signals;
 
     // Clear previous dependencies before re-running
@@ -161,6 +173,7 @@ export function createTransitionEffect(fn) {
         fn();
       } finally {
         activeEffect = null;
+        activeEffectOptions = null;
         activeEffectSignals = null;
       }
     };

@@ -25,7 +25,7 @@ export class FeTableFramework extends FeElement {
   bind() {
     const [getRows] = this.rowsSignal;
 
-    this.bindMorph('#tbody', () => {
+    this.bindMorphTrustedHTML('#tbody', () => {
       const rows = getRows();
       let html = '';
       for (let i = 0; i < rows.length; i++) {

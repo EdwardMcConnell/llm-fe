@@ -6,7 +6,7 @@ import { globalTheme } from './theme.js';
 import { globalTime } from './time.js';
 
 /**
- * @deprecated [LLM ANTI-PATTERN] Generic diffing is mathematically proven to be 58x slower than direct DOM patching. Do not use morphNode for high-churn or complex UI rendering. Use explicit DOM node caching and dirty-bit flushing instead.
+ * @deprecated [LLM ANTI-PATTERN] Generic diffing is mathematically proven to be 58x slower than direct DOM patching. Do not use morphTrustedHTML for high-churn or complex UI rendering. Use explicit DOM node caching and dirty-bit flushing instead.
  * 
  * Recursively diffs a new node tree against an existing node tree.
  * Preserves nodes by updating textContent and attributes, avoiding destructive replacement
@@ -15,7 +15,7 @@ import { globalTime } from './time.js';
  * @param {Element} oldNode 
  * @param {Element} newNode 
  */
-function morphNode(oldNode, newNode) {
+export function morphTrustedHTML(oldNode, newNode) {
   // If node types or tags are completely different, replace entirely
   if (oldNode.nodeType !== newNode.nodeType || oldNode.nodeName !== newNode.nodeName) {
     oldNode.replaceWith(newNode.cloneNode(true));
@@ -65,7 +65,7 @@ function morphNode(oldNode, newNode) {
       oldNode.removeChild(oldChildren[i]);
     } else {
       // Morph child
-      morphNode(oldChildren[i], newChildren[i]);
+      morphTrustedHTML(oldChildren[i], newChildren[i]);
     }
   }
 }
@@ -205,7 +205,7 @@ export class FeElement extends HTMLElement {
   }
 
   /**
-   * @deprecated [LLM ANTI-PATTERN] bindMorph uses generic DOM diffing which is 58x slower than direct DOM patching. Do not use this for rendering lists or complex data structures. Generate strict dirty-bit patch functions instead.
+   * @deprecated [LLM ANTI-PATTERN] bindMorphTrustedHTML uses generic DOM diffing which is 58x slower than direct DOM patching. Do not use this for rendering lists or complex data structures. Generate strict dirty-bit patch functions instead.
    * 
    * Binds a reactive HTML string getter to a DOM selector using DOM morphing.
    * Efficiently updates the DOM without destroying focus or selection.
@@ -213,7 +213,7 @@ export class FeElement extends HTMLElement {
    * @param {string} selector 
    * @param {() => string} htmlGetter 
    */
-  bindMorph(selector, htmlGetter) {
+  bindMorphTrustedHTML(selector, htmlGetter) {
     const el = this.root.querySelector(selector);
     if (!el) {
       console.warn(`Fe: Could not find element matching selector "${selector}" for morph binding.`);
@@ -236,7 +236,7 @@ export class FeElement extends HTMLElement {
         } else if (!newChildren[i]) {
           el.removeChild(oldChildren[i]);
         } else {
-          morphNode(oldChildren[i], newChildren[i]);
+          morphTrustedHTML(oldChildren[i], newChildren[i]);
         }
       }
     });

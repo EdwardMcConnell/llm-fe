@@ -1,0 +1,45 @@
+{
+  "module": "generated-examples/order-dashboard/order-card.generated.js",
+  "create": {
+    "template": "<article data-node='root'><h3 data-node='titleText'></h3><span data-node='statusBadge'></span><p data-node='totalText'></p></article>",
+    "refs": {
+      "root": "[data-node='root']",
+      "titleText": "[data-node='titleText']",
+      "statusBadge": "[data-node='statusBadge']",
+      "totalText": "[data-node='totalText']"
+    }
+  },
+  "patches": [
+    {
+      "name": "patchOrderTitle",
+      "input": "orderTitle",
+      "ops": [
+        { "op": "setTextNodeValue", "ref": "titleText" }
+      ]
+    },
+    {
+      "name": "patchOrderStatus",
+      "input": "orderStatus",
+      "ops": [
+        { "op": "setTextContent", "ref": "statusBadge" },
+        { "op": "setClassToken", "ref": "statusBadge", "prefix": "status-" }
+      ]
+    },
+    {
+      "name": "patchOrderTotal",
+      "input": "orderTotal",
+      "ops": [
+        { "op": "setTextNodeValue", "ref": "totalText", "format": "currency" }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "onSelect",
+      "target": "root",
+      "type": "click",
+      "emits": "order:selected",
+      "cleanup": true
+    }
+  ]
+}

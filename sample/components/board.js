@@ -232,7 +232,7 @@ class SampleBoard extends FeElement {
     this._cleanups.push(unsubscribe);
 
     // 2. Reactive UI with DOM Morphing
-    this.bindMorph('.board-columns', () => {
+    this.bindMorphTrustedHTML('.board-columns', () => {
       const items = getItems() || [];
       
       let countTodo = 0;

@@ -1,0 +1,50 @@
+{
+  "component": "order-card",
+  "kind": "component",
+  "state": {
+    "orderTitle": { "type": "string", "trust": "external-text" },
+    "orderStatus": { "type": "string", "trust": "external-text" },
+    "orderTotal": { "type": "number", "trust": "external-value" }
+  },
+  "ownedNodes": {
+    "root": { "tag": "article" },
+    "titleText": { "type": "text" },
+    "statusBadge": { "tag": "span" },
+    "totalText": { "type": "text" }
+  },
+  "patches": {
+    "orderTitle": [
+      { "node": "titleText", "op": "setText" }
+    ],
+    "orderStatus": [
+      { "node": "statusBadge", "op": "setText" },
+      { "node": "statusBadge", "op": "setClassToken", "prefix": "status-" }
+    ],
+    "orderTotal": [
+      { "node": "totalText", "op": "setText", "format": "currency" }
+    ]
+  },
+  "events": {
+    "select": {
+      "type": "click",
+      "target": "root",
+      "emits": "order:selected"
+    }
+  },
+  "externalInputs": [
+    "network:/api/orders/:id"
+  ],
+  "cleanup": [
+    "root.click"
+  ],
+  "browserFeatures": [
+    "template",
+    "textContent",
+    "classList"
+  ],
+  "performanceBudget": {
+    "mountMs": 1,
+    "patchMs": 0.2,
+    "maxOwnedNodes": 8
+  }
+}
