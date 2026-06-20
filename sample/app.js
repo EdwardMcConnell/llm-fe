@@ -13,8 +13,11 @@ import '/src/ui.js';
 // Import our custom components
 import './components/layout.js';
 import './components/login.js';
-import './components/board.js';
-import './components/grid.js';
+import '../gauntlet/apps/normalized-kanban/board.js';
+import '../gauntlet/apps/data-grid/grid.js';
+import '../gauntlet/apps/settings-form/settings.js';
+import '../gauntlet/apps/live-dashboard/dashboard.js';
+import '../gauntlet/apps/product-catalog/catalog.js';
 
 // 1. Setup global CRDT Map and Network sync via the WebSocket Hub
 const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';

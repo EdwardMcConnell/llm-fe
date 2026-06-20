@@ -1,69 +1,50 @@
-# Fe UI Sample App: Kanban Board Schema Contract
+# Fe UI Sample App: Normalized Kanban Schema Contract
 
-This document defines the strict shape of the CRDT state shared between the frontend and the WebSocket Hub. While there are no massive runtime JS schema engines used during normal operation, external input arriving at trust boundaries (like network patches) MUST be manually checked against this exact schema before ingestion.
+This document defines the strict shape of the CRDT state shared between the frontend and the WebSocket Hub. The Fe architecture uses explicit, normalized state to optimize LWW (Last-Writer-Wins) CRDT performance and determinism.
 
-## 1. Global State Structure
+## 1. Why One Array is Bad for LWW
+Storing `board_items = [all cards]` inside a single CRDT key creates massive network payloads and frequent collisions. If Client A edits task 1 and Client B edits task 2 concurrently, a single LWW key will overwrite one client's edits. 
 
-The global CRDT `SharedMap` contains a single key for the kanban board items.
+Instead, Fe normalizes state into discrete keys.
 
-```javascript
-/**
- * @typedef {Object} GlobalCRDTState
- * @property {KanbanItem[]} board_items
- */
-```
+## 2. Normalized Keys
+The global CRDT `SharedMap` contains per-entity keys:
 
-## 2. Entity Definitions
+* `kanban:item:<id>` (Card Data)
+* `kanban:column:<status>:index` (Column Ordering)
+* `kanban:board:metadata` (Board Info)
 
 ### Kanban Item
-
 ```javascript
 /**
  * @typedef {Object} KanbanItem
  * @property {string} id - A unique string identifier (e.g., random hex or uuid)
  * @property {string} title - The display text of the task
  * @property {'todo' | 'in-progress' | 'done'} status - The column the item belongs to
- * @property {number} createdAt - UTC Unix timestamp in milliseconds
+ * @property {string} priority - 'low', 'medium', 'high', 'urgent'
+ * @property {string|null} lockedBy - User ID of the client actively dragging the card
  */
 ```
 
-## 3. Network Protocol (Hub Exchange)
-
-All clients will `subscribe` to the `board_items` key.
-The backend WebSocket Hub will relay `set` patches conforming to the schema:
-
-```json
-{
-  "type": "set",
-  "key": "board_items",
-  "value": [
-    {
-      "id": "item_abc123",
-      "title": "Design the CRDT Hub",
-      "status": "in-progress",
-      "createdAt": 1718764201000
-    }
-  ],
-  "clock": 42,
-  "client": "client_xyz789"
-}
-```
-
-## 4. Mechanical Validation Boundary
-
-Fe UI enforces that external input MUST NOT be trusted, but prohibits using heavy runtime libraries like Zod. Instead, you must write a tiny, mechanically verifiable manual parser directly at the ingress boundary (e.g., when receiving a WebSocket message or HTTP response):
-
+### Column Index
 ```javascript
 /**
- * Mechanically validates a KanbanItem arriving from the network.
- * If invalid, throws an error before it can pollute the CRDT.
+ * @typedef {string[]} ColumnIndex
+ * Array of KanbanItem ids representing the physical rendering order.
  */
-function assertValidKanbanItem(item) {
-  if (!item || typeof item !== 'object') throw new Error('Invalid KanbanItem: not an object');
-  if (typeof item.id !== 'string') throw new Error('Invalid KanbanItem: missing string id');
-  if (typeof item.title !== 'string') throw new Error('Invalid KanbanItem: missing string title');
-  if (!['todo', 'in-progress', 'done'].includes(item.status)) throw new Error('Invalid KanbanItem: invalid status');
-  if (typeof item.createdAt !== 'number') throw new Error('Invalid KanbanItem: missing number createdAt');
-  return item;
-}
 ```
+
+## 3. Operations & LWW Limitations
+
+* **Safe**: Editing a card title updates only `kanban:item:<id>`. Concurrent edits to DIFFERENT cards are perfectly safe.
+* **Deterministic**: Two clients editing the SAME card concurrently will result in one winner (LWW), but both clients will converge to the same state.
+* **Limitation**: Two clients dragging and dropping cards in the SAME column concurrently will result in one array order winning. We accept this limitation for the sake of Zero-Dependency simplicity in this sample. This is not Google Docs.
+
+## 4. Mechanical Validation Boundary
+Fe UI enforces that external input MUST NOT be trusted, but prohibits using heavy runtime libraries like Zod. Instead, you must write tiny, mechanically verifiable manual parsers directly at the ingress boundary.
+
+See `sample/validators.js` for our implementations:
+- `normalizeKanbanItemFromSharedState(raw)`
+- `normalizeColumnIndexFromSharedState(raw)`
+- `normalizeKanbanStatus(raw)`
+- `safeClassToken(raw)`

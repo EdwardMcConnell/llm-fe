@@ -3,7 +3,13 @@ import { globalSharedMap } from '/src/store.js';
 import { createFormSignal } from '/src/form.js';
 import { globalAuthManager } from '/src/auth.js';
 import { globalToast } from '/src/ui.js';
-import { createKanbanCard } from './kanban-card.generated.js';
+import { createKanbanCard } from '../../../generated-examples/kanban-card/kanban-card.generated.js';
+import { 
+  normalizeKanbanItemFromSharedState, 
+  normalizeColumnIndexFromSharedState, 
+  normalizeKanbanStatus,
+  safeClassToken 
+} from '../../../sample/validators.js';
 
 function getCurrentUser() {
   const token = globalAuthManager.getToken();
@@ -238,28 +244,37 @@ class SampleBoard extends FeElement {
     this.cards = new Map();
 
     // 2. CRDT Sync
-    globalSharedMap.incrementSubscriber('kanban:items_index');
-    this._cleanups.push(() => globalSharedMap.decrementSubscriber('kanban:items_index'));
+    const columns = ['todo', 'in-progress', 'done'];
+    for (const col of columns) {
+      globalSharedMap.incrementSubscriber(`kanban:column:${col}:index`);
+      this._cleanups.push(() => globalSharedMap.decrementSubscriber(`kanban:column:${col}:index`));
+    }
+    globalSharedMap.incrementSubscriber('kanban:board:metadata');
+    this._cleanups.push(() => globalSharedMap.decrementSubscriber('kanban:board:metadata'));
 
     const unsub = globalSharedMap.subscribe((key, value) => {
-      if (key === 'kanban:items_index') {
-        const ids = value || [];
-        for (const id of ids) {
-          if (!this.cards.has(id)) {
-            globalSharedMap.incrementSubscriber(`kanban:item:${id}`);
-            // We can't easily push to cleanups here, but a real app would track sub counts.
-          }
-        }
+      if (key.startsWith('kanban:column:')) {
+        const status = key.split(':')[2];
+        const ids = normalizeColumnIndexFromSharedState(value);
+        this.syncColumn(status, ids);
       } else if (key.startsWith('kanban:item:')) {
-        this.syncCard(key.replace('kanban:item:', ''), value);
+        const item = normalizeKanbanItemFromSharedState(value);
+        this.syncCard(key.replace('kanban:item:', ''), item);
       }
     });
     this._cleanups.push(unsub);
 
     // Initial load
+    for (const col of columns) {
+      const idx = globalSharedMap.get(`kanban:column:${col}:index`);
+      if (idx) {
+        this.syncColumn(col, normalizeColumnIndexFromSharedState(idx));
+      }
+    }
     for (const [key, value] of globalSharedMap.state.entries()) {
       if (key.startsWith('kanban:item:')) {
-        this.syncCard(key.replace('kanban:item:', ''), value);
+        const item = normalizeKanbanItemFromSharedState(value);
+        this.syncCard(key.replace('kanban:item:', ''), item);
       }
     }
 
@@ -283,8 +298,8 @@ class SampleBoard extends FeElement {
         createdAt: new Date().toISOString()
       };
       
-      const index = globalSharedMap.get('kanban:items_index') || [];
-      globalSharedMap.set('kanban:items_index', [...index, id]);
+      const index = normalizeColumnIndexFromSharedState(globalSharedMap.get('kanban:column:todo:index'));
+      globalSharedMap.set('kanban:column:todo:index', [...index, id]);
       
       globalSharedMap.set(`kanban:item:${id}`, newItem);
       globalToast.show(`Task added: ${newItem.title}`);
@@ -323,16 +338,28 @@ class SampleBoard extends FeElement {
           if (dropZoneEl.classList.contains('col-done')) newStatus = 'done';
         }
 
-        const item = globalSharedMap.get(`kanban:item:${id}`);
-        console.log('onDrop item found:', !!item, 'newStatus:', newStatus);
-        if (item) {
+        const item = normalizeKanbanItemFromSharedState(globalSharedMap.get(`kanban:item:${id}`));
+        if (item && newStatus && item.status !== newStatus) {
+          const oldStatus = item.status;
+          
+          // Remove from old column
+          const oldIndex = normalizeColumnIndexFromSharedState(globalSharedMap.get(`kanban:column:${oldStatus}:index`));
+          globalSharedMap.set(`kanban:column:${oldStatus}:index`, oldIndex.filter(i => i !== id));
+          
+          // Add to new column
+          const newIndex = normalizeColumnIndexFromSharedState(globalSharedMap.get(`kanban:column:${newStatus}:index`));
+          globalSharedMap.set(`kanban:column:${newStatus}:index`, [...newIndex, id]);
+          
+          // Update item
           globalSharedMap.set(`kanban:item:${id}`, { 
             ...item, 
             lockedBy: null, 
             lockedAt: null, 
-            status: newStatus ? newStatus : item.status 
+            status: newStatus 
           });
-          if (newStatus) globalToast.show(`Task moved to ${newStatus}`);
+          globalToast.show(`Task moved to ${newStatus}`);
+        } else if (item) {
+          globalSharedMap.set(`kanban:item:${id}`, { ...item, lockedBy: null, lockedAt: null });
         }
       }
     });
@@ -343,10 +370,12 @@ class SampleBoard extends FeElement {
     if (!item) return;
 
     if (ev.type === 'card:delete') {
+      const item = normalizeKanbanItemFromSharedState(globalSharedMap.get(`kanban:item:${id}`));
+      if (item) {
+        const colIndex = normalizeColumnIndexFromSharedState(globalSharedMap.get(`kanban:column:${item.status}:index`));
+        globalSharedMap.set(`kanban:column:${item.status}:index`, colIndex.filter(i => i !== id));
+      }
       globalSharedMap.delete(`kanban:item:${id}`);
-      
-      const index = globalSharedMap.get('kanban:items_index') || [];
-      globalSharedMap.set('kanban:items_index', index.filter(i => i !== id));
       
       globalToast.show('Task deleted successfully');
     } else if (ev.type === 'card:editTitle') {
@@ -397,6 +426,29 @@ class SampleBoard extends FeElement {
       listNode.appendChild(card.root);
       this.updateCounts();
     }
+  }
+
+  syncColumn(status, ids) {
+    const listNode = this.nodes.get(`list-${status}`);
+    if (!listNode) return;
+
+    if (!this._cardSubs) this._cardSubs = new Set();
+
+    for (const id of ids) {
+      if (!this.cards.has(id)) {
+        if (!this._cardSubs.has(id)) {
+          this._cardSubs.add(id);
+          globalSharedMap.incrementSubscriber(`kanban:item:${id}`);
+          this._cleanups.push(() => globalSharedMap.decrementSubscriber(`kanban:item:${id}`));
+        }
+      } else {
+        const card = this.cards.get(id);
+        if (card.root.parentElement === listNode) {
+          listNode.appendChild(card.root); // Reorder natively in DOM
+        }
+      }
+    }
+    this.updateCounts();
   }
 
   updateCounts() {

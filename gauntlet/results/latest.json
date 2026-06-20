@@ -1,0 +1,62 @@
+[
+  {
+    "app": "normalized-kanban",
+    "tests": "pass",
+    "cleanup": "pass",
+    "safeRendering": "pass",
+    "benchmark": {
+      "mountMs": 0,
+      "patchMs": 0,
+      "disposeMs": 0
+    },
+    "knownRisks": []
+  },
+  {
+    "app": "data-grid",
+    "tests": "pass",
+    "cleanup": "pass",
+    "safeRendering": "pass",
+    "benchmark": {
+      "mountMs": 0,
+      "patchMs": 0,
+      "disposeMs": 0
+    },
+    "knownRisks": []
+  },
+  {
+    "app": "settings-form",
+    "tests": "pass",
+    "cleanup": "pass",
+    "safeRendering": "pass",
+    "benchmark": {
+      "mountMs": 0,
+      "patchMs": 0,
+      "disposeMs": 0
+    },
+    "knownRisks": []
+  },
+  {
+    "app": "live-dashboard",
+    "tests": "pass",
+    "cleanup": "pass",
+    "safeRendering": "pass",
+    "benchmark": {
+      "mountMs": 0,
+      "patchMs": 0,
+      "disposeMs": 0
+    },
+    "knownRisks": []
+  },
+  {
+    "app": "product-catalog",
+    "tests": "pass",
+    "cleanup": "pass",
+    "safeRendering": "pass",
+    "benchmark": {
+      "mountMs": 0,
+      "patchMs": 0,
+      "disposeMs": 0
+    },
+    "knownRisks": []
+  }
+]

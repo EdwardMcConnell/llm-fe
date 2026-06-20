@@ -27,3 +27,10 @@ Server received delete patch: {
   client: 'c8rl0on0fm7'
 }
 Server applied delete for kanban:item:task-e6ykkd5dhpg
+Server received delete patch: {
+  type: 'delete',
+  key: 'kanban:item:item-1',
+  clock: 13,
+  client: '630575p3a8b'
+}
+Server applied delete for kanban:item:item-1

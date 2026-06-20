@@ -13,10 +13,13 @@ const port = 3000;
 app.use(express.static(__dirname));
 // Serve the Fe UI framework files from the src directory
 app.use('/src', express.static(path.join(__dirname, '../src')));
+app.use('/gauntlet', express.static(path.join(__dirname, '../gauntlet')));
+app.use('/generated-examples', express.static(path.join(__dirname, '../generated-examples')));
+app.use('/sample', express.static(__dirname));
 
 // SPA Fallback to index.html for routing
 app.use((req, res, next) => {
-  if (req.method === 'GET' && !req.path.startsWith('/src')) {
+  if (req.method === 'GET' && !req.path.startsWith('/src') && !req.path.startsWith('/gauntlet') && !req.path.startsWith('/generated-examples') && !req.path.startsWith('/sample')) {
     res.sendFile(path.join(__dirname, 'index.html'));
   } else {
     next();

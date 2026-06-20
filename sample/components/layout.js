@@ -103,15 +103,16 @@ class SampleLayout extends FeElement {
             <fe-accordion open>
               <span slot="header">Applications</span>
               <div style="display:flex; flex-direction:column; gap:0.5rem; padding-left:1rem;">
-                <fe-link href="/">Kanban Board</fe-link>
-                <fe-link href="/grid">Data Grid</fe-link>
+                <fe-link href="/kanban" class="nav-item">Kanban Board</fe-link>
+                <fe-link href="/grid" class="nav-item">Data Grid</fe-link>
+                <fe-link href="/dashboard" class="nav-item">Live Dashboard</fe-link>
+                <fe-link href="/catalog" class="nav-item">Product Catalog</fe-link>
               </div>
             </fe-accordion>
             <fe-accordion>
               <span slot="header">Settings</span>
               <div style="display:flex; flex-direction:column; gap:0.5rem; padding-left:1rem;">
-                <fe-link href="#">Profile</fe-link>
-                <fe-link href="#">Preferences</fe-link>
+                <fe-link href="/settings" class="nav-item">Profile</fe-link>
               </div>
             </fe-accordion>
           </fe-accordion-group>

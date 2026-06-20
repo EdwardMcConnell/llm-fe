@@ -8,3 +8,7 @@ const clientId = SharedMap.generateClientId();
  * All application state is stored here.
  */
 export const globalSharedMap = new SharedMap(clientId);
+
+if (typeof window !== 'undefined') {
+  window.globalSharedMap = globalSharedMap;
+}

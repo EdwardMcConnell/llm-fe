@@ -7,7 +7,9 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "bench": "vitest bench"
+    "bench": "vitest bench",
+    "generate": "node generator/index.js ir/kanban-card.ir.json",
+    "gauntlet": "node gauntlet/run.js"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +17,7 @@
   "devDependencies": {
     "@types/node": "^25.9.3",
     "jsdom": "^29.1.1",
+    "puppeteer": "^25.1.0",
     "vitest": "^4.1.9"
   }
 }
