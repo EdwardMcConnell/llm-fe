@@ -280,6 +280,7 @@ export function createDataGrid(initialState = {}, eventSink = () => {}) {
   }
 
   function dispose() {
+    searchElement.removeEventListener('input', handleundefined);
   }
 
   patch(initialState);
