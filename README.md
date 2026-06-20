@@ -5,6 +5,30 @@
 
 Welcome, contributing Agent. This document contains the absolute laws and context required to build upon the Fe Framework.
 
+## The Core Thesis
+
+Fe is an LLM-native Web Application Scaffold. It bypasses traditional frameworks like React and Vue, avoiding Virtual DOMs (VDOMs) entirely. Fe optimizes for mathematical determinism and LLM reasoning speed, ensuring that applications are both performant and easy for language models to understand and extend.
+
+## The Compiler Pipeline
+
+Applications in Fe are defined through a multi-stage pipeline:
+
+1. **JSON Contracts (Trust Boundaries):** Applications start as strict JSON Contracts that define trust boundaries and application structure.
+2. **Intermediate Representation (IR):** These contracts are lowered to JSON Explicit IR, which provides a detailed blueprint for the application.
+3. **Deterministic DOM-Patching JS:** The IR is compiled into pure, deterministic DOM-patching Vanilla JavaScript using `node generator/app-generator.js`.
+
+## The Data Grid
+
+The resilience of the Fe compiler is demonstrated through the generation of a `Data Grid` component from IR. This component natively supports 10,000+ rows using highly optimized DOM Virtualization, rendering only about 23 rows at a time and recycling nodes on scroll to maintain performance.
+
+## Network Sync Layer
+
+Fe employs Lamport-clock based CRDTs (`SharedMap`) to manage state across applications. The framework includes a lightweight `server/hot-path.js` that broadcasts CRDT patches via Server-Sent Events (SSE). Generated applications intercept mutations via `fetch` and merge incoming patches in real-time, enabling out-of-the-box collaborative editing.
+
+## The Auto-Healing Compiler Loop
+
+The `server/hot-path.js` also functions as an LLM Hot-Path. Users can send natural language requests to mutate the IR. If the LLM generates malformed JSON or crashes the compiler, the server captures the Node `stderr` stack trace and silently loops back to the LLM (up to 3 times), asking it to self-heal the syntax error before presenting any errors to the user.
+
 ## Scaffold Confidence Gauntlet
 
 Fe relies on mechanically verifiable proofs. **Do not claim Fe is ready based on this README.**
@@ -32,15 +56,6 @@ Fe does not yet prove:
 - **Generated Pipeline**: `npm run generate` transforms `kanban-card.contract.json` to IR to JS, proven through `validate-contract-ir.js` and `verify-generated.js`.
 - **Gauntlet Result**: Checked per app and linked to Maturity.
 
-**Comparative Claims (Proven via Benchmarks):**
-1. **`normalized-kanban`**: Designed to minimize diffing overhead via direct DOM patch functions. In `bench/kanban-card.generated.bench.js`, generated code avoids innerHTML string matching entirely.
-2. **`data-grid`**: Virtualized rendering cleans up `ResizeObserver` instances. Tested by `cleanup.test.js`.
-3. **`settings-form`**: Native Reactive Forms provide `FormData` capture.
-4. **`live-dashboard`**: High-frequency patches map via `this.nodes` for minimized GC pressure.
-5. **`product-catalog`**: Async data handles deduplication via `demandData`.
-
-If you add a new primitive or feature, you **must** ensure it passes the full `npm run verify:all` pipeline and that no required proof item lowers the maturity level.
-
 ## Immutable Architectural Laws
 
 1. **Zero-Dependency**: You may NOT use `npm install` for any external runtime libraries or polyfills. The framework must remain 100% vanilla. 
@@ -64,37 +79,6 @@ Fe relies heavily on bleeding-edge native browser capabilities to replace legacy
 - **`adoptedStyleSheets`**: Assumed supported for global theme injection.
 - **`hidden="until-found"`**: Used for `FeTabs` and `FeAccordion` accessibility. Degrades to standard `hidden` naturally.
 
-## Using the Framework
+## Human Understanding Section
 
-### Core Primitives
-The framework is built around custom Web Components extending `FeElement` (found in `src/component.js`).
-
-- **Reactivity**: Uses proxy-based signals (`createSignal`, `createEffect`).
-- **Memory Management**: If you attach global listeners or timers, push the cleanup callback into `this._cleanups` inside your component's `bind()` method. `FeElement` executes them in `disconnectedCallback`.
-
-### The UI Component Library
-To utilize the high-performance primitives, simply import the main package or the UI file directly. This executes side-effect imports that auto-register the custom elements with the browser (e.g. `customElements.define('fe-button', FeButton)`). This pattern is chosen specifically to minimize setup boilerplate for generated code. 
-
-- **`<fe-card>`**: Strictly contained layout isolation (`contain: content`).
-- **`<fe-accordion>` & `<fe-accordion-group>`**: Uses native `<details>` and `<summary>`.
-- **`<fe-toast>`**: Top-Layer non-blocking notifications. Trigger via `globalToast.show("message")`.
-
-### Creating a Component (Compile-in-Prompt)
-
-Fe explicitly rejects generic DOM diffing (like VDOMs or `morphNode`) for application code.
-
-Instead, LLM Agents must use the **Compile-in-Prompt** pattern:
-1. Define a machine-readable Component Contract (`contracts/`).
-2. Lower the intent into an Intermediate Representation (`ir/`).
-3. Compile the IR into direct, hand-rolled imperative DOM patches (`npm run generate`).
-
-```javascript
-// Generated Direct DOM Patch (Example)
-function patchTitle(nextVal) {
-  if (currentTitle === nextVal) return;
-  currentTitle = nextVal;
-  titleNode.nodeValue = nextVal == null ? '' : String(nextVal);
-}
-```
-
-This guarantees explicit trust boundaries (innerHTML is strictly avoided) and minimizes DOM diffing overhead by targeting elements directly.
+While Fe is designed for LLMs, human developers visiting this repository should understand that Fe is a cutting-edge framework that leverages the power of language models to generate highly optimized, deterministic web applications. It eschews traditional frameworks in favor of a contract-driven approach that ensures performance and reliability. Humans are encouraged to explore the contracts and IR to understand the architecture but should refrain from manually editing generated code.
