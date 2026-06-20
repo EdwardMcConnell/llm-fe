@@ -78,26 +78,7 @@
   "app": {
     "name": "kanban-app",
     "rootComponent": "kanban-board",
-    "state": {
-      "type": "SharedMap",
-      "subscriptions": [
-        {
-          "pattern": "kanban:item:*",
-          "action": "upsertCard",
-          "targetList": "dynamicColumn"
-        },
-        {
-          "pattern": "kanban:column:*:index",
-          "action": "reorderList",
-          "targetComponent": "columnByStatus"
-        }
-      ]
-    },
     "customWireups": [
-      {
-        "source": "generator/wireups/kanban-wireup.js",
-        "target": "kanban-app.generated.js"
-      },
       {
         "source": "generator/wireups/kanban-state.js",
         "target": "kanban-state.generated.js"
@@ -105,6 +86,73 @@
       {
         "source": "generator/wireups/kanban-validators.js",
         "target": "kanban-validators.generated.js"
+      }
+    ]
+  },
+  "wireup": {
+    "moduleName": "kanban-app.generated.js",
+    "rootComponent": "createKanbanBoard",
+    "exportName": "createKanbanApp",
+    "appImports": [
+      { "name": "createKanbanBoard", "module": "./kanban-board.generated.js" },
+      { "name": "createKanbanCard", "module": "./kanban-card.generated.js" },
+      { "name": "applyItemEdit, applyItemMove, applyItemDelete, createInitialBoardState", "module": "./kanban-state.generated.js" },
+      { "name": "safeText", "module": "./kanban-validators.generated.js" }
+    ],
+    "setupCode": "createInitialBoardState(sharedMap);",
+    "events": [
+      {
+        "type": "kanban:item:edit",
+        "extract": "const id = ev.sourceEvent.target.dataset.id || ev.sourceEvent.target.closest('[data-id]')?.dataset.id;\n      if (!id) return;",
+        "action": "applyItemEdit(sharedMap, id, { title: safeText('Edited Card') });"
+      },
+      {
+        "type": "kanban:item:delete",
+        "extract": "const id = ev.sourceEvent.target.closest('[data-node=\"root\"]')?.dataset?.id;\n      if (!id) return;",
+        "action": "applyItemDelete(sharedMap, id);"
+      },
+      {
+        "type": "card:dragstart",
+        "extract": "const id = ev.sourceEvent.target.closest('[data-node=\"root\"]')?.dataset?.id;\n      if (!id) return;",
+        "action": "ev.sourceEvent.dataTransfer.setData('text/plain', id);"
+      },
+      {
+        "type": "kanban:column:reorder",
+        "action": "applyItemMove(sharedMap, ev.itemId, ev.fromStatus, ev.toStatus, 999);"
+      }
+    ],
+    "children": [
+      { 
+        "name": "card", 
+        "factory": "createKanbanCard",
+        "routeProperty": "status",
+        "routeMap": {
+          "todo": "todoCol",
+          "in-progress": "inProgressCol",
+          "done": "doneCol"
+        },
+        "listName": "cards"
+      }
+    ],
+    "subscriptions": [
+      {
+        "action": "patchItem",
+        "matchType": "prefix",
+        "pattern": "kanban:item:",
+        "childName": "card"
+      },
+      {
+        "action": "reconcileList",
+        "matchType": "prefix",
+        "pattern": "kanban:column:",
+        "extractKey": "key.split(':')[2]",
+        "routeMap": {
+          "todo": "todoCol",
+          "in-progress": "inProgressCol",
+          "done": "doneCol"
+        },
+        "reconcileList": "cards",
+        "valuePath": "itemIds"
       }
     ]
   }

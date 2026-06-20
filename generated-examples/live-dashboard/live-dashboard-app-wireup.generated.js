@@ -4,17 +4,27 @@ import { createLiveDashboardWidget } from './live-dashboard-widget.generated.js'
 
 export function createDashboard(sharedMap) {
   const app = createLiveDashboardApp({});
-  const widgets = new Map();
+  const widgetInstances = new Map();
 
   function patchWidget(statePatch) {
     const id = statePatch.id;
-    let instance = widgets.get(id);
+    let instance = widgetInstances.get(id);
     if (!instance) {
       instance = createLiveDashboardWidget(statePatch);
-      widgets.set(id, instance);
-      app.insertWidgets(id, instance);
+      widgetInstances.set(id, instance);
+      if (instance.root) instance.root.dataset.id = id;
     } else {
       instance.patch(statePatch);
+    }
+    app.insertWidgets(id, instance);
+  }
+
+  function removeWidget(id) {
+    const instance = widgetInstances.get(id);
+    if (instance) {
+      instance.dispose();
+      if (app.removeWidgets) app.removeWidgets(id);
+      widgetInstances.delete(id);
     }
   }
 
@@ -33,6 +43,7 @@ export function createDashboard(sharedMap) {
   const disposeSub = sharedMap.subscribe((key, val) => {
     if (key.startsWith('dashboard:widget:')) {
       if (val) patchWidget(val);
+      else removeWidget(key.split(':')[2]);
     } else     if (key === 'dashboard:index') {
       if (val) app.patch({ widgetsIndex: val.itemIds });
     }
@@ -44,8 +55,8 @@ export function createDashboard(sharedMap) {
   return {
     root: app.root,
     dispose: () => {
-      for (const instance of widgets.values()) instance.dispose();
-      widgets.clear();
+      for (const instance of widgetInstances.values()) instance.dispose();
+      widgetInstances.clear();
       app.dispose();
       cleanups.forEach(c => c());
     }

@@ -46,16 +46,16 @@
     "children": [
       {
         "name": "widget",
-        "factory": "createLiveDashboardWidget"
+        "factory": "createLiveDashboardWidget",
+        "listName": "widgets"
       }
     ],
     "subscriptions": [
       {
         "pattern": "dashboard:widget:",
         "matchType": "prefix",
-        "action": "patchChild",
-        "childName": "widget",
-        "insertList": "widgets"
+        "action": "patchItem",
+        "childName": "widget"
       },
       {
         "pattern": "dashboard:index",

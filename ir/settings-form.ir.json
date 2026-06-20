@@ -134,10 +134,46 @@
       "cleanup": true
     }
   ],
-  "customWireups": [
-    {
-      "source": "generator/wireups/settings-form-wireup.js",
-      "target": "settings-form-app-wireup.generated.js"
-    }
-  ]
+  "wireup": {
+    "moduleName": "settings-form-app-wireup.generated.js",
+    "exportName": "createSettingsApp",
+    "rootComponent": "settings-form",
+    "appImports": [
+      { "name": "createSettingsForm", "module": "./settings-form.generated.js" },
+      { "name": "createFormSignal", "module": "/src/form.js" },
+      { "name": "createEffect", "module": "/src/reactivity.js" },
+      { "name": "globalSharedMap", "module": "/src/store.js" },
+      { "name": "globalToast", "module": "/src/ui.js" }
+    ],
+    "forms": [
+      {
+        "name": "settings",
+        "initialValues": "{ username: '', email: '', notificationsEnabled: false, theme: 'system' }",
+        "validate": "(values) => {\n    const errors = {};\n    if (!values.username || values.username.length < 3) errors.username = 'Username must be at least 3 characters.';\n    if (!values.email || !values.email.includes('@')) errors.email = 'A valid email is required.';\n    return errors;\n  }",
+        "syncFrom": [
+          { "field": "username", "key": "settings_username" },
+          { "field": "email", "key": "settings_email" },
+          { "field": "notificationsEnabled", "key": "settings_notifications" },
+          { "field": "theme", "key": "settings_theme" }
+        ]
+      }
+    ],
+    "effects": [
+      {
+        "code": "const state = getsettingsForm();\n    app.patch({\n      username: state.values.username || '',\n      email: state.values.email || '',\n      notificationsEnabled: !!state.values.notificationsEnabled,\n      theme: state.values.theme || 'system',\n      usernameError: state.errors.username || '',\n      usernameErrorVisible: !!state.errors.username,\n      emailError: state.errors.email || '',\n      emailErrorVisible: !!state.errors.email,\n      isSubmitting: !!state.isSubmitting\n    });"
+      }
+    ],
+    "events": [
+      {
+        "type": "settings:submit",
+        "extract": "ev.sourceEvent.preventDefault();",
+        "action": "settingsFormActions.submit(async (values) => {\n         await new Promise(r => setTimeout(r, 600));\n         sharedMap.set('settings_username', values.username);\n         sharedMap.set('settings_email', values.email);\n         sharedMap.set('settings_notifications', values.notificationsEnabled);\n         sharedMap.set('settings_theme', values.theme);\n         globalToast.show('Settings saved successfully', 'success');\n       });"
+      },
+      {
+        "type": "settings:input",
+        "extract": "const target = ev.sourceEvent.target;\n       const value = target.type === 'checkbox' ? target.checked : target.value;",
+        "action": "settingsFormActions.setFieldValue(target.name, value);"
+      }
+    ]
+  }
 }

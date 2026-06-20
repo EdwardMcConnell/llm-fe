@@ -62,8 +62,8 @@ function checkLevel3(reqs) {
   if (reqs.gauntletAppProof) {
     for (const app of reqs.gauntletAppProof) {
       const appRes = gauntlet && gauntlet.results ? gauntlet.results.find(r => r.app === app) : null;
-      if (!appRes || (appRes.proofTier !== 'A' && appRes.proofTier !== 'B')) {
-        missing.push(`gauntletAppProof (Tier A or B required): ${app}`);
+      if (!appRes || appRes.proofTier !== 'A') {
+        missing.push(`gauntletAppProof (Tier A required): ${app}`);
       }
     }
   }

@@ -226,7 +226,7 @@ async function runGauntlet() {
     results.push(res);
 
     for (const [key, category] of Object.entries(res)) {
-      if (typeof category === 'object' && category.status === 'fail' || category.status === 'missing') {
+      if (typeof category === 'object' && (category.status === 'fail' || category.status === 'missing')) {
         allPass = false;
         if (!weakestArea) {
           weakestArea = `${key} failing for ${app.name}`;

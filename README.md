@@ -4,7 +4,10 @@
 
 Fe is an experimental LLM-native application compiler scaffold.
 
-It explores whether LLMs can build common enterprise web applications by compiling machine-readable contracts and intermediate representation (IR) into generated direct-DOM applications, instead of hand-authoring traditional framework code.
+It compiles contracts and IR into generated direct-DOM applications.
+
+The pipeline is:
+`LLM intent` → `contracts` → `IR` → `generated direct DOM` → `tests` → `browser proof` → `benchmarks`.
 
 ## Why this exists
 
@@ -15,28 +18,32 @@ Because humans do not maintain the generated output, Fe prioritizes deterministi
 ## Current status
 
 Fe is experimental.
+Fe has a serious generated normalized Kanban proof.
+Fe has emerging generated examples across additional app categories.
+Fe is not yet proven for arbitrary applications.
+Fe is not enterprise-ready.
+Fe is not a general replacement for existing frontend frameworks.
+Claims are valid only when backed by `npm run verify:all`.
 
-The project currently computes maturity at **Level 3: Multi-App Generated Example Gauntlet**. This means Fe has a verified generated normalized Kanban proof, generated examples across multiple common enterprise UI shapes, a runtime API contract, and an emerging contract/IR/direct-DOM compiler path.
-
-Readiness is determined by `npm run verify:all`, not by README prose.
+Maturity is computed automatically by `npm run maturity`, not asserted manually. 
 
 ## What is proven today
 
-Fe can claim:
-* Fe has a verified generated normalized Kanban proof that successfully compiles contracts into a direct-DOM program and passes tests.
-* Fe has generated examples across several common enterprise UI shapes (data grid, settings form, live dashboard, product catalog).
-* Fe has a strict runtime API contract and verification pipeline (the "gauntlet").
-* Generated code is constrained by the runtime API contract.
+The strongest canonical proof today is normalized Kanban (`normalized-kanban`).
+Other app examples exist, but proof depth may vary.
 
 ## What is not proven
 
-Fe must not claim:
-* Enterprise readiness.
-* Proof for arbitrary LLM-built applications.
-* General framework replacement or superiority over React/Vue/Svelte/Solid.
-* Production-proven reliability.
-* Complete security or trust-boundary coverage for all scenarios.
-* Out-of-the-box collaborative editing support, unless narrowly tied to the normalized LWW state proof.
+Fe does not claim to be:
+* production-proven
+* enterprise-ready
+* mathematically optimal
+* faster than React/Vue/Svelte/Solid
+* guaranteed zero leaks
+* guaranteed zero trust-boundary bugs
+* fully generic across arbitrary apps
+
+unless those exact claims are strictly backed by current executable proofs in `verify:all`.
 
 ## Canonical proof: normalized Kanban
 
@@ -46,16 +53,16 @@ This app demonstrates the complete pipeline, compiling from contracts and IR int
 
 ## Generated examples and proof tiers
 
-Other generated apps exist, but their proof depth varies. The gauntlet classifies apps into proof tiers:
+The gauntlet (`npm run gauntlet`) classifies apps into proof tiers:
 
-* **Tier A — Canonical proof**: Full contract/IR/generated/test/browser/benchmark/gauntlet coverage.
+* **Tier A — Canonical proof**: Full contract, IR, generated output, test, browser proof, and benchmark coverage.
   * `normalized-kanban`
 * **Tier B — Generated example**: Generated artifact exists with some tests/benchmarks, but lacks full canonical browser proof.
   * `data-grid`
   * `settings-form`
   * `live-dashboard`
   * `product-catalog`
-* **Tier C — Experimental sample**: Useful exploration, missing contracts/IR/generated artifacts.
+* **Tier C — Experimental sample**: Useful exploration, missing complete contracts/IR/generated artifacts.
 * **Tier D — Placeholder/future target**: Listed but not proven.
 
 ## How the pipeline works
@@ -87,6 +94,7 @@ Generated application code must treat external data as untrusted.
 Rules:
 * External data must render through safe text paths (e.g., `textContent`) unless explicitly trusted.
 * External text must not flow into `innerHTML`.
+* The `innerHTML` property is restricted strictly to `trustedStaticTemplateHTML` operations during internal compiler execution to create static templates. It must NEVER accept dynamic variables.
 * Malformed external values must fail safely.
 * Generated code should prefer explicit purpose-built validators over generic runtime schema libraries.
 
@@ -123,8 +131,12 @@ Do not add:
 
 ## Performance claims policy
 
-Performance claims must cite explicit benchmark output. Do not make broad or unsupported performance multipliers (e.g., avoid "Fe is mathematically optimal").
+Performance claims must cite explicit benchmark output. Do not make broad or unsupported performance generalizations.
+* Allowed: "In benchmark X, operation Y measured Z."
+* Not Allowed: "Fe is faster than React." or "Fe is mathematically optimal."
+
+Benchmarks must be current. Missing values must not be zero. Benchmarks should guide engineering, not marketing.
 
 ## Roadmap: next proof target
 
-The generator still relies on some app-specific assumptions. The long-term direction is a fully generic contract/IR compiler. The next target is to generalize the IR vocabulary to handle structural DOM reconciliation (morph/insert/remove) natively across all Tier B examples, promoting them to Tier A canonical proofs.
+The generator currently relies on some app-specific wireups (documented in `generator/README.md`). The long-term direction is a fully generic contract/IR compiler. The next target is to generalize the IR vocabulary to handle structural DOM reconciliation (morph/insert/remove) natively across all Tier B examples, promoting them to Tier A canonical proofs.

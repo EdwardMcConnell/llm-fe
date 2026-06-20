@@ -12,6 +12,8 @@
     "generate:kanban": "node generator/app-generator.js contracts/kanban-app.contract.json",
     "generate:dashboard": "node generator/app-generator.js contracts/live-dashboard-app.contract.json",
     "generate:settings": "node generator/app-generator.js contracts/settings-form.contract.json",
+    "generate:grid": "node generator/app-generator.js contracts/data-grid.contract.json",
+    "generate:catalog": "node generator/app-generator.js contracts/product-catalog.contract.json",
     "test:native": "vitest run --dir test",
     "test:browser": "node gauntlet/apps/normalized-kanban/e2e.node.js",
     "gauntlet": "node gauntlet/run.js",
@@ -19,7 +21,7 @@
     "maturity": "node maturity/update-status.js",
     "prompt": "node bin/prompt.js",
     "chat": "node bin/ask-chatgpt.js",
-    "verify:all": "npm run generate && npm run generate:kanban && npm run generate:dashboard && npm run verify:generated && npm test && npm run test:browser && npm run bench && npm run gauntlet && npm run maturity"
+    "verify:all": "npm run generate:kanban && npm run generate:dashboard && npm run generate:settings && npm run generate:grid && npm run generate:catalog && npm run verify:generated && npm run test:native && npm run test:browser && npm run bench && npm run gauntlet && npm run maturity"
   },
   "keywords": [],
   "author": "",

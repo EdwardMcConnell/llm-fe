@@ -59,7 +59,7 @@ export function createDataGrid(sharedMap) {
 
     // Naive virtual reconciliation
     const existing = new Set();
-    for (const child of Array.from(bodyElement.children)) {
+    for (const child of bodyElement.children) {
       if (child.className === 'virtual-spacer') continue;
       const idx = parseInt(child.dataset.index, 10);
       if (idx >= startIndex && idx < endIndex) {

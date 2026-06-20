@@ -35,6 +35,12 @@
   },
   "domRules": {
     "forbiddenMethods": ["innerHTML", "morphNode", "bindMorphTrustedHTML"],
-    "allowedProperties": ["textContent", "value", "className", "disabled", "checked"]
+    "allowedProperties": ["textContent", "value", "className", "disabled", "checked"],
+    "allowedOperations": {
+      "trustedStaticTemplateHTML": {
+        "description": "Used only by the compiler when setting template.innerHTML for fixed, compiler-owned static structures with NO external dynamic data.",
+        "rule": "External dynamic data MUST NEVER flow into any innerHTML assignment. Use textContent instead."
+      }
+    }
   }
 }

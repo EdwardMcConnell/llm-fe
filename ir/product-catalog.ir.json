@@ -77,12 +77,50 @@
     }
   ],
   "events": [],
-  "customWireups": [
-    {
-      "source": "generator/wireups/product-catalog-wireup.js",
-      "target": "product-catalog-app-wireup.generated.js"
-    }
-  ],
+  "wireup": {
+    "moduleName": "product-catalog-app-wireup.generated.js",
+    "exportName": "createCatalogApp",
+    "rootComponent": "product-catalog",
+    "appImports": [
+      { "name": "createProductCatalog", "module": "./product-catalog.generated.js" },
+      { "name": "createProductCard", "module": "./product-card.generated.js" },
+      { "name": "globalSharedMap", "module": "/src/store.js" },
+      { "name": "createEffect", "module": "/src/reactivity.js" },
+      { "name": "globalDemandManager", "module": "/src/data.js" }
+    ],
+    "children": [
+      { "name": "product", "factory": "createProductCard", "listName": "products" }
+    ],
+    "setupCode": "const initialCart = sharedMap.get('cart:items') || [];\n  app.patch({ cartCount: initialCart.length });",
+    "demand": [
+      {
+        "name": "Products",
+        "key": "catalog:products",
+        "fetcher": "async () => {\n    // Mock fetch\n    return new Promise(resolve => {\n      setTimeout(() => {\n        resolve([\n          { id: 'p1', title: 'Ergonomic Keyboard', price: 129.99, img: 'https://placehold.co/400x400/png?text=Keyboard' },\n          { id: 'p2', title: 'Wireless Mouse', price: 59.99, img: 'https://placehold.co/400x400/png?text=Mouse' },\n          { id: 'p3', title: 'Ultra HD Monitor', price: 349.99, img: 'https://placehold.co/400x400/png?text=Monitor' },\n          { id: 'p4', title: 'USB-C Hub', price: 45.00, img: 'https://placehold.co/400x400/png?text=Hub' }\n        ]);\n      }, 50);\n    });\n  }"
+      }
+    ],
+    "effects": [
+      {
+        "code": "const products = getProducts();\n\n    if (!products) {\n      app.patch({ showLoading: true, showError: false, showGrid: false });\n      return;\n    }\n\n    if (products.error) {\n      app.patch({ showLoading: false, showError: true, showGrid: false });\n      return;\n    }\n\n    app.patch({ showLoading: false, showError: false, showGrid: true });\n\n    const currentIds = products.map(p => p.id);\n    for (const product of products) {\n      patchProduct(product);\n    }\n    \n    app.patch({ productsIndex: currentIds });"
+      }
+    ],
+    "subscriptions": [
+      {
+        "pattern": "cart:items",
+        "matchType": "exact",
+        "action": "patchApp",
+        "input": "cartCount",
+        "valuePath": "length"
+      }
+    ],
+    "events": [
+      {
+        "type": "catalog:add_to_cart",
+        "extract": "const id = ev.sourceEvent.target.closest('[data-node=\"root\"]')?.dataset?.id;\n       if (!id) return;",
+        "action": "const currentCart = sharedMap.get('cart:items') || [];\n       sharedMap.set('cart:items', [...currentCart, id]);"
+      }
+    ]
+  },
   "dependencies": [
     "product-card.ir.json"
   ]
