@@ -550,20 +550,24 @@ class SampleGrid extends FeElement {
       }
     });
 
-    document.addEventListener('mousemove', (e) => {
+    const handleMouseMove = (e) => {
       if (!isResizing) return;
       const newW = Math.max(50, startW + (e.clientX - startX));
       // Instantly update the CSS variable on the host, which pierces the Shadow DOM natively
       this.style.setProperty(`--col-${colName}-w`, `${newW}px`);
-    });
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    this._cleanups.push(() => document.removeEventListener('mousemove', handleMouseMove));
 
-    document.addEventListener('mouseup', () => {
+    const handleMouseUp = () => {
       if (isResizing) {
         isResizing = false;
         if (currentResizer) currentResizer.classList.remove('dragging');
         currentResizer = null;
       }
-    });
+    };
+    document.addEventListener('mouseup', handleMouseUp);
+    this._cleanups.push(() => document.removeEventListener('mouseup', handleMouseUp));
 
     // Initial render
     fullRefresh();

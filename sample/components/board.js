@@ -234,16 +234,24 @@ class SampleBoard extends FeElement {
     // 2. Reactive UI with DOM Morphing
     this.bindMorph('.board-columns', () => {
       const items = getItems() || [];
-      const statusCounts = { 'todo': 0, 'in-progress': 0, 'done': 0 };
+      
+      let countTodo = 0;
+      let countInProgress = 0;
+      let countDone = 0;
+
+      let htmlTodo = '';
+      let htmlInProgress = '';
+      let htmlDone = '';
+
+      const currentUser = getCurrentUser();
+      const now = Date.now();
+
       const sortedItems = [...items].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-      const listsHtml = { 'todo': '', 'in-progress': '', 'done': '' };
-
-      sortedItems.forEach(item => {
-        statusCounts[item.status]++;
+      for (let i = 0; i < sortedItems.length; i++) {
+        const item = sortedItems[i];
         
-        const currentUser = getCurrentUser();
-        const isLocked = item.lockedBy && item.lockedAt && (Date.now() - new Date(item.lockedAt).getTime() < 60000);
+        const isLocked = item.lockedBy && item.lockedAt && (now - new Date(item.lockedAt).getTime() < 60000);
         const lockedByOther = isLocked && item.lockedBy !== currentUser;
         
         const cardClass = lockedByOther ? 'card locked' : 'card';
@@ -253,11 +261,12 @@ class SampleBoard extends FeElement {
         const actionsStyle = lockedByOther ? 'style="display: none;"' : '';
 
         const isoDate = item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString();
+        const safeTitle = this.escapeHtml(item.title);
 
-        listsHtml[item.status] += `
+        const cardHtml = `
           <fe-card class="${cardClass}" data-id="${item.id}" ${dragAttr}>
             ${lockHtml}
-            <div class="card-title" ${editableAttr} spellcheck="false">${this.escapeHtml(item.title)}</div>
+            <div class="card-title" ${editableAttr} spellcheck="false">${safeTitle}</div>
             <div class="card-meta">
               <fe-time datetime="${isoDate}" format="relative"></fe-time>
             </div>
@@ -267,36 +276,47 @@ class SampleBoard extends FeElement {
             </div>
           </fe-card>
         `;
-      });
+
+        if (item.status === 'todo') {
+          countTodo++;
+          htmlTodo += cardHtml;
+        } else if (item.status === 'in-progress') {
+          countInProgress++;
+          htmlInProgress += cardHtml;
+        } else if (item.status === 'done') {
+          countDone++;
+          htmlDone += cardHtml;
+        }
+      }
 
       return `
         <fe-card class="column col-todo">
           <div class="column-header">
             <span>To Do</span>
-            <span class="badge" id="count-todo">${statusCounts['todo']}</span>
+            <span class="badge" id="count-todo">${countTodo}</span>
           </div>
           <div class="card-list" id="list-todo">
-            ${listsHtml['todo']}
+            ${htmlTodo}
           </div>
         </fe-card>
 
         <fe-card class="column col-in-progress">
           <div class="column-header">
             <span>In Progress</span>
-            <span class="badge" id="count-in-progress">${statusCounts['in-progress']}</span>
+            <span class="badge" id="count-in-progress">${countInProgress}</span>
           </div>
           <div class="card-list" id="list-in-progress">
-            ${listsHtml['in-progress']}
+            ${htmlInProgress}
           </div>
         </fe-card>
 
         <fe-card class="column col-done">
           <div class="column-header">
             <span>Done</span>
-            <span class="badge" id="count-done">${statusCounts['done']}</span>
+            <span class="badge" id="count-done">${countDone}</span>
           </div>
           <div class="card-list" id="list-done">
-            ${listsHtml['done']}
+            ${htmlDone}
           </div>
         </fe-card>
       `;
