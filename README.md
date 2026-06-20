@@ -1,84 +1,403 @@
-# Fe UI Framework
+# Fe
 
-> **CRITICAL DIRECTIVE**: This repository is an **LLM-to-LLM System**. 
-> Humans will not maintain generated application code. Therefore, generated code optimizes for LLM continuation, executable verification, runtime observability, and browser performance rather than human aesthetics. 
+Fe is an experimental LLM-native web application scaffold.
 
-Welcome, contributing Agent. This document contains the absolute laws and context required to build upon the Fe Framework.
+It is not trying to be React, Vue, Svelte, Solid, or a human-authored component framework. Fe is exploring a different target:
 
-## The Core Thesis
+> LLM intent → machine-readable contracts → IR → generated direct DOM code → tests → browser proof → benchmarks.
 
-Fe is an LLM-native Web Application Scaffold. It bypasses traditional frameworks like React and Vue, avoiding Virtual DOMs (VDOMs) entirely. Fe optimizes for mathematical determinism and LLM reasoning speed, ensuring that applications are both performant and easy for language models to understand and extend.
+Generated application code is assumed to be continued by future LLMs, not maintained by humans. Human readability is secondary to deterministic behavior, explicit trust boundaries, runtime API discipline, reproducibility, and executable proof.
 
-## The Compiler Pipeline
+## Current Status
 
-Applications in Fe are defined through a multi-stage pipeline:
+Fe is experimental.
 
-1. **JSON Contracts (Trust Boundaries):** Applications start as strict JSON Contracts that define trust boundaries and application structure.
-2. **Intermediate Representation (IR):** These contracts are lowered to JSON Explicit IR, which provides a detailed blueprint for the application.
-3. **Deterministic DOM-Patching JS:** The IR is compiled into pure, deterministic DOM-patching Vanilla JavaScript using `node generator/app-generator.js`.
+The only fully canonical generated application proof is currently:
 
-## The Data Grid
+```text
+generated-examples/normalized-kanban/
+```
 
-The resilience of the Fe compiler is demonstrated through the generation of a `Data Grid` component from IR. This component natively supports 10,000+ rows using highly optimized DOM Virtualization, rendering only about 23 rows at a time and recycling nodes on scroll to maintain performance.
+This app demonstrates the Contract → IR → Generated Direct DOM pipeline for a normalized Kanban workflow application.
 
-## Network Sync Layer
+Do not generalize this proof to arbitrary web applications yet.
 
-Fe employs Lamport-clock based CRDTs (`SharedMap`) to manage state across applications. The framework includes a lightweight `server/hot-path.js` that broadcasts CRDT patches via Server-Sent Events (SSE). Generated applications intercept mutations via `fetch` and merge incoming patches in real-time, enabling out-of-the-box collaborative editing.
+Fe may currently claim:
 
-## The Auto-Healing Compiler Loop
+* The runtime/package can be verified through the repository scripts.
+* A generated direct-DOM Kanban card exists.
+* A generated normalized Kanban application exists.
+* The normalized Kanban proof uses contracts, IR, generated modules, tests, benchmarks, and gauntlet verification.
+* Generated code is constrained by a runtime API contract.
+* The current proof is strongest for workflow-board style CRUD/dashboard application shapes.
 
-The `server/hot-path.js` also functions as an LLM Hot-Path. Users can send natural language requests to mutate the IR. If the LLM generates malformed JSON or crashes the compiler, the server captures the Node `stderr` stack trace and silently loops back to the LLM (up to 3 times), asking it to self-heal the syntax error before presenting any errors to the user.
+Fe must not yet claim:
 
-## Scaffold Confidence Gauntlet
+* broad enterprise readiness
+* proof for arbitrary LLM-built applications
+* proof across all web app categories
+* superiority to React/Vue/Svelte/Solid in general
+* complete security or trust-boundary coverage for all scenarios
+* support for Google Docs/Figma-style collaborative editing
+* support for arbitrary consumer UI, canvas apps, games, or rich text editors
 
-Fe relies on mechanically verifiable proofs. **Do not claim Fe is ready based on this README.**
+Current maturity is computed, not manually asserted.
 
-Fe's capabilities are proven exclusively by the Scaffold Confidence Gauntlet and computed by the Maturity Model. To verify performance and safety claims, you must run:
+Run:
+
 ```bash
 npm run verify:all
 ```
 
-This generates `gauntlet/results/latest.json` and `maturity/status.json`.
+Then inspect:
 
-**Current maturity: Level 2 — Generated Application Proof**
+```text
+maturity/status.json
+gauntlet/results/latest.json
+```
 
-Fe currently proves:
-* package/runtime works
-* generated Kanban card component works
-* contract graph to direct-DOM pipeline exists for normalized-kanban
+The README is not the source of truth. The verification pipeline is.
 
-Fe does not yet prove:
-* broad enterprise scaffold readiness
-* multiple application category coverage
+## What Fe Is Trying to Prove
 
-- **Tests**: Gauntlet checks explicitly for named proof cases (e.g., LWW convergence, cleanup). All tests passing.
-- **Benchmarks**: Gauntlet tracks absolute rendering times for Mount, Patch, and Dispose operations. All performance regressions prevented.
-- **Generated Pipeline**: `npm run generate` transforms `kanban-card.contract.json` to IR to JS, proven through `validate-contract-ir.js` and `verify-generated.js`.
-- **Gauntlet Result**: Checked per app and linked to Maturity.
+Most frontend frameworks optimize for human authorship.
 
-## Immutable Architectural Laws
+Fe explores whether LLM-generated applications can perform better and remain more mechanically reliable when the runtime surface is small and the app code is compiled into explicit browser operations.
 
-1. **Zero-Dependency**: You may NOT use `npm install` for any external runtime libraries or polyfills. The framework must remain 100% vanilla. 
-2. **Native-First with Capability Detection**: Prioritize modern HTML/CSS browser native implementations over JavaScript. Use native APIs like `<dialog>`, `popover`, and `:user-valid`. However, **you must use feature detection** before calling experimental APIs, and you must supply lightweight vanilla fallbacks when they are missing.
-3. **Purpose-Built Validation**: External data cannot be trusted. Network payloads, WebSocket messages, and CRDT patches must be structurally validated at the boundary. Do not rely on massive runtime JS schema engines; use explicit, purpose-built boundary checks.
+The preferred generated shape is:
 
-## Mechanical Honesty (Named Invariants)
+```js
+function patchTitle(nextTitle) {
+  if (currentTitle === nextTitle) return;
+  currentTitle = nextTitle;
+  titleTextNode.nodeValue = nextTitle == null ? '' : String(nextTitle);
+}
+```
 
-Fe relies on **Named Invariants** backed by tests, not grandiose adjectives. 
+That style is intentionally repetitive and specialized.
 
-- **Invariant**: `createEffect` returns a deterministic disposer. Proof: `test/core.test.js` > `Memory Annihilation`.
-- **Invariant**: CRDT patches from the network are structurally validated before incrementing Lamport clocks. Proof: `src/crdt.js` > `merge()`.
+The goal is not elegant source code. The goal is:
 
-## Capability Detection Discipline
+* create DOM once
+* cache exact node references
+* patch exact text/class/attribute targets
+* avoid generic diffing in hot paths
+* avoid unsafe `innerHTML` for external data
+* clean up listeners/subscriptions explicitly
+* validate all external input at the boundary
+* regenerate from contracts/IR
+* prove behavior with tests, real-browser checks, and benchmarks
 
-Fe relies heavily on bleeding-edge native browser capabilities to replace legacy JS abstractions. Generated code MUST provide fallback layers or fail open gracefully:
+## Repository Shape
 
-- **`popover` & `position-anchor`**: Fe provides automatic bounding-rect calculation fallbacks for `FeTooltip` and `FeMenu` if `CSS.supports('position-anchor')` returns false.
-- **`sibling-index()`**: Used for stacking `FeToast`. JS manual calculation is used as a fallback if not supported.
-- **`<dialog>` & `delegatesFocus`**: Assumed supported globally (Baseline 2022).
-- **`adoptedStyleSheets`**: Assumed supported for global theme injection.
-- **`hidden="until-found"`**: Used for `FeTabs` and `FeAccordion` accessibility. Degrades to standard `hidden` naturally.
+Key directories:
 
-## Human Understanding Section
+```text
+contracts/
+  Machine-readable application, state, event, trust, and runtime API contracts.
 
-While Fe is designed for LLMs, human developers visiting this repository should understand that Fe is a cutting-edge framework that leverages the power of language models to generate highly optimized, deterministic web applications. It eschews traditional frameworks in favor of a contract-driven approach that ensures performance and reliability. Humans are encouraged to explore the contracts and IR to understand the architecture but should refrain from manually editing generated code.
+ir/
+  Intermediate representations used by the generator.
+
+generator/
+  Deterministic code generation and validation scripts.
+
+generated-examples/
+  Checked-in generated output. These files are artifacts, not the primary authoring surface.
+
+src/
+  Small runtime surface and browser adapters.
+
+gauntlet/
+  Scaffold confidence checks and machine-readable results.
+
+bench/
+  Benchmarks for generated and runtime paths.
+
+maturity/
+  Computed maturity model and status.
+
+sample/
+  Human-viewable sample/demo code. This is not automatically proof unless included in the gauntlet.
+```
+
+## The Compile-in-Prompt Pattern
+
+Future LLM agents should not start by editing generated JavaScript.
+
+The intended workflow is:
+
+```text
+1. Modify contracts.
+2. Lower/update IR.
+3. Run the generator.
+4. Verify generated output is reproducible.
+5. Run tests.
+6. Run browser proof.
+7. Run benchmarks.
+8. Run the gauntlet.
+9. Update maturity.
+```
+
+Use:
+
+```bash
+npm run verify:all
+```
+
+The full verification pipeline should run generation, generated-output verification, tests, benchmarks, gauntlet checks, and maturity calculation.
+
+If `verify:all` fails, fix the failing proof. Do not update README claims to work around it.
+
+## Runtime API Discipline
+
+Generated code may only call runtime APIs declared in:
+
+```text
+contracts/runtime-api.contract.json
+```
+
+This prevents generated code from hallucinating runtime methods.
+
+For example, if the runtime exposes:
+
+```js
+sharedMap.subscribe(callback)
+```
+
+then generated code must not call:
+
+```js
+sharedMap.observe(callback)
+```
+
+unless `observe` is explicitly added to the runtime implementation and declared in the runtime API contract.
+
+Runtime API drift is a compiler/proof failure.
+
+## Trust Boundary Rules
+
+Generated application code must treat external data as untrusted.
+
+External data includes:
+
+* network payloads
+* shared map values
+* CRDT/network patches
+* URL params
+* form values
+* local/session storage
+* persisted drafts
+* user-provided strings
+
+Rules:
+
+* external text must render through text nodes or `textContent`
+* external text must not flow into `innerHTML`
+* external enum values must be normalized
+* class tokens derived from external data must be normalized
+* malformed external values must fail safely
+* generated code should prefer explicit purpose-built validators over generic runtime schema libraries
+
+Do not add external runtime validation dependencies unless the project explicitly changes its zero-runtime-dependency constraint.
+
+## Canonical Proof: Normalized Kanban
+
+The canonical generated app is:
+
+```text
+generated-examples/normalized-kanban/
+```
+
+Its state model is normalized for Last-Writer-Wins shared state.
+
+Canonical keys:
+
+```text
+kanban:board:metadata
+kanban:column:todo:index
+kanban:column:in-progress:index
+kanban:column:done:index
+kanban:item:<id>
+```
+
+Rules:
+
+* editing a card updates only `kanban:item:<id>`
+* moving a card updates the item status and affected column indexes
+* deleting a card deletes the item key and removes the id from indexes
+* independent card edits should survive
+* same-card conflicts resolve by deterministic LWW behavior
+* same-column reorder conflicts resolve by deterministic LWW behavior unless a better ordering CRDT is introduced
+* whole-board arrays are not allowed for collaborative shared state
+
+This proof does not imply support for operation-based collaborative text editing or complex nested multi-user document editing.
+
+## Runtime vs Generated Code
+
+Fe still contains runtime utilities in `src/`, but the runtime is not the product.
+
+The product direction is:
+
+```text
+contracts → IR → generated direct DOM application
+```
+
+The runtime should remain small and stable.
+
+Runtime expansion should happen only when a generated app proves that a new primitive is necessary.
+
+Do not add runtime features merely because they are convenient or familiar from existing frameworks.
+
+## Non-Goals
+
+Do not add:
+
+* JSX
+* virtual DOM
+* framework-style component ergonomics for humans
+* React/Solid/Vue/Svelte compatibility layers
+* generic morphing in hot paths
+* WASM for UI
+* custom browser engines
+* broad design-system primitives without generated-app proof
+* maturity badges not backed by executable checks
+* README readiness claims not backed by `verify:all`
+
+WASM may be considered later only for pure compute workloads such as filtering, sorting, search, validation, CRDT merge, parsing, formula evaluation, or image/audio processing.
+
+The UI lane should remain browser-native JavaScript and DOM.
+
+## Performance Claims
+
+Do not make broad performance claims in prose.
+
+Acceptable:
+
+```text
+In benchmark X, generated normalized Kanban patching measured Y for operation Z.
+```
+
+Not acceptable:
+
+```text
+Fe is faster than React.
+Fe is mathematically optimal.
+Fe guarantees 60fps.
+Fe is enterprise-grade.
+```
+
+Performance claims must point to benchmark files and current gauntlet output.
+
+## Commands
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run tests:
+
+```bash
+npm test
+```
+
+Regenerate the canonical component/app artifacts:
+
+```bash
+npm run generate
+npm run generate:kanban
+```
+
+Verify generated files are reproducible:
+
+```bash
+npm run verify:generated
+```
+
+Run benchmarks:
+
+```bash
+npm run bench
+```
+
+Run the scaffold gauntlet:
+
+```bash
+npm run gauntlet
+```
+
+Update computed maturity:
+
+```bash
+npm run maturity
+```
+
+Run the full proof pipeline:
+
+```bash
+npm run verify:all
+```
+
+## Guidance for Future LLM Agents
+
+Before changing code:
+
+1. Read `maturity/status.json`.
+2. Read `gauntlet/results/latest.json`.
+3. Read `contracts/runtime-api.contract.json`.
+4. Read the normalized Kanban contracts and IR.
+5. Identify whether the requested change belongs in contracts, IR, generator, runtime, or proof.
+
+Prefer changing:
+
+```text
+contracts/ → ir/ → generator/
+```
+
+before editing:
+
+```text
+generated-examples/
+```
+
+Generated files should be regenerated, not hand-polished.
+
+When adding a capability:
+
+* add or update the contract
+* update IR
+* generate code
+* add tests
+* add browser proof if app-level behavior changes
+* add benchmarks if performance is claimed
+* update gauntlet requirements
+* update maturity only through the maturity script
+
+If a change cannot be proven, mark it experimental.
+
+## Current Project Direction
+
+The next valuable milestone is not more runtime surface.
+
+The next valuable milestone is another fully generated application proof in a different common enterprise app category, such as:
+
+* data grid
+* form-heavy settings page
+* live dashboard
+* product catalog
+
+A second generated app should not count as proof unless it has:
+
+* app/state/event/trust contracts
+* IR
+* generated direct DOM modules
+* reproducibility check
+* tests
+* real-browser proof where relevant
+* benchmarks
+* gauntlet integration
+* maturity impact
+
+One undeniable generated app is worth more than many shallow demos.
