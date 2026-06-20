@@ -120,6 +120,7 @@ async function processApp(app) {
       for (const reqBench of reqs.benchmarks) {
         if (!executedBenchmarks.some(b => b.includes(reqBench))) {
           missingBenches.push(reqBench);
+          result.benchmarks.results[reqBench] = "missing";
         }
       }
 
