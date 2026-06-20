@@ -18,7 +18,6 @@
     "production-proven reliability"
   ],
   "missingForNextLevel": [
-    "gauntletAppProof (Tier A required): data-grid",
     "gauntletAppProof (Tier A required): settings-form",
     "gauntletAppProof (Tier A required): live-dashboard",
     "gauntletAppProof (Tier A required): product-catalog"

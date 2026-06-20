@@ -105,13 +105,16 @@ export class SharedMap {
       this.state.set(key, value);
       this.clocks.set(key, patchClock);
       this._notifyLocal(key, value);
+      return true;
     }
+    return false;
   }
 
   /**
    * @param {string} key 
    * @param {number} patchClock 
    * @param {string} client 
+   * @returns {boolean}
    */
   _applyDelete(key, patchClock, client) {
     this.clock = Math.max(this.clock, patchClock);
@@ -121,7 +124,9 @@ export class SharedMap {
       this.state.delete(key);
       this.clocks.set(key, patchClock);
       this._notifyLocal(key, undefined);
+      return true;
     }
+    return false;
   }
 
   /**
@@ -149,9 +154,13 @@ export class SharedMap {
     }
 
     if (patch.type === 'set') {
-      this._applySet(patch.key, patch.value, patch.clock, patch.client);
+      if (this._applySet(patch.key, patch.value, patch.clock, patch.client)) {
+        this._notifyPatch(patch);
+      }
     } else if (patch.type === 'delete') {
-      this._applyDelete(patch.key, patch.clock, patch.client);
+      if (this._applyDelete(patch.key, patch.clock, patch.client)) {
+        this._notifyPatch(patch);
+      }
     }
   }
 

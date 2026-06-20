@@ -39,15 +39,26 @@
   },
   "data-grid": {
     "tests": [
-      "cleans up reactive effects when disconnected"
+      "cleans up reactive effects when disconnected",
+      "10,000-row rendering proof",
+      "filtering/sorting/search proof",
+      "row selection proof",
+      "keyboard navigation proof",
+      "safe cell rendering proof"
     ],
     "benchmarks": [
       "Render first window (10,000 rows virtualized)",
       "Scroll window (10,000 rows virtualized)",
       "Filter 10,000 rows"
     ],
-    "contracts": [ "data-grid.contract.json" ],
-    "generatedArtifacts": [ "data-grid.generated.js", "data-grid-app-wireup.generated.js" ]
+    "contracts": [
+      "data-grid.contract.json"
+    ],
+    "generatedArtifacts": [
+      "data-grid.generated.js",
+      "data-grid-app-wireup.generated.js"
+    ],
+    "browserProof": "gauntlet/apps/data-grid/e2e.node.js"
   },
   "settings-form": {
     "tests": [
@@ -108,7 +119,25 @@
       "Patch Cart State Reactively",
       "Dispose Catalog"
     ],
-    "contracts": [ "product-catalog.contract.json", "product-card.contract.json" ],
-    "generatedArtifacts": [ "product-catalog.generated.js", "product-card.generated.js", "product-catalog-app-wireup.generated.js" ]
+    "contracts": [
+      "product-catalog.contract.json",
+      "product-card.contract.json"
+    ],
+    "generatedArtifacts": [
+      "product-catalog.generated.js",
+      "product-card.generated.js",
+      "product-catalog-app-wireup.generated.js"
+    ]
+  },
+  "customer-ops-console": {
+    "tests": [
+      "renders all four sub-components in tabs",
+      "cross-component reactivity: selects a customer in the grid and syncs to settings form",
+      "cross-component reactivity: edits customer in form and syncs back to grid and kanban"
+    ],
+    "benchmarks": [],
+    "contracts": [
+      "customer-ops-console.contract.json"
+    ]
   }
 }

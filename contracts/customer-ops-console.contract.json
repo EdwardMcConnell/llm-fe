@@ -1,0 +1,29 @@
+{
+  "app": "customer-ops-console",
+  "kind": "application",
+  "state": {
+    "console:activeTab": { "type": "enum", "values": ["dashboard", "customers", "tickets", "settings"] },
+    "console:selectedCustomerId": { "type": "string" }
+  },
+  "ownedNodes": {
+    "root": ".ops-console-root",
+    "navDashboard": ".nav-dashboard",
+    "navCustomers": ".nav-customers",
+    "navTickets": ".nav-tickets",
+    "navSettings": ".nav-settings",
+    "tabDashboard": ".tab-dashboard",
+    "tabCustomers": ".tab-customers",
+    "tabTickets": ".tab-tickets",
+    "tabSettings": ".tab-settings",
+    "gridContainer": ".grid-container",
+    "formContainer": ".form-container",
+    "kanbanContainer": ".kanban-container",
+    "dashboardContainer": ".dashboard-container"
+  },
+  "components": {
+    "data-grid": "contracts/data-grid.contract.json",
+    "settings-form": "contracts/settings-form.contract.json",
+    "kanban-board": "contracts/kanban-board.contract.json",
+    "live-dashboard-app": "contracts/live-dashboard-app.contract.json"
+  }
+}

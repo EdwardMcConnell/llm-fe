@@ -170,8 +170,12 @@ export function generateGenericWireup(appIr, outDir) {
     code += `    }\n`;
     code += `  };\n`;
 
-    // subscribe
-    code += `\n  const disposeSub = sharedMap.subscribe((key, val) => {\n`;
+    // listen
+    code += `
+  const disposeSub = sharedMap.onPatch((patch) => {
+    const key = patch.key;
+    const val = patch.value;
+`;
     for (const sub of w.subscriptions) {
       let cond = sub.matchType === 'prefix' ? `key.startsWith('${sub.pattern}')` : `key === '${sub.pattern}'`;
       let actionCode = '';

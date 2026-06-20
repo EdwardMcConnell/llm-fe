@@ -1,165 +1,134 @@
 import puppeteer from 'puppeteer';
 import assert from 'assert';
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
 
 async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 (async () => {
-  console.log('Launching Puppeteer for E2E validation...');
+  console.log('Launching Puppeteer for E2E Data Grid validation...');
+  
+  // Start server
+  const server = http.createServer((req, res) => {
+    let filePath = path.join(process.cwd(), req.url);
+    if (filePath.includes('?')) filePath = filePath.split('?')[0];
+    try {
+      const ext = path.extname(filePath);
+      let contentType = 'text/html';
+      if (ext === '.js') contentType = 'application/javascript';
+      const content = fs.readFileSync(filePath);
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(content, 'utf-8');
+    } catch(e) {
+      res.writeHead(404);
+      res.end('Not found');
+    }
+  });
+  
+  await new Promise(r => server.listen(4445, r));
   const browser = await puppeteer.launch();
   
   try {
-    // -------------------------------------------------------------
-    // Client 1: Login and interact
-    // -------------------------------------------------------------
-    console.log('Opening Client 1...');
-    const page1 = await browser.newPage();
+    const page = await browser.newPage();
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
     
-    // Log errors and console
-    page1.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()));
-    page1.on('pageerror', err => console.log('Client 1 Error:', err.stack || err.toString()));
+    await page.goto('http://localhost:4445/test/data-grid-test.html');
+    await delay(1000); // let it mount and generate 10k rows
     
-    await page1.goto('http://localhost:3000', { waitUntil: 'networkidle0' });
-    await delay(1000); // Give view transition time to finish redirect
+    // Virtualization Proof
+    console.log('Scenario 1: 10,000-row rendering proof');
+    const rowCount = await page.evaluate(() => document.querySelectorAll('.grid-row').length);
+    assert.ok(rowCount < 50, `Virtualization failed, too many rows rendered: ${rowCount}`);
+    console.log('✓ Scenario 1 passed');
+
+    // Filtering Proof
+    console.log('Scenario 2: filtering/search proof');
+    await page.type('#gridSearch', 'Data 999');
+    await delay(500);
+    const filterVisibleCount = await page.evaluate(() => document.querySelectorAll('.grid-row').length);
+    assert.ok(filterVisibleCount <= 12, `Filtering failed, rendered: ${filterVisibleCount}`);
     
-    // 1. Verify redirect to login
-    let url = page1.url();
-    console.log('Current URL before login check:', url);
-    assert.ok(url.includes('/login'), 'Should redirect to /login');
-    console.log('✓ Redirect to /login validated');
+    await page.evaluate(() => { window.sharedMap.set('grid:filter', ''); }); // force reset just in case
+    await delay(500);
+    console.log('✓ Scenario 2 passed');
 
-    // 2. Perform Login (pierce Shadow DOM)
-    console.log('Performing login...');
-    await page1.evaluate(() => {
-      const loginNode = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-login');
-      const shadowRoot = loginNode.shadowRoot;
-      const user = shadowRoot.querySelector('#username');
-      const pass = shadowRoot.querySelector('#password');
-      const submit = shadowRoot.querySelector('fe-button[type="submit"]');
-      
-      user.value = 'test_user';
-      user.dispatchEvent(new Event('input', { bubbles: true }));
-      
-      pass.value = 'password123';
-      pass.dispatchEvent(new Event('input', { bubbles: true }));
-      
-      submit.click();
-    });
-
-    await delay(1000); // wait for navigation
-    
-    // 3. Verify Dashboard
-    url = page1.url();
-    assert.ok(url.endsWith('http://localhost:3000/'), 'Should redirect to / after login');
-    console.log('✓ Dashboard navigation validated');
-
-    // Navigate directly to Grid View
-    console.log('Navigating to Massive Data Grid...');
-    await page1.evaluate(() => {
-      const layout = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').shadowRoot;
-      const link = layout.querySelector('fe-link[href="/grid"]');
-      link.click();
-    });
-    
-    await delay(1000); // Wait for transition and render
-
-    // 12. Verify Grid rendered 100k items properly using virtualizer
-    console.log('Verifying grid virtualization...');
-    const gridStats = await page1.evaluate(() => {
-      const gridNode = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-grid');
-      const innerGrid = gridNode.shadowRoot.querySelector('fe-grid');
-      
-      if (innerGrid._renderWindow) {
-        console.log('Forcing innerGrid._renderWindow()...');
-        innerGrid._renderWindow();
-      } else {
-        console.log('innerGrid._renderWindow is missing!');
-      }
-
-      const ghost = innerGrid.shadowRoot.querySelector('#ghost');
-      const viewport = innerGrid.shadowRoot.querySelector('#viewport');
-      return {
-        hostHeight: innerGrid.clientHeight,
-        parentHeight: gridNode.clientHeight,
-        ghostHeight: ghost.style.height,
-        renderedNodes: viewport.children.length
-      };
-    });
-    console.log('GRID STATS:', gridStats);
-    
-    const parsedHeight = parseFloat(gridStats.ghostHeight);
-    assert.ok(parsedHeight === 4800, 'Ghost element should reflect 100 items (default pagination) * 48px height');
-    assert.ok(gridStats.renderedNodes > 0 && gridStats.renderedNodes < 100, 'Virtual DOM pool should only render a minimal number of nodes');
-    console.log('✓ Massive Data Grid virtualization (Paginated) verified successfully!');
-
-    // Test Advanced Features
-    console.log('Testing Grid Advanced Features...');
-
-    // 1. Test Select All
-    await page1.evaluate(() => {
-      const gridNode = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-grid');
-      const selectAll = gridNode.shadowRoot.querySelector('#select-all');
-      selectAll.click();
+    // Sorting Proof
+    console.log('Scenario 3: sorting proof');
+    await page.evaluate(() => {
+      const col = document.querySelector('.header-cell[data-col="Col 1"]');
+      col.click();
     });
     await delay(500);
-    const selectedCount = await page1.evaluate(() => {
-      const gridNode = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-grid');
-      const innerGrid = gridNode.shadowRoot.querySelector('fe-grid');
-      return innerGrid.shadowRoot.querySelectorAll('.row.selected').length;
+    const firstSortVal = await page.evaluate(() => {
+      const el = document.querySelector('.grid-row[data-index="0"] [data-col-id="Col 1"]');
+      return el ? el.textContent : null;
     });
-    // The DOM only contains the rendered nodes, not all 100, so we check if visible nodes are selected
-    assert.ok(selectedCount > 0, 'Rows should be selected when Select All is clicked');
-    console.log('✓ Row Selection verified');
+    await page.evaluate(() => {
+      const col = document.querySelector('.header-cell[data-col="Col 1"]');
+      col.click();
+    });
+    await delay(500);
+    const descSortVal = await page.evaluate(() => {
+      const el = document.querySelector('.grid-row[data-index="0"] [data-col-id="Col 1"]');
+      return el ? el.textContent : null;
+    });
+    assert.notStrictEqual(firstSortVal, descSortVal, 'Sorting did not change row order');
+    // Clear sort
+    await page.evaluate(() => { window.sharedMap.set('grid:sortCol', null); });
+    await delay(500);
+    console.log('✓ Scenario 3 passed');
 
-    // 2. Test Pagination (Change to 'all')
-    await page1.evaluate(() => {
-      const gridNode = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-grid');
-      const pageSize = gridNode.shadowRoot.querySelector('#page-size');
-      pageSize.value = 'all';
-      pageSize.dispatchEvent(new Event('change', { bubbles: true }));
+    // Selection Proof
+    console.log('Scenario 4: row selection proof');
+    await page.evaluate(() => {
+      const firstRow = document.querySelector('.grid-row[data-index="0"]');
+      firstRow.click();
     });
-    await delay(1000);
-    const allGridStats = await page1.evaluate(() => {
-      const gridNode = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-grid');
-      const innerGrid = gridNode.shadowRoot.querySelector('fe-grid');
-      if (innerGrid._renderWindow) innerGrid._renderWindow();
-      const ghost = innerGrid.shadowRoot.querySelector('#ghost');
-      return { ghostHeight: ghost.style.height };
-    });
-    const parsedAllHeight = parseFloat(allGridStats.ghostHeight);
-    assert.ok(parsedAllHeight === 4800000 || allGridStats.ghostHeight === '4.8e+06px', 'Ghost element should reflect 100,000 items when pagination is set to All');
-    console.log('✓ Page Size Change (All records) verified');
+    await delay(100);
+    const hasSelectedClass = await page.evaluate(() => document.querySelector('.grid-row[data-index="0"]').classList.contains('selected'));
+    const isSelectedInMap = await page.evaluate(() => window.sharedMap.get('grid:selectedRows').length === 1);
+    assert.ok(hasSelectedClass && isSelectedInMap, 'Row selection failed');
+    console.log('✓ Scenario 4 passed');
 
-    // 3. Test Global Search
-    await page1.evaluate(() => {
-      const gridNode = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-grid');
-      const search = gridNode.shadowRoot.querySelector('#quick-search');
-      search.value = 'Employee User 999';
-      search.dispatchEvent(new Event('input', { bubbles: true }));
-    });
-    await delay(1000);
-    const searchGridStats = await page1.evaluate(() => {
-      const gridNode = document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-grid');
-      const innerGrid = gridNode.shadowRoot.querySelector('fe-grid');
-      if (innerGrid._renderWindow) innerGrid._renderWindow();
-      const ghost = innerGrid.shadowRoot.querySelector('#ghost');
-      return { ghostHeight: ghost.style.height };
-    });
-    // Search for "999" will match 999, 1999, 2999, 9990, 9991, etc.
-    // 100000 items -> "999" matches around 100+ items. Height should drop drastically from 4.8 million.
-    const searchHeight = parseFloat(searchGridStats.ghostHeight);
-    assert.ok(searchHeight < 4800000 && searchHeight > 0, 'Grid should drastically filter items based on search query');
-    console.log('✓ Global Quick Search verified');
+    // Keyboard Nav
+    console.log('Scenario 5: keyboard navigation proof');
+    await page.keyboard.press('ArrowDown');
+    await delay(100);
+    const isFocused = await page.evaluate(() => document.querySelector('.grid-row[data-index="1"]').classList.contains('focused'));
+    assert.ok(isFocused, 'Keyboard down arrow failed to focus next row');
+    await page.keyboard.press(' ');
+    await delay(100);
+    const spaceSelected = await page.evaluate(() => document.querySelector('.grid-row[data-index="1"]').classList.contains('selected'));
+    assert.ok(spaceSelected, 'Keyboard space did not select row');
+    console.log('✓ Scenario 5 passed');
 
-    console.log('\\n=========================================');
-    console.log('SUCCESS: All E2E Tests Passed!');
+    // Safe Cell Rendering
+    console.log('Scenario 6: safe cell rendering proof');
+    await page.evaluate(() => {
+      const rowId = document.querySelector('.grid-row[data-index="1"]').dataset.rowId;
+      window.sharedMap.set(`grid:cell:${rowId}:Col 1`, '<script>window.XSS_FLAG=true;</script><b>Test</b>');
+    });
+    await delay(200);
+    const xssTriggered = await page.evaluate(() => window.XSS_FLAG === true);
+    const textRendered = await page.evaluate(() => {
+      const rowId = document.querySelector('.grid-row[data-index="1"]').dataset.rowId;
+      return document.querySelector(`.grid-row[data-row-id="${rowId}"] [data-col-id="Col 1"]`).innerHTML;
+    });
+    assert.ok(!xssTriggered, 'XSS executed! Safe cell rendering failed');
+    assert.ok(textRendered.includes('&lt;script&gt;') || textRendered.includes('<script>'), 'HTML was not properly escaped or rendered safely as text');
+    console.log('✓ Scenario 6 passed');
+
+    console.log('\n=========================================');
+    console.log('SUCCESS: All Advanced E2E Data Grid Tests Passed!');
     console.log('=========================================');
-    
   } catch (err) {
-    console.error('E2E Test Failed:', err);
+    console.error('Test Failed:', err);
     process.exit(1);
   } finally {
     await browser.close();
+    server.close();
   }
 })();

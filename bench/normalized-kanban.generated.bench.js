@@ -5,17 +5,33 @@ class MockSharedMap {
   constructor() {
     this.store = new Map();
     this.listeners = new Set();
+    this.patchListeners = new Set();
   }
   get(k) { return this.store.get(k); }
-  set(k, v) { this.store.set(k, v); this.notify(k, v); }
-  delete(k) { this.store.delete(k); this.notify(k, undefined); }
+  set(k, v) { 
+    this.store.set(k, v); 
+    this.notify(k, v); 
+    this.notifyPatch({ type: 'set', key: k, value: v, clock: Date.now(), client: 'test' });
+  }
+  delete(k) { 
+    this.store.delete(k); 
+    this.notify(k, undefined); 
+    this.notifyPatch({ type: 'delete', key: k, clock: Date.now(), client: 'test' });
+  }
   entries() { return this.store.entries(); }
   subscribe(cb) {
     this.listeners.add(cb);
     return () => this.listeners.delete(cb);
   }
+  onPatch(cb) {
+    this.patchListeners.add(cb);
+    return () => this.patchListeners.delete(cb);
+  }
   notify(key, value) {
     this.listeners.forEach(cb => cb(key, value));
+  }
+  notifyPatch(patch) {
+    this.patchListeners.forEach(cb => cb(patch));
   }
 }
 

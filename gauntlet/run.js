@@ -6,8 +6,9 @@ const APPS = [
   { name: 'normalized-kanban', path: 'gauntlet/apps/normalized-kanban' },
   { name: 'live-dashboard', path: 'test/live-dashboard.generated.test.js' },
   { name: 'settings-form', path: 'test/settings-form.generated.test.js' },
-  { name: 'data-grid', path: 'test/data-grid.generated.test.js' },
-  { name: 'product-catalog', path: 'test/product-catalog.generated.test.js' }
+  { name: 'data-grid', path: 'test/data-grid.generated.test.js test/data-grid-e2e.test.js' },
+  { name: 'product-catalog', path: 'test/product-catalog.generated.test.js' },
+  { name: 'customer-ops-console', path: 'test/customer-ops-console-e2e.test.js' }
 ];
 
 const requirementsRaw = fs.readFileSync('gauntlet/proof-requirements.json', 'utf8');

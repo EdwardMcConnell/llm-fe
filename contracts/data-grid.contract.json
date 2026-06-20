@@ -3,7 +3,12 @@
   "state": {
     "grid:columns": { "type": "array" },
     "grid:rows": { "type": "array" },
-    "grid:cell:<id>:<col>": { "type": "string" }
+    "grid:cell:<id>:<col>": { "type": "string" },
+    "grid:filter": { "type": "string" },
+    "grid:sortCol": { "type": "string" },
+    "grid:sortAsc": { "type": "boolean" },
+    "grid:selectedRows": { "type": "array" },
+    "grid:focusedRow": { "type": "string" }
   },
   "ownedNodes": {
     "root": "host element",

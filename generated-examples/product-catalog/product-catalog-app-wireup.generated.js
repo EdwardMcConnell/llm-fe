@@ -89,7 +89,9 @@ export function createCatalogApp(sharedMap = globalSharedMap) {
     }
   };
 
-  const disposeSub = sharedMap.subscribe((key, val) => {
+  const disposeSub = sharedMap.onPatch((patch) => {
+    const key = patch.key;
+    const val = patch.value;
     if (key === 'cart:items') {
       if (val) app.patch({ cartCount: val.length });
     }
