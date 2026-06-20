@@ -93,7 +93,7 @@ export function createCatalogApp(sharedMap = globalSharedMap) {
     const key = patch.key;
     const val = patch.value;
     if (key === 'cart:items') {
-      if (val) app.patch({ cartCount: val.length });
+      if (val !== undefined) app.patch({ cartCount: val.length });
     }
   });
   

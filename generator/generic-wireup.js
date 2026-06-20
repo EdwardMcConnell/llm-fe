@@ -183,12 +183,12 @@ export function generateGenericWireup(appIr, outDir) {
       let actionCode = '';
       if (sub.action === 'patchItem') {
         const cNameCap = sub.childName.charAt(0).toUpperCase() + sub.childName.slice(1);
-        actionCode = `if (val) patch${cNameCap}(val);\n      else remove${cNameCap}(key.split(':')[2]);`;
+        actionCode = `if (val !== undefined) patch${cNameCap}(val);\n      else remove${cNameCap}(key.split(':')[2]);`;
       } else if (sub.action === 'reconcileList') {
-        actionCode = `if (val) reconcile${sub.reconcileList.charAt(0).toUpperCase() + sub.reconcileList.slice(1)}Order(${sub.extractKey}, val.${sub.valuePath});`;
+        actionCode = `if (val !== undefined) reconcile${sub.reconcileList.charAt(0).toUpperCase() + sub.reconcileList.slice(1)}Order(${sub.extractKey}, val.${sub.valuePath});`;
       } else if (sub.action === 'patchApp') {
-        let valAccessor = sub.valuePath ? `val.${sub.valuePath}` : `val`;
-        actionCode = `if (val) app.patch({ ${sub.input}: ${valAccessor} });`;
+        const valAccessor = sub.valuePath ? `val.${sub.valuePath}` : 'val';
+        actionCode = `if (val !== undefined) app.patch({ ${sub.input}: ${valAccessor} });`;
       } else if (sub.action === 'patchAppCell') {
         actionCode = `const parts = key.split(':'); app.patchVirtualCell(parts[2], parts[3], val);`;
       }

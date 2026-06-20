@@ -88,10 +88,10 @@ export function createKanbanApp(sharedMap) {
     const key = patch.key;
     const val = patch.value;
     if (key.startsWith('kanban:item:')) {
-      if (val) patchCard(val);
+      if (val !== undefined) patchCard(val);
       else removeCard(key.split(':')[2]);
     } else     if (key.startsWith('kanban:column:')) {
-      if (val) reconcileCardsOrder(key.split(':')[2], val.itemIds);
+      if (val !== undefined) reconcileCardsOrder(key.split(':')[2], val.itemIds);
     }
   });
   

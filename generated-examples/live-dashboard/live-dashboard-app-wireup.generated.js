@@ -44,10 +44,10 @@ export function createDashboard(sharedMap) {
     const key = patch.key;
     const val = patch.value;
     if (key.startsWith('dashboard:widget:')) {
-      if (val) patchWidget(val);
+      if (val !== undefined) patchWidget(val);
       else removeWidget(key.split(':')[2]);
     } else     if (key === 'dashboard:index') {
-      if (val) app.patch({ widgetsIndex: val.itemIds });
+      if (val !== undefined) app.patch({ widgetsIndex: val.itemIds });
     }
   });
   

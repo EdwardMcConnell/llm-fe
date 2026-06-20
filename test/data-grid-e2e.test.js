@@ -124,16 +124,16 @@ describe('Data Grid E2E', () => {
   });
 
   it('safe cell rendering proof', async () => {
-    await page.evaluate(() => {
-      const rowId = document.querySelector('.grid-row[data-index="1"]').dataset.rowId;
-      window.sharedMap.set(`grid:cell:${rowId}:col1`, '<script>window.XSS_FLAG=true;</script><b>Test</b>');
+    const rowId = await page.evaluate(() => {
+      const id = document.querySelector('.grid-row[data-index="1"]').dataset.rowId;
+      window.sharedMap.set(`grid:cell:${id}:col1`, '<script>window.XSS_FLAG=true;</script><b>Test</b>');
+      return id;
     });
     await delay(200);
     const xssTriggered = await page.evaluate(() => window.XSS_FLAG === true);
-    const textRendered = await page.evaluate(() => {
-      const rowId = document.querySelector('.grid-row[data-index="1"]').dataset.rowId;
-      return document.querySelector(`.grid-row[data-row-id="${rowId}"] [data-col-id="col1"]`).innerHTML;
-    });
+    const textRendered = await page.evaluate((cachedRowId) => {
+      return document.querySelector(`.grid-row[data-row-id="${cachedRowId}"] [data-col-id="col1"]`).innerHTML;
+    }, rowId);
     expect(xssTriggered).toBe(false);
     expect(textRendered).toContain('&lt;script&gt;');
   });

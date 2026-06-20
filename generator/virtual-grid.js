@@ -133,9 +133,7 @@ export function generateVirtualGridCode(grid) {
     }
   }
 
-  function patchColumns(cols) {
-    if (colsData === cols) return;
-    colsData = cols || [];
+  function renderHeaders() {
     ${grid.headerRef}Element.innerHTML = '';
     for (let c = 0; c < colsData.length; c++) {
       const col = colsData[c];
@@ -152,6 +150,12 @@ export function generateVirtualGridCode(grid) {
       });
       ${grid.headerRef}Element.appendChild(el);
     }
+  }
+
+  function patchColumns(cols) {
+    if (colsData === cols) return;
+    colsData = cols || [];
+    renderHeaders();
     recalculateProcessedRows();
   }
 
@@ -211,8 +215,8 @@ export function generateVirtualGridCode(grid) {
     if (state.filterText !== undefined && state.filterText !== filterText) { filterText = state.filterText; needsRecalc = true; }
     
     if (state.columns !== undefined) { patchColumns(state.columns); }
-    if (state.sortCol !== undefined && state.sortCol !== sortCol) { sortCol = state.sortCol; patchColumns(colsData); }
-    if (state.sortAsc !== undefined && state.sortAsc !== sortAsc) { sortAsc = state.sortAsc; patchColumns(colsData); }
+    if (state.sortCol !== undefined && state.sortCol !== sortCol) { sortCol = state.sortCol; needsRecalc = true; renderHeaders(); }
+    if (state.sortAsc !== undefined && state.sortAsc !== sortAsc) { sortAsc = state.sortAsc; needsRecalc = true; renderHeaders(); }
     
     if (state.selectedRows !== undefined) { selectedRows = new Set(state.selectedRows || []); needsRender = true; }
     if (state.focusedRow !== undefined) { focusedRow = state.focusedRow; needsRender = true; }

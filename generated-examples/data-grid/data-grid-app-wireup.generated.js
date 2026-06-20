@@ -48,19 +48,19 @@ export function createGridApp(sharedMap) {
     const key = patch.key;
     const val = patch.value;
     if (key === 'grid:columns') {
-      if (val) app.patch({ columns: val });
+      if (val !== undefined) app.patch({ columns: val });
     } else     if (key === 'grid:rows') {
-      if (val) app.patch({ rows: val });
+      if (val !== undefined) app.patch({ rows: val });
     } else     if (key === 'grid:filter') {
-      if (val) app.patch({ filterText: val });
+      if (val !== undefined) app.patch({ filterText: val });
     } else     if (key === 'grid:sortCol') {
-      if (val) app.patch({ sortCol: val });
+      if (val !== undefined) app.patch({ sortCol: val });
     } else     if (key === 'grid:sortAsc') {
-      if (val) app.patch({ sortAsc: val });
+      if (val !== undefined) app.patch({ sortAsc: val });
     } else     if (key === 'grid:selectedRows') {
-      if (val) app.patch({ selectedRows: val });
+      if (val !== undefined) app.patch({ selectedRows: val });
     } else     if (key === 'grid:focusedRow') {
-      if (val) app.patch({ focusedRow: val });
+      if (val !== undefined) app.patch({ focusedRow: val });
     } else     if (key.startsWith('grid:cell:')) {
       const parts = key.split(':'); app.patchVirtualCell(parts[2], parts[3], val);
     }

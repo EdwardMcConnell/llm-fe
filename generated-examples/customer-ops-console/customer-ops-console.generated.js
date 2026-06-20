@@ -1,10 +1,10 @@
 // GENERATED CODE - DO NOT EDIT
 // Source: contracts/customer-ops-console.contract.json
 
-import { createGridApp } from './data-grid-app-wireup.generated.js';
-import { createSettingsApp } from './settings-form-app-wireup.generated.js';
-import { createKanbanApp } from './kanban-app.generated.js';
-import { createDashboard } from './live-dashboard-app-wireup.generated.js';
+import { createGridApp } from '../data-grid/data-grid-app-wireup.generated.js';
+import { createSettingsApp } from '../settings-form/settings-form-app-wireup.generated.js';
+import { createKanbanApp } from '../normalized-kanban/kanban-app.generated.js';
+import { createDashboard } from '../live-dashboard/live-dashboard-app-wireup.generated.js';
 import { globalAuthProvider } from './auth.generated.js';
 import { globalRouter } from '../../src/router.js';
 import { globalDemandManager } from '../../src/data.js';
