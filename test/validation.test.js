@@ -149,3 +149,22 @@ describe('App Graph Validation', () => {
     expect(() => validateAppGraph(baseApp, badState, baseTrust, baseEvents, baseComps)).toThrowError(/is not marked external-text/);
   });
 });
+
+import { validateRuntimeAPI } from '../generator/index.js';
+
+describe('Runtime API Validation', () => {
+  test('fails if IR references sharedMap.observe', () => {
+    const badIR = { patches: [{ ops: [{ op: 'custom', code: 'sharedMap.observe()' }] }] };
+    expect(() => validateRuntimeAPI(badIR)).toThrow(/sharedMap\.observe/);
+  });
+
+  test('fails if IR uses innerHTML', () => {
+    const badIR = { create: { template: '<div innerHTML="bad"></div>' } };
+    expect(() => validateRuntimeAPI(badIR)).toThrow(/innerHTML/);
+  });
+
+  test('passes if IR uses valid sharedMap.subscribe', () => {
+    const goodIR = { events: [{ emits: 'kanban:update', code: 'sharedMap.subscribe()' }] };
+    expect(() => validateRuntimeAPI(goodIR)).not.toThrow();
+  });
+});

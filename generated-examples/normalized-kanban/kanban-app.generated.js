@@ -1,5 +1,6 @@
 // Compiled deterministically from kanban-app App IR
 import { createKanbanBoard } from './kanban-board.generated.js';
+import { createKanbanCard } from './kanban-card.generated.js';
 import { applyItemEdit, applyItemMove, applyItemDelete, createInitialBoardState } from './kanban-state.generated.js';
 import { safeText } from './kanban-validators.generated.js';
 
@@ -25,26 +26,65 @@ export function createKanbanApp(sharedMap) {
   }
 
   const board = createKanbanBoard({}, handleEvent);
+  const allCards = new Map();
+
+  function patchItem(statePatch) {
+    const id = statePatch.id;
+    let card = allCards.get(id);
+    if (!card) {
+      card = createKanbanCard(statePatch, handleEvent);
+      allCards.set(id, card);
+    } else {
+      card.patch(statePatch);
+    }
+    if (statePatch.status && board.children) {
+      const colName = statePatch.status === 'in-progress' ? 'inProgressCol' : statePatch.status + 'Col';
+      if (board.children[colName]) {
+        board.children[colName].insertCards(id, card);
+      }
+    }
+  }
+
+  function reconcileColumnList(status, itemIds) {
+    if (board.children) {
+      const colName = status === 'in-progress' ? 'inProgressCol' : status + 'Col';
+      if (board.children[colName]) {
+        board.children[colName].reconcileCardsOrder(itemIds);
+      }
+    }
+  }
+
+  function removeItem(id) {
+    const card = allCards.get(id);
+    if (card) {
+      card.dispose();
+      for (const col of Object.values(board.children || {})) {
+        if (col.removeCards) col.removeCards(id);
+      }
+      allCards.delete(id);
+    }
+  }
+
   const cleanups = [];
 
   const observeMap = () => {
     for (const [key, val] of sharedMap.entries()) {
       if (key.startsWith('kanban:item:')) {
-        board.patchItem(val);
+        patchItem(val);
       } else if (key.startsWith('kanban:column:')) {
         const parts = key.split(':');
-        board.reconcileColumnList(parts[2], val.itemIds);
+        reconcileColumnList(parts[2], val.itemIds);
       }
     }
   };
 
   const disposeSub = sharedMap.subscribe((key, val) => {
     if (key.startsWith('kanban:item:')) {
-      if (val) board.patchItem(val);
-      else board.removeItem(key.split(':')[2]);
+      if (val) patchItem(val);
+      else removeItem(key.split(':')[2]);
     } else if (key.startsWith('kanban:column:')) {
       const parts = key.split(':');
-      if (val) board.reconcileColumnList(parts[2], val.itemIds);
+      if (val) reconcileColumnList(parts[2], val.itemIds);
     }
   });
   
@@ -54,6 +94,8 @@ export function createKanbanApp(sharedMap) {
   return {
     root: board.root,
     dispose: () => {
+      for (const card of allCards.values()) card.dispose();
+      allCards.clear();
       board.dispose();
       cleanups.forEach(c => c());
     }

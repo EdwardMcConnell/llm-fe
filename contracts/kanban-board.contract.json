@@ -8,8 +8,8 @@
     "kanban:item:<id>"
   ],
   "ownedNodes": {
-    "boardRoot": { "type": "div", "className": "board-root" },
-    "columnContainer": { "type": "div", "className": "columns-container" },
+    "root": { "type": "div", "className": "board-root" },
+    "columnsContainer": { "type": "div", "className": "columns-container" },
     "addCardControls": { "type": "form", "className": "add-card-form" },
     "statusSummary": { "type": "div", "className": "status-summary" },
     "errorRegion": { "type": "div", "className": "error-region" }

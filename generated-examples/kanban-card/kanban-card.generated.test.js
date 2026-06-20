@@ -74,6 +74,12 @@ describe('createKanbanCard Machine-Generated Tests', () => {
     expect(root.querySelector('[data-node="timeNode"]').getAttribute('datetime')).toBe('TestAttr');
   });
 
+  test('patch dueDate precisely updates DOM', () => {
+    const { root, patch } = createKanbanCard({});
+    patch({ dueDate: 'TestVal123' });
+    expect(root.querySelector('[data-node="dueDateNode"]').textContent).toBe('Due Date: TestVal123');
+  });
+
   test('events are emitted and cleaned up on dispose', () => {
     const sink = vi.fn();
     const { root, dispose } = createKanbanCard({}, sink);

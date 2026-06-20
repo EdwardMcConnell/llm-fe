@@ -5,10 +5,10 @@
     "kanban:item:<id>"
   ],
   "ownedNodes": {
-    "columnRoot": { "type": "div", "className": "column-root" },
+    "root": { "type": "div", "className": "column-root" },
     "titleNode": { "type": "h2", "className": "column-title" },
     "countNode": { "type": "span", "className": "column-count" },
-    "cardListContainer": { "type": "div", "className": "card-list" },
+    "listContainer": { "type": "div", "className": "card-list" },
     "dropTarget": { "type": "div", "className": "drop-target" }
   },
   "patchBehavior": [

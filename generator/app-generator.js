@@ -21,8 +21,9 @@ async function generateApp() {
   const appIr = loadJson(`ir/${appName}.ir.json`);
   
   if (appName === 'normalized-kanban') {
-    const { generateComponent } = await import('./index.js');
+    const { generateComponent, validateRuntimeAPI } = await import('./index.js');
     const cardIr = loadJson('ir/kanban-card.ir.json');
+    validateRuntimeAPI(cardIr);
     generateComponent(
       loadJson('contracts/kanban-card.contract.json'), 
       cardIr, 
@@ -31,9 +32,26 @@ async function generateApp() {
       path.join(outDir, 'kanban-card.generated.js')
     );
 
+    validateRuntimeAPI(appIr);
     for (const comp of appIr.components) {
-      if (comp.name === 'kanban-column') generateColumnFromIR(comp, outDir);
-      if (comp.name === 'kanban-board') generateBoardFromIR(comp, outDir);
+      if (comp.name === 'kanban-column') {
+        generateComponent(
+          loadJson('contracts/kanban-column.contract.json'), 
+          comp, 
+          'contracts/kanban-column.contract.json', 
+          'ir/normalized-kanban.ir.json', 
+          path.join(outDir, 'kanban-column.generated.js')
+        );
+      }
+      if (comp.name === 'kanban-board') {
+        generateComponent(
+          loadJson('contracts/kanban-board.contract.json'), 
+          comp, 
+          'contracts/kanban-board.contract.json', 
+          'ir/normalized-kanban.ir.json', 
+          path.join(outDir, 'kanban-board.generated.js')
+        );
+      }
     }
 
     generateStateFromIR(outDir);
@@ -45,127 +63,10 @@ async function generateApp() {
   }
 }
 
-function generateColumnFromIR(ir, outDir) {
-  let code = `// Compiled deterministically from ${ir.name} IR
-export function createKanbanColumn(status, eventSink) {
-  const template = document.createElement('template');
-  template.innerHTML = \`${ir.create.template}\`;
-  const root = template.content.firstElementChild.cloneNode(true);
-`;
-  
-  for (const [refName, selector] of Object.entries(ir.create.refs)) {
-    if (refName !== 'root') {
-      code += `  const ${refName}Element = root.querySelector(\`${selector}\`);\n`;
-    }
-  }
-
-  code += `\n  // List management\n`;
-  code += `  const cardInstances = new Map();\n`;
-  code += `  function insertCard(id, cardInstance) {\n`;
-  code += `    cardInstances.set(id, cardInstance);\n`;
-  code += `    listContainerElement.appendChild(cardInstance.root);\n`;
-  code += `  }\n`;
-  code += `  function removeCard(id) {\n`;
-  code += `    const card = cardInstances.get(id);\n`;
-  code += `    if (card) {\n`;
-  code += `      if (card.root.parentNode === listContainerElement) listContainerElement.removeChild(card.root);\n`;
-  code += `      cardInstances.delete(id);\n`;
-  code += `    }\n`;
-  code += `  }\n`;
-  code += `  function reconcileOrder(itemIds) {\n`;
-  code += `    countNodeElement.textContent = String(itemIds.length);\n`;
-  code += `    for (const id of itemIds) {\n`;
-  code += `      const card = cardInstances.get(id);\n`;
-  code += `      if (card) listContainerElement.appendChild(card.root);\n`;
-  code += `    }\n`;
-  code += `  }\n`;
-  
-  // Patching logic
-  for (const patch of ir.patches) {
-    code += `  function ${patch.name}(nextVal) {\n`;
-    for (const op of patch.ops) {
-      if (op.op === 'setTextContent') {
-        code += `    ${op.ref}Element.textContent = nextVal;\n`;
-      } else if (op.op === 'setClassToken') {
-        code += `    ${op.ref === 'root' ? 'root' : op.ref + 'Element'}.className = \`${op.prefix}\${nextVal}\`;\n`;
-      }
-    }
-    code += `  }\n`;
-  }
-  
-  code += `  patchStatus(status);\n`;
-  
-  code += `  function dispose() {\n    cardInstances.clear();\n  }\n`;
-  code += `  return { root, insertCard, removeCard, reconcileOrder, dispose };\n}\n`;
-
-  fs.writeFileSync(path.join(outDir, 'kanban-column.generated.js'), code);
-}
-
-function generateBoardFromIR(ir, outDir) {
-  let code = `// Compiled deterministically from ${ir.name} IR
-import { createKanbanColumn } from './kanban-column.generated.js';
-import { createKanbanCard } from './kanban-card.generated.js';
-
-export function createKanbanBoard(initialState, eventSink) {
-  const template = document.createElement('template');
-  template.innerHTML = \`${ir.create.template}\`;
-  const root = template.content.firstElementChild.cloneNode(true);
-  const columnsContainerElement = root.querySelector(\`${ir.create.refs.columnsContainer}\`);
-
-  const columns = {};
-`;
-
-  for (const child of ir.children) {
-    code += `  columns['${child.staticProps.status}'] = createKanbanColumn('${child.staticProps.status}', eventSink);\n`;
-    code += `  columnsContainerElement.appendChild(columns['${child.staticProps.status}'].root);\n`;
-  }
-
-  code += `
-  const allCards = new Map();
-
-  function patchItem(statePatch) {
-    const id = statePatch.id;
-    let card = allCards.get(id);
-    if (!card) {
-      card = createKanbanCard(statePatch, eventSink);
-      allCards.set(id, card);
-    } else {
-      card.patch(statePatch);
-    }
-    if (statePatch.status && columns[statePatch.status]) {
-      columns[statePatch.status].insertCard(id, card);
-    }
-  }
-
-  function reconcileColumnList(status, itemIds) {
-    const col = columns[status];
-    if (col) col.reconcileOrder(itemIds);
-  }
-
-  function removeItem(id) {
-    const card = allCards.get(id);
-    if (card) {
-      card.dispose();
-      for (const col of Object.values(columns)) col.removeCard(id);
-      allCards.delete(id);
-    }
-  }
-
-  function dispose() {
-    for (const card of allCards.values()) card.dispose();
-    allCards.clear();
-    for (const col of Object.values(columns)) col.dispose();
-  }
-
-  return { root, patchItem, reconcileColumnList, removeItem, dispose };
-}
-`;
-  fs.writeFileSync(path.join(outDir, 'kanban-board.generated.js'), code);
-}
-
 function generateAppWireupFromIR(appIr, outDir) {
   let code = `// Compiled deterministically from ${appIr.name} App IR
 import { createKanbanBoard } from './kanban-board.generated.js';
+import { createKanbanCard } from './kanban-card.generated.js';
 import { applyItemEdit, applyItemMove, applyItemDelete, createInitialBoardState } from './kanban-state.generated.js';
 import { safeText } from './kanban-validators.generated.js';
 
@@ -191,26 +92,65 @@ export function createKanbanApp(sharedMap) {
   }
 
   const board = createKanbanBoard({}, handleEvent);
+  const allCards = new Map();
+
+  function patchItem(statePatch) {
+    const id = statePatch.id;
+    let card = allCards.get(id);
+    if (!card) {
+      card = createKanbanCard(statePatch, handleEvent);
+      allCards.set(id, card);
+    } else {
+      card.patch(statePatch);
+    }
+    if (statePatch.status && board.children) {
+      const colName = statePatch.status === 'in-progress' ? 'inProgressCol' : statePatch.status + 'Col';
+      if (board.children[colName]) {
+        board.children[colName].insertCards(id, card);
+      }
+    }
+  }
+
+  function reconcileColumnList(status, itemIds) {
+    if (board.children) {
+      const colName = status === 'in-progress' ? 'inProgressCol' : status + 'Col';
+      if (board.children[colName]) {
+        board.children[colName].reconcileCardsOrder(itemIds);
+      }
+    }
+  }
+
+  function removeItem(id) {
+    const card = allCards.get(id);
+    if (card) {
+      card.dispose();
+      for (const col of Object.values(board.children || {})) {
+        if (col.removeCards) col.removeCards(id);
+      }
+      allCards.delete(id);
+    }
+  }
+
   const cleanups = [];
 
   const observeMap = () => {
     for (const [key, val] of sharedMap.entries()) {
       if (key.startsWith('kanban:item:')) {
-        board.patchItem(val);
+        patchItem(val);
       } else if (key.startsWith('kanban:column:')) {
         const parts = key.split(':');
-        board.reconcileColumnList(parts[2], val.itemIds);
+        reconcileColumnList(parts[2], val.itemIds);
       }
     }
   };
 
   const disposeSub = sharedMap.subscribe((key, val) => {
     if (key.startsWith('kanban:item:')) {
-      if (val) board.patchItem(val);
-      else board.removeItem(key.split(':')[2]);
+      if (val) patchItem(val);
+      else removeItem(key.split(':')[2]);
     } else if (key.startsWith('kanban:column:')) {
       const parts = key.split(':');
-      if (val) board.reconcileColumnList(parts[2], val.itemIds);
+      if (val) reconcileColumnList(parts[2], val.itemIds);
     }
   });
   
@@ -220,6 +160,8 @@ export function createKanbanApp(sharedMap) {
   return {
     root: board.root,
     dispose: () => {
+      for (const card of allCards.values()) card.dispose();
+      allCards.clear();
       board.dispose();
       cleanups.forEach(c => c());
     }

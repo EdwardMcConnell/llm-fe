@@ -2,4 +2,8 @@
 - [x] 2. Implement auto-healing logic in `server/hot-path.js`: Extract stderr, prompt LLM again with the context to fix the IR.
 - [x] 3. Allow up to 3 retry attempts before returning the final error to the client.
 - [x] 4. Send SSE status messages to the client during healing ("Compilation failed. Auto-healing attempt 1/3...").
+- [x] 1. Update `server/hot-path.js` to catch `app-generator.js` compilation errors.
+- [x] 2. Implement auto-healing logic in `server/hot-path.js`: Extract stderr, prompt LLM again with the context to fix the IR.
+- [x] 3. Allow up to 3 retry attempts before returning the final error to the client.
+- [x] 4. Send SSE status messages to the client during healing ("Compilation failed. Auto-healing attempt 1/3...").
 - [x] 5. Write a test case (or manual test) by injecting a bad prompt.
