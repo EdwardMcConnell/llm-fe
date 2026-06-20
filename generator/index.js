@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { generateVirtualGridCode } from './virtual-grid.js';
 import { validateContractAndIR } from './validate-contract-ir.js';
 
 
@@ -61,13 +62,13 @@ function formatCurrency(val) {
   if (val == null) return '';
   return '$' + Number(val).toFixed(2);
 }
-
-export function ${fnName}(initialState = {}, eventSink = () => {}) {
-  const template = document.createElement('template');
-  template.innerHTML = \`${ir.create.template}\`;
-  
-  const root = template.content.firstElementChild.cloneNode(true);
 `;
+
+  code += `export function ${fnName}(initialState = {}, eventSink = () => {}) {\n`;
+  code += `  const template = document.createElement('template');\n`;
+  const escapedTemplate = ir.create.template.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
+  code += `  template.innerHTML = \`${escapedTemplate}\`;\n  \n`;
+  code += `  const root = template.content.firstElementChild.cloneNode(true);\n`;
 
   // References
   const refVars = [];
@@ -192,6 +193,12 @@ export function ${fnName}(initialState = {}, eventSink = () => {}) {
     }
   }
 
+  if (ir.virtualGrids) {
+    for (const grid of ir.virtualGrids) {
+      code += generateVirtualGridCode(grid);
+    }
+  }
+
   // Events
   const handlers = [];
   if (ir.events) {
@@ -207,6 +214,11 @@ export function ${fnName}(initialState = {}, eventSink = () => {}) {
   code += `  function patch(nextState) {
     if (!nextState) return;
 `;
+  if (ir.virtualGrids) {
+    for (const grid of ir.virtualGrids) {
+      code += `    patchVirtualGrid(nextState);\n`;
+    }
+  }
   if (ir.patches) {
     for (const patch of ir.patches) {
       code += `    if (nextState.${patch.input} !== undefined) ${patch.name}(nextState.${patch.input});\n`;
@@ -240,6 +252,9 @@ export function ${fnName}(initialState = {}, eventSink = () => {}) {
   }
   if (ir.children) {
     exportObj += `, children`;
+  }
+  if (ir.virtualGrids) {
+    exportObj += `, patchVirtualCell`;
   }
 
   code += `  patch(initialState);\n\n`;

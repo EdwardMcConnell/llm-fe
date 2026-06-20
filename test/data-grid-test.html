@@ -11,7 +11,7 @@
   <div id="root"></div>
   <script type="module">
     import { SharedMap } from '../src/crdt.js';
-    import { createDataGrid } from '../generated-examples/data-grid/data-grid.generated.js';
+    import { createGridApp } from '../generated-examples/data-grid/data-grid-app-wireup.generated.js';
     
     const sharedMap = new SharedMap('test');
     
@@ -24,7 +24,7 @@
     sharedMap.set('grid:columns', ['col1']);
     sharedMap.set('grid:rows', rows);
 
-    const grid = createDataGrid(sharedMap);
+    const grid = createGridApp(sharedMap);
     document.getElementById('root').appendChild(grid.root);
     window.sharedMap = sharedMap;
   </script>

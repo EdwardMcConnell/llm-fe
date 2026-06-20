@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 20px; }
+    .kanban-board { display: flex; gap: 16px; align-items: flex-start; }
+    .kanban-column { background: #f4f5f7; border-radius: 6px; width: 250px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .kanban-card { background: white; padding: 8px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); cursor: pointer; }
+    .card-title { margin: 0 0 4px 0; font-size: 14px; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import { SharedMap } from '../src/crdt.js';
+    import { createKanbanApp } from '../generated-examples/normalized-kanban/kanban-app.generated.js';
+    
+    // We attach an explicit test-hook flag so that `requestAnimationFrame` isn't an issue if puppeteer needs sync
+    window.FeTestMode = true;
+
+    const sharedMap = new SharedMap('test');
+    
+    // Seed initial Kanban state
+    sharedMap.set('kanban:column:todo:index', { itemIds: ['item-1', 'item-2', 'item-3'] });
+    sharedMap.set('kanban:column:in-progress:index', { itemIds: [] });
+    sharedMap.set('kanban:column:done:index', { itemIds: [] });
+    sharedMap.set('kanban:item:item-1', { id: 'item-1', title: 'Task 1', status: 'todo' });
+    sharedMap.set('kanban:item:item-2', { id: 'item-2', title: 'Task 2', status: 'todo' });
+    sharedMap.set('kanban:item:item-3', { id: 'item-3', title: 'Task 3', status: 'todo' });
+
+    const app = createKanbanApp(sharedMap);
+    document.getElementById('root').appendChild(app.root);
+    window.sharedMap = sharedMap;
+  </script>
+</body>
+</html>

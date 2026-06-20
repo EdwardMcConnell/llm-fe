@@ -9,5 +9,66 @@
       "header": "#gridHeader",
       "body": "#gridBody"
     }
+  },
+  "patches": [
+    {
+      "name": "patchFilterText",
+      "input": "filterText",
+      "ops": [
+        { "op": "setInputProperty", "ref": "search" }
+      ]
+    }
+  ],
+  "events": [
+    { "type": "input", "target": "search", "emits": "grid:search:input" }
+  ],
+  "virtualGrids": [
+    {
+      "name": "dataGrid",
+      "bodyRef": "body",
+      "headerRef": "header",
+      "rowHeight": 32,
+      "overscan": 5,
+      "emitSort": "grid:sort",
+      "emitSelect": "grid:select",
+      "emitFocus": "grid:focus"
+    }
+  ],
+  "wireup": {
+    "moduleName": "data-grid-app-wireup.generated.js",
+    "rootComponent": "createDataGrid",
+    "exportName": "createGridApp",
+    "appImports": [
+      { "name": "createDataGrid", "module": "./data-grid.generated.js" }
+    ],
+    "setupCode": "app.patch({ cellAccessor: (r, c) => sharedMap.get(`grid:cell:${r}:${c}`) });",
+    "events": [
+      {
+        "type": "grid:search:input",
+        "action": "sharedMap.set('grid:filter', ev.sourceEvent.target.value);"
+      },
+      {
+        "type": "grid:sort",
+        "action": "sharedMap.set('grid:sortCol', ev.sortCol);\n      sharedMap.set('grid:sortAsc', ev.sortAsc);"
+      },
+      {
+        "type": "grid:select",
+        "action": "sharedMap.set('grid:selectedRows', ev.selectedRows);\n      if (ev.focusedRow) sharedMap.set('grid:focusedRow', ev.focusedRow);"
+      },
+      {
+        "type": "grid:focus",
+        "action": "sharedMap.set('grid:focusedRow', ev.focusedRow);"
+      }
+    ],
+    "subscriptions": [
+      { "action": "patchApp", "matchType": "exact", "pattern": "grid:columns", "input": "columns" },
+      { "action": "patchApp", "matchType": "exact", "pattern": "grid:rows", "input": "rows" },
+      { "action": "patchApp", "matchType": "exact", "pattern": "grid:filter", "input": "filterText" },
+      { "action": "patchApp", "matchType": "exact", "pattern": "grid:sortCol", "input": "sortCol" },
+      { "action": "patchApp", "matchType": "exact", "pattern": "grid:sortAsc", "input": "sortAsc" },
+      { "action": "patchApp", "matchType": "exact", "pattern": "grid:selectedRows", "input": "selectedRows" },
+      { "action": "patchApp", "matchType": "exact", "pattern": "grid:focusedRow", "input": "focusedRow" },
+      { "action": "patchAppCell", "matchType": "prefix", "pattern": "grid:cell:" }
+    ]
   }
 }

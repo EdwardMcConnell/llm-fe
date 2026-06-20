@@ -1,6 +1,7 @@
 {
   "app": "data-grid",
   "state": {
+    "filterText": { "type": "string" },
     "grid:columns": { "type": "array" },
     "grid:rows": { "type": "array" },
     "grid:cell:<id>:<col>": { "type": "string" },
@@ -13,7 +14,40 @@
   "ownedNodes": {
     "root": "host element",
     "header": "header container",
-    "body": "body container"
+    "body": "body container",
+    "search": "search input element"
   },
-  "events": {}
+  "events": {
+    "searchInput": {
+      "type": "input",
+      "target": "search",
+      "emits": "grid:search:input"
+    },
+    "gridSort": {
+      "type": "click",
+      "target": "header",
+      "emits": "grid:sort"
+    },
+    "gridSelect": {
+      "type": "click",
+      "target": "body",
+      "emits": "grid:select"
+    },
+    "gridFocus": {
+      "type": "keydown",
+      "target": "body",
+      "emits": "grid:focus"
+    }
+  },
+  "performance": {
+    "virtualization": "Must support 10,000+ rows with <16ms scroll frame time",
+    "overscan": "Must render items slightly outside the viewport to prevent flickering"
+  },
+  "accessibility": {
+    "keyboard": "Must support ArrowUp, ArrowDown, Space/Enter for selection",
+    "focus": "Must manage visual focus indicator"
+  },
+  "trust": {
+    "cells": "Must safely render cell data as textContent to prevent XSS"
+  }
 }

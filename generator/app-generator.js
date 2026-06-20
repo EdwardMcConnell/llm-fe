@@ -24,12 +24,7 @@ async function generateApp() {
   
   const appIr = loadJson(irFileName);
   
-  // 2. Data-grid exception
-  if (appName === 'data-grid') {
-    const { generateDataGrid } = await import('./data-grid-generator.js');
-    generateDataGrid(appContract, appIr, outDir);
-    return;
-  }
+  // 2. Data-grid exception removed - now uses standard IR and generic element compilation
 
   const { generateComponent, validateRuntimeAPI } = await import('./index.js');
   const { generateGenericWireup } = await import('./generic-wireup.js');

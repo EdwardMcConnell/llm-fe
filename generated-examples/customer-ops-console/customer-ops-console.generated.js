@@ -1,7 +1,7 @@
 // GENERATED CODE - DO NOT EDIT
 // Source: contracts/customer-ops-console.contract.json
 
-import { createDataGrid } from './data-grid.generated.js';
+import { createGridApp } from './data-grid-app-wireup.generated.js';
 import { createSettingsApp } from './settings-form-app-wireup.generated.js';
 import { createKanbanApp } from './kanban-app.generated.js';
 import { createDashboard } from './live-dashboard-app-wireup.generated.js';
@@ -73,7 +73,7 @@ export function createCustomerOpsConsole(root, sharedMap) {
 
   // Mount internal apps
   // Data Grid mounts directly to container
-  const gridApp = createDataGrid(sharedMap);
+  const gridApp = createGridApp(sharedMap);
   root.querySelector('.grid-container').appendChild(gridApp.root);
   // Wireups return { root, dispose }
   const formApp = createSettingsApp(sharedMap);

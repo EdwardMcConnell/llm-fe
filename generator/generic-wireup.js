@@ -160,6 +160,8 @@ export function generateGenericWireup(appIr, outDir) {
       } else if (sub.action === 'patchApp') {
         let valAccessor = sub.valuePath ? `val.${sub.valuePath}` : `val`;
         actionCode = `app.patch({ ${sub.input}: ${valAccessor} });`;
+      } else if (sub.action === 'patchAppCell') {
+        actionCode = `const parts = key.split(':'); app.patchVirtualCell(parts[2], parts[3], val);`;
       }
       code += `      if (${cond}) {\n        ${actionCode}\n      } else `;
     }
@@ -187,6 +189,8 @@ export function generateGenericWireup(appIr, outDir) {
       } else if (sub.action === 'patchApp') {
         let valAccessor = sub.valuePath ? `val.${sub.valuePath}` : `val`;
         actionCode = `if (val) app.patch({ ${sub.input}: ${valAccessor} });`;
+      } else if (sub.action === 'patchAppCell') {
+        actionCode = `const parts = key.split(':'); app.patchVirtualCell(parts[2], parts[3], val);`;
       }
       code += `    if (${cond}) {\n      ${actionCode}\n    } else `;
     }
