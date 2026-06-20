@@ -1,0 +1,82 @@
+{
+  "module": "sample/components/kanban-card.generated.js",
+  "create": {
+    "template": "<fe-card class=\"card\" data-node=\"root\"><div class=\"lock-badge\" data-node=\"lockBadge\"></div><div class=\"card-title\" spellcheck=\"false\" data-node=\"titleNode\"></div><div class=\"card-meta\"><fe-time format=\"relative\" data-node=\"timeNode\"></fe-time></div><div class=\"card-actions\" data-node=\"actionsNode\"><button class=\"delete-btn\" data-node=\"deleteBtn\">Delete</button><fe-tooltip data-node=\"tooltip\">Delete this task permanently</fe-tooltip></div></fe-card>",
+    "refs": {
+      "root": "[data-node=\"root\"]",
+      "lockBadge": "[data-node=\"lockBadge\"]",
+      "titleNode": "[data-node=\"titleNode\"]",
+      "timeNode": "[data-node=\"timeNode\"]",
+      "actionsNode": "[data-node=\"actionsNode\"]",
+      "deleteBtn": "[data-node=\"deleteBtn\"]",
+      "tooltip": "[data-node=\"tooltip\"]"
+    }
+  },
+  "patches": [
+    {
+      "name": "patchId",
+      "input": "id",
+      "ops": [
+        { "op": "setAttribute", "ref": "root", "attr": "data-id" },
+        { "op": "setAttribute", "ref": "deleteBtn", "attr": "data-id" },
+        { "op": "setAttribute", "ref": "deleteBtn", "attr": "id" },
+        { "op": "setAttribute", "ref": "tooltip", "attr": "trigger" }
+      ]
+    },
+    {
+      "name": "patchTitle",
+      "input": "title",
+      "ops": [
+        { "op": "setTextContent", "ref": "titleNode" }
+      ]
+    },
+    {
+      "name": "patchIsoDate",
+      "input": "isoDate",
+      "ops": [
+        { "op": "setAttribute", "ref": "timeNode", "attr": "datetime" }
+      ]
+    },
+    {
+      "name": "patchLockedBy",
+      "input": "lockedBy",
+      "ops": [
+        { "op": "setTextContent", "ref": "lockBadge", "prefix": "🔒 Locked by " }
+      ]
+    },
+    {
+      "name": "patchIsLocked",
+      "input": "isLocked",
+      "ops": [
+        { "op": "setClassName", "ref": "root", "trueClass": "card locked", "falseClass": "card" },
+        { "op": "setBooleanAttribute", "ref": "root", "attr": "draggable", "trueValue": "false", "falseValue": "true" },
+        { "op": "setBooleanAttribute", "ref": "titleNode", "attr": "contenteditable", "trueValue": "false", "falseValue": "true" },
+        { "op": "setStyleDisplay", "ref": "lockBadge", "trueDisplay": "inline-block", "falseDisplay": "none" },
+        { "op": "setStyleDisplay", "ref": "actionsNode", "trueDisplay": "none", "falseDisplay": "flex" }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "onDelete",
+      "target": "deleteBtn",
+      "type": "click",
+      "emits": "card:delete",
+      "cleanup": true
+    },
+    {
+      "name": "onEdit",
+      "target": "titleNode",
+      "type": "input",
+      "emits": "card:editTitle",
+      "cleanup": true
+    },
+    {
+      "name": "onDragStart",
+      "target": "root",
+      "type": "dragstart",
+      "emits": "card:dragstart",
+      "cleanup": true
+    }
+  ]
+}

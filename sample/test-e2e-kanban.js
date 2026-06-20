@@ -110,6 +110,7 @@ async function delay(ms) {
     // -------------------------------------------------------------
     console.log('Opening Client 2 to verify real-time sync...');
     const page2 = await browser.newPage();
+    
     await page2.goto('http://localhost:3000/login', { waitUntil: 'networkidle0' });
     
     await page2.evaluate(() => {
@@ -127,8 +128,9 @@ async function delay(ms) {
     let p2InProgressText = await page2.evaluate(() => {
       const board = document.querySelector('fe-router').shadowRoot
         .querySelector('sample-layout').querySelector('sample-board').shadowRoot;
-      return board.querySelector('#list-in-progress').innerText;
+      return board.querySelector('#list-in-progress').innerHTML;
     });
+    console.log('Client 2 In Progress content:', p2InProgressText);
     assert.ok(p2InProgressText.includes('Build the native WebSockets backend'), 'Client 2 should see synced task in In Progress column');
     console.log('✓ Real-time CRDT Synchronization validated (Moved item)');
 

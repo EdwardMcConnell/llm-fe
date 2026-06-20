@@ -1,5 +1,5 @@
 import { bench, describe } from 'vitest';
-import { createOrderCard } from '../generated-examples/order-dashboard/order-card.generated.js';
+import { createOrderCard } from '../sample/components/order-card.generated.js';
 
 // Setup event sink
 const noopSink = () => {};

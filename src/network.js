@@ -92,7 +92,7 @@ export class LCPSyncProvider {
           this.disconnect();
         } 
         // Handle CRDT Patches
-        else if (this.authenticated && payload.type === 'set' && payload.client !== this.sharedMap.clientId) {
+        else if (this.authenticated && (payload.type === 'set' || payload.type === 'delete') && payload.client !== this.sharedMap.clientId) {
           this.sharedMap.merge(payload);
         }
       } catch (e) {

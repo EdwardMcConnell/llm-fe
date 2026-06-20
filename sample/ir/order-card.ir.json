@@ -1,5 +1,5 @@
 {
-  "module": "generated-examples/order-dashboard/order-card.generated.js",
+  "module": "sample/components/order-card.generated.js",
   "create": {
     "template": "<article data-node='root'><h3 data-node='titleText'></h3><span data-node='statusBadge'></span><p data-node='totalText'></p></article>",
     "refs": {

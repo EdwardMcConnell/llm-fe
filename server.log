@@ -1,0 +1,29 @@
+Fe UI Sample (Kanban Board) listening at http://localhost:3000
+Server received delete patch: {
+  type: 'delete',
+  key: 'kanban:item:task-7cnn107lky5',
+  clock: 6,
+  client: 'zrab88m0ktg'
+}
+Server applied delete for kanban:item:task-7cnn107lky5
+Server received delete patch: {
+  type: 'delete',
+  key: 'kanban:item:task-ys5lnqth6c8',
+  clock: 13,
+  client: 'an5jjblahu'
+}
+Server applied delete for kanban:item:task-ys5lnqth6c8
+Server received delete patch: {
+  type: 'delete',
+  key: 'kanban:item:task-9o0rbq64hh9',
+  clock: 20,
+  client: '0fjos3ysbm3b'
+}
+Server applied delete for kanban:item:task-9o0rbq64hh9
+Server received delete patch: {
+  type: 'delete',
+  key: 'kanban:item:task-e6ykkd5dhpg',
+  clock: 27,
+  client: 'c8rl0on0fm7'
+}
+Server applied delete for kanban:item:task-e6ykkd5dhpg

@@ -1,0 +1,41 @@
+{
+  "component": "kanban-card",
+  "kind": "component",
+  "state": {
+    "id": { "type": "string", "trust": "internal" },
+    "title": { "type": "string", "trust": "external-text" },
+    "status": { "type": "string", "trust": "internal" },
+    "createdAt": { "type": "string", "trust": "internal" },
+    "lockedBy": { "type": "string", "trust": "external-text", "nullable": true },
+    "isLocked": { "type": "boolean", "trust": "internal" },
+    "isoDate": { "type": "string", "trust": "internal" }
+  },
+  "ownedNodes": {
+    "root": { "tag": "fe-card" },
+    "lockBadge": { "tag": "div" },
+    "lockBadgeText": { "type": "text" },
+    "titleNode": { "tag": "div" },
+    "titleText": { "type": "text" },
+    "timeNode": { "tag": "fe-time" },
+    "actionsNode": { "tag": "div" },
+    "deleteBtn": { "tag": "button" },
+    "tooltip": { "tag": "fe-tooltip" }
+  },
+  "events": {
+    "delete": {
+      "type": "click",
+      "target": "deleteBtn",
+      "emits": "card:delete"
+    },
+    "edit": {
+      "type": "input",
+      "target": "titleNode",
+      "emits": "card:editTitle"
+    },
+    "dragStart": {
+      "type": "dragstart",
+      "target": "root",
+      "emits": "card:dragstart"
+    }
+  }
+}

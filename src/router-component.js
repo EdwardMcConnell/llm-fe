@@ -41,7 +41,7 @@ export class FeRouter extends FeElement {
         this._updateSlots(route.slots || {});
         viewContainer.appendChild(this.layoutElement);
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   /**

@@ -1,10 +1,9 @@
 import { FeElement } from '/src/component.js';
-import { createSharedSignal } from '/src/shared.js';
 import { globalSharedMap } from '/src/store.js';
-import { createEffect, createTransitionEffect } from '/src/reactivity.js';
 import { createFormSignal } from '/src/form.js';
 import { globalAuthManager } from '/src/auth.js';
 import { globalToast } from '/src/ui.js';
+import { createKanbanCard } from './kanban-card.generated.js';
 
 function getCurrentUser() {
   const token = globalAuthManager.getToken();
@@ -104,6 +103,10 @@ class SampleBoard extends FeElement {
           gap: 0.5rem;
           transition: transform 0.2s, border-color 0.2s;
           cursor: grab;
+          background: var(--surface-2);
+          padding: 1rem;
+          border-radius: 8px;
+          border: 1px solid var(--glass-border);
         }
 
         .card:hover {
@@ -119,11 +122,6 @@ class SampleBoard extends FeElement {
           opacity: 0.5;
           border-color: #ef4444;
           cursor: not-allowed;
-          pointer-events: none;
-        }
-
-        .card.locked [contenteditable] {
-          pointer-events: none;
         }
 
         .lock-badge {
@@ -132,13 +130,13 @@ class SampleBoard extends FeElement {
           padding: 0.2rem 0.5rem;
           border-radius: 4px;
           font-size: 0.65rem;
-          display: inline-block;
           margin-bottom: 0.5rem;
         }
 
         .card-title {
           font-weight: 500;
           color: var(--text-primary);
+          outline: none;
         }
 
         .card-meta {
@@ -147,6 +145,7 @@ class SampleBoard extends FeElement {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          margin-top: 0.5rem;
         }
 
         .card-actions {
@@ -227,156 +226,42 @@ class SampleBoard extends FeElement {
   }
 
   bind() {
-    // 1. Reactive Network State via SharedMap (CRDT)
-    const [getItems, setItems, unsubscribe] = createSharedSignal(globalSharedMap, 'board_items', []);
-    this._cleanups.push(unsubscribe);
+    // 1. Direct DOM Node Caching
+    this.nodes = new Map();
+    this.nodes.set('list-todo', this.root.querySelector('#list-todo'));
+    this.nodes.set('list-in-progress', this.root.querySelector('#list-in-progress'));
+    this.nodes.set('list-done', this.root.querySelector('#list-done'));
+    this.nodes.set('count-todo', this.root.querySelector('#count-todo'));
+    this.nodes.set('count-in-progress', this.root.querySelector('#count-in-progress'));
+    this.nodes.set('count-done', this.root.querySelector('#count-done'));
 
-    // 2. Reactive UI with DOM Morphing
-    this.bindMorphTrustedHTML('.board-columns', () => {
-      const items = getItems() || [];
-      
-      let countTodo = 0;
-      let countInProgress = 0;
-      let countDone = 0;
+    this.cards = new Map();
 
-      let htmlTodo = '';
-      let htmlInProgress = '';
-      let htmlDone = '';
+    // 2. CRDT Sync
+    globalSharedMap.incrementSubscriber('kanban:items_index');
+    this._cleanups.push(() => globalSharedMap.decrementSubscriber('kanban:items_index'));
 
-      const currentUser = getCurrentUser();
-      const now = Date.now();
-
-      const sortedItems = [...items].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-      for (let i = 0; i < sortedItems.length; i++) {
-        const item = sortedItems[i];
-        
-        const isLocked = item.lockedBy && item.lockedAt && (now - new Date(item.lockedAt).getTime() < 60000);
-        const lockedByOther = isLocked && item.lockedBy !== currentUser;
-        
-        const cardClass = lockedByOther ? 'card locked' : 'card';
-        const dragAttr = lockedByOther ? '' : 'draggable="true"';
-        const lockHtml = lockedByOther ? `<div class="lock-badge">🔒 Locked by ${this.escapeHtml(item.lockedBy)}</div>` : '';
-        const editableAttr = lockedByOther ? 'contenteditable="false"' : 'contenteditable="true"';
-        const actionsStyle = lockedByOther ? 'style="display: none;"' : '';
-
-        const isoDate = item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString();
-        const safeTitle = this.escapeHtml(item.title);
-
-        const cardHtml = `
-          <fe-card class="${cardClass}" data-id="${item.id}" ${dragAttr}>
-            ${lockHtml}
-            <div class="card-title" ${editableAttr} spellcheck="false">${safeTitle}</div>
-            <div class="card-meta">
-              <fe-time datetime="${isoDate}" format="relative"></fe-time>
-            </div>
-            <div class="card-actions" ${actionsStyle}>
-              <button class="delete-btn" id="del-${item.id}" data-id="${item.id}">Delete</button>
-              <fe-tooltip trigger="del-${item.id}">Delete this task permanently</fe-tooltip>
-            </div>
-          </fe-card>
-        `;
-
-        if (item.status === 'todo') {
-          countTodo++;
-          htmlTodo += cardHtml;
-        } else if (item.status === 'in-progress') {
-          countInProgress++;
-          htmlInProgress += cardHtml;
-        } else if (item.status === 'done') {
-          countDone++;
-          htmlDone += cardHtml;
-        }
-      }
-
-      return `
-        <fe-card class="column col-todo">
-          <div class="column-header">
-            <span>To Do</span>
-            <span class="badge" id="count-todo">${countTodo}</span>
-          </div>
-          <div class="card-list" id="list-todo">
-            ${htmlTodo}
-          </div>
-        </fe-card>
-
-        <fe-card class="column col-in-progress">
-          <div class="column-header">
-            <span>In Progress</span>
-            <span class="badge" id="count-in-progress">${countInProgress}</span>
-          </div>
-          <div class="card-list" id="list-in-progress">
-            ${htmlInProgress}
-          </div>
-        </fe-card>
-
-        <fe-card class="column col-done">
-          <div class="column-header">
-            <span>Done</span>
-            <span class="badge" id="count-done">${countDone}</span>
-          </div>
-          <div class="card-list" id="list-done">
-            ${htmlDone}
-          </div>
-        </fe-card>
-      `;
-    });
-
-    // 3. HTML5 Native Drag-and-Drop via Framework
-    this.bindDragAndDrop({
-      dropSelector: '.column',
-      onDragStart: (dragEl, e) => {
-        if (e.target.closest('.card-title') || e.target.closest('button')) return false;
-
-        const id = dragEl.getAttribute('data-id');
-        const items = getItems() || [];
-        const item = items.find(i => i.id === id);
-        if (!item || item.lockedBy) return false;
-
-        // Broadcast lock to network
-        const updatedItems = items.map(i => i.id === id ? { ...i, lockedBy: getCurrentUser(), lockedAt: new Date().toISOString() } : i);
-        setItems(updatedItems);
-      },
-      onDrop: (dragEl, dropZoneEl, e) => {
-        const id = dragEl.getAttribute('data-id');
-        let newStatus = null;
-        if (dropZoneEl) {
-          if (dropZoneEl.classList.contains('col-todo')) newStatus = 'todo';
-          if (dropZoneEl.classList.contains('col-in-progress')) newStatus = 'in-progress';
-          if (dropZoneEl.classList.contains('col-done')) newStatus = 'done';
-        }
-
-        const items = getItems() || [];
-        const updatedItems = items.map(i => {
-          if (i.id === id) {
-            return { ...i, lockedBy: null, lockedAt: null, status: newStatus ? newStatus : i.status };
+    const unsub = globalSharedMap.subscribe((key, value) => {
+      if (key === 'kanban:items_index') {
+        const ids = value || [];
+        for (const id of ids) {
+          if (!this.cards.has(id)) {
+            globalSharedMap.incrementSubscriber(`kanban:item:${id}`);
+            // We can't easily push to cleanups here, but a real app would track sub counts.
           }
-          return i;
-        });
-        setItems(updatedItems);
-        if (newStatus) globalToast.show(`Task moved to ${newStatus}`);
+        }
+      } else if (key.startsWith('kanban:item:')) {
+        this.syncCard(key.replace('kanban:item:', ''), value);
       }
     });
+    this._cleanups.push(unsub);
 
-    // Delete Button Delegation
-    this.bindEvent('.board-columns', 'click', (e) => {
-      const delBtn = e.target.closest('.delete-btn');
-      if (delBtn) {
-        const id = delBtn.getAttribute('data-id');
-        this.deleteItem(id, getItems, setItems);
+    // Initial load
+    for (const [key, value] of globalSharedMap.state.entries()) {
+      if (key.startsWith('kanban:item:')) {
+        this.syncCard(key.replace('kanban:item:', ''), value);
       }
-    });
-
-    // Event Delegation for live edits
-    this.bindEvent('.board-columns', 'input', (e) => {
-      if (e.target.matches('.card-title')) {
-        const id = e.target.closest('.card').getAttribute('data-id');
-        const newTitle = e.target.textContent;
-        const currentItems = getItems() || [];
-        const newItems = currentItems.map(i => i.id === id ? { ...i, title: newTitle } : i);
-        setItems(newItems);
-      }
-    });
+    }
 
     // 3. Form Setup
     const formSignalTuple = createFormSignal({ title: '' }, (values) => {
@@ -387,18 +272,21 @@ class SampleBoard extends FeElement {
       return errors;
     });
 
-    const [getFormState, actions] = formSignalTuple;
+    const [, actions] = formSignalTuple;
 
     this.bindForm('#add-task-form', formSignalTuple, async (values) => {
-      const items = getItems() || [];
+      const id = 'task-' + Math.random().toString(36).slice(2);
       const newItem = {
-        id: Math.random().toString(36).slice(2),
+        id,
         title: values.title.trim(),
         status: 'todo',
         createdAt: new Date().toISOString()
       };
       
-      setItems([...items, newItem]);
+      const index = globalSharedMap.get('kanban:items_index') || [];
+      globalSharedMap.set('kanban:items_index', [...index, id]);
+      
+      globalSharedMap.set(`kanban:item:${id}`, newItem);
       globalToast.show(`Task added: ${newItem.title}`);
       
       actions.resetForm();
@@ -411,30 +299,118 @@ class SampleBoard extends FeElement {
       const formEl = agForm.root.querySelector('form');
       formEl.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     });
+
+    // 4. Drag & Drop
+    this.bindDragAndDrop({
+      dropSelector: '.column',
+      onDragStart: (dragEl, e) => {
+        if (e.target.closest('.card-title') || e.target.closest('button')) return false;
+
+        const id = dragEl.getAttribute('data-id');
+        const item = globalSharedMap.get(`kanban:item:${id}`);
+        if (!item || item.lockedBy) return false;
+
+        // Broadcast lock
+        globalSharedMap.set(`kanban:item:${id}`, { ...item, lockedBy: getCurrentUser(), lockedAt: new Date().toISOString() });
+      },
+      onDrop: (dragEl, dropZoneEl, e) => {
+        const id = dragEl.getAttribute('data-id');
+        console.log('onDrop fired, id:', id, 'dropZoneEl:', dropZoneEl?.className);
+        let newStatus = null;
+        if (dropZoneEl) {
+          if (dropZoneEl.classList.contains('col-todo')) newStatus = 'todo';
+          if (dropZoneEl.classList.contains('col-in-progress')) newStatus = 'in-progress';
+          if (dropZoneEl.classList.contains('col-done')) newStatus = 'done';
+        }
+
+        const item = globalSharedMap.get(`kanban:item:${id}`);
+        console.log('onDrop item found:', !!item, 'newStatus:', newStatus);
+        if (item) {
+          globalSharedMap.set(`kanban:item:${id}`, { 
+            ...item, 
+            lockedBy: null, 
+            lockedAt: null, 
+            status: newStatus ? newStatus : item.status 
+          });
+          if (newStatus) globalToast.show(`Task moved to ${newStatus}`);
+        }
+      }
+    });
   }
 
-  escapeHtml(unsafe) {
-    return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
+  handleCardEvent(id, ev) {
+    const item = globalSharedMap.get(`kanban:item:${id}`);
+    if (!item) return;
+
+    if (ev.type === 'card:delete') {
+      globalSharedMap.delete(`kanban:item:${id}`);
+      
+      const index = globalSharedMap.get('kanban:items_index') || [];
+      globalSharedMap.set('kanban:items_index', index.filter(i => i !== id));
+      
+      globalToast.show('Task deleted successfully');
+    } else if (ev.type === 'card:editTitle') {
+      const newTitle = ev.sourceEvent.target.textContent;
+      globalSharedMap.set(`kanban:item:${id}`, { ...item, title: newTitle });
+    }
   }
 
-  moveItem(id, newStatus, getItems, setItems) {
-    const items = getItems() || [];
-    const updatedItems = items.map(item => 
-      item.id === id ? { ...item, status: newStatus } : item
-    );
-    setItems(updatedItems);
+  syncCard(id, data) {
+    if (!data) {
+      // Deleted
+      if (this.cards.has(id)) {
+        const card = this.cards.get(id);
+        card.root.remove();
+        card.dispose();
+        this.cards.delete(id);
+        this.updateCounts();
+      }
+      return;
+    }
+
+    const currentUser = getCurrentUser();
+    const now = Date.now();
+    const isLocked = data.lockedBy && data.lockedAt && (now - new Date(data.lockedAt).getTime() < 60000);
+    const lockedByOther = isLocked && data.lockedBy !== currentUser;
+
+    const state = {
+      id: data.id,
+      title: data.title,
+      status: data.status,
+      createdAt: data.createdAt,
+      lockedBy: data.lockedBy,
+      isLocked: Boolean(lockedByOther),
+      isoDate: data.createdAt ? new Date(data.createdAt).toISOString() : new Date().toISOString()
+    };
+
+    let card = this.cards.get(id);
+    if (!card) {
+      card = createKanbanCard(state, (ev) => this.handleCardEvent(id, ev));
+      this.cards.set(id, card);
+    } else {
+      card.patch(state);
+    }
+
+    // Ensure correct DOM position based on status
+    const listNode = this.nodes.get(`list-${data.status}`);
+    if (listNode && card.root.parentElement !== listNode) {
+      listNode.appendChild(card.root);
+      this.updateCounts();
+    }
   }
 
-  deleteItem(id, getItems, setItems) {
-    const items = getItems() || [];
-    const updatedItems = items.filter(item => item.id !== id);
-    setItems(updatedItems);
-    globalToast.show('Task deleted successfully');
+  updateCounts() {
+    let counts = { 'todo': 0, 'in-progress': 0, 'done': 0 };
+    for (const [id, card] of this.cards) {
+      const item = globalSharedMap.get(`kanban:item:${id}`);
+      if (item && counts[item.status] !== undefined) {
+        counts[item.status]++;
+      }
+    }
+    
+    this.nodes.get('count-todo').textContent = counts['todo'];
+    this.nodes.get('count-in-progress').textContent = counts['in-progress'];
+    this.nodes.get('count-done').textContent = counts['done'];
   }
 }
 

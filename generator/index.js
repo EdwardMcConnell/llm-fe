@@ -67,6 +67,7 @@ function generate(irPath) {
     ${varName} = nextVal;
 `;
     for (const op of patch.ops) {
+      const target = op.ref === 'root' ? 'root' : op.ref + 'Element';
       if (op.op === 'setTextNodeValue') {
         if (op.format === 'currency') {
           code += `    ${op.ref}TextNode.nodeValue = formatCurrency(nextVal);\n`;
@@ -74,9 +75,21 @@ function generate(irPath) {
           code += `    ${op.ref}TextNode.nodeValue = nextVal == null ? '' : String(nextVal);\n`;
         }
       } else if (op.op === 'setTextContent') {
-        code += `    ${op.ref}Element.textContent = nextVal == null ? '' : String(nextVal);\n`;
+        if (op.prefix) {
+          code += `    ${target}.textContent = nextVal == null ? '' : \`${op.prefix}\${String(nextVal)}\`;\n`;
+        } else {
+          code += `    ${target}.textContent = nextVal == null ? '' : String(nextVal);\n`;
+        }
       } else if (op.op === 'setClassToken') {
-        code += `    ${op.ref}Element.className = \`${op.prefix}\${safeClassToken(nextVal)}\`;\n`;
+        code += `    ${target}.className = \`${op.prefix}\${safeClassToken(nextVal)}\`;\n`;
+      } else if (op.op === 'setClassName') {
+        code += `    ${target}.className = nextVal ? \`${op.trueClass}\` : \`${op.falseClass}\`;\n`;
+      } else if (op.op === 'setAttribute') {
+        code += `    if (nextVal == null || nextVal === false) { ${target}.removeAttribute('${op.attr}'); } else { ${target}.setAttribute('${op.attr}', nextVal === true ? 'true' : nextVal); }\n`;
+      } else if (op.op === 'setBooleanAttribute') {
+        code += `    if (nextVal) { ${target}.setAttribute('${op.attr}', '${op.trueValue}'); } else { ${target}.setAttribute('${op.attr}', '${op.falseValue}'); }\n`;
+      } else if (op.op === 'setStyleDisplay') {
+        code += `    ${target}.style.display = nextVal ? '${op.trueDisplay}' : '${op.falseDisplay}';\n`;
       }
     }
     code += `  }\n\n`;

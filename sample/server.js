@@ -116,6 +116,27 @@ wss.on('connection', (ws) => {
           }
           break;
         }
+
+        case 'delete': {
+          const { key, clock, client } = payload;
+          const currentClock = crdtClocks.get(key) || 0;
+          
+          if (clock > currentClock || (clock === currentClock && client > serverClientId)) {
+            crdtState.delete(key);
+            crdtClocks.set(key, clock);
+            
+            const subs = subscriptions.get(key);
+            if (subs) {
+              const patchString = JSON.stringify(payload);
+              for (const subscriberWs of subs) {
+                if (subscriberWs !== ws && subscriberWs.readyState === 1) {
+                  subscriberWs.send(patchString);
+                }
+              }
+            }
+          }
+          break;
+        }
       }
     } catch (e) {
       console.error('WebSocket Error:', e);
