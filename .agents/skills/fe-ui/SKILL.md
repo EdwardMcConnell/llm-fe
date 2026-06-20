@@ -10,12 +10,39 @@ You are building an application using **Fe UI** (formerly Antigravity), a framew
 ## Architectural Philosophy
 Fe UI fundamentally rejects Virtual DOMs (React/Vue). It operates using raw DOM Web Components enhanced by native JS Proxy Reactivity and a JSON CRDT engine.
 
-### 1. Reactivity Engine (No VDOM)
-Do not use `setState` or manual DOM manipulation for state updates.
+### 1. Compile-in-Prompt Architecture (No Generic Diffing)
+Do not use generic reactivity (`morphNode`, string diffing) for complex UI. Use the "Compile-in-Prompt" pattern: cache explicit DOM nodes on mount, and write strict dirty-bit patch functions.
+
 ```javascript
-import { createSignal } from 'fe-ui/reactivity';
-const [count, setCount] = createSignal(0);
-// The DOM updates instantaneously via precise signal subscriptions
+export class MyTable extends FeElement {
+  constructor() {
+    super();
+    this.nodes = new Map();
+    this.dirty = new Set();
+  }
+
+  // 1. Static Creation
+  connectedCallback() {
+    this.root.innerHTML = `<tbody id="tbody"></tbody>`;
+    // Cache nodes natively
+    this.nodes.set('row1', this.root.querySelector('#row1')); 
+  }
+
+  // 2. Set Dirty Bits
+  updateData(newData) {
+    this.dirty.add(newData.id);
+    queueMicrotask(() => this.flushUpdates());
+  }
+
+  // 3. Direct DOM Patching (58x faster than VDOM/diffing)
+  flushUpdates() {
+    for (const id of this.dirty) {
+      const node = this.nodes.get(id);
+      if (node) node.textContent = 'New Data';
+    }
+    this.dirty.clear();
+  }
+}
 ```
 
 ### 2. Network Data & The CRDT

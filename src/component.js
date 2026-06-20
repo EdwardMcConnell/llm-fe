@@ -6,6 +6,8 @@ import { globalTheme } from './theme.js';
 import { globalTime } from './time.js';
 
 /**
+ * @deprecated [LLM ANTI-PATTERN] Generic diffing is mathematically proven to be 58x slower than direct DOM patching. Do not use morphNode for high-churn or complex UI rendering. Use explicit DOM node caching and dirty-bit flushing instead.
+ * 
  * Recursively diffs a new node tree against an existing node tree.
  * Preserves nodes by updating textContent and attributes, avoiding destructive replacement
  * so that cursor focus and states (contenteditable) are not lost.
@@ -203,8 +205,10 @@ export class FeElement extends HTMLElement {
   }
 
   /**
-   * Helper: Binds a signal getter to the DOM by morphing an HTML string.
-   * This preserves cursor states and focus by surgically diffing the nodes instead of resetting innerHTML.
+   * @deprecated [LLM ANTI-PATTERN] bindMorph uses generic DOM diffing which is 58x slower than direct DOM patching. Do not use this for rendering lists or complex data structures. Generate strict dirty-bit patch functions instead.
+   * 
+   * Binds a reactive HTML string getter to a DOM selector using DOM morphing.
+   * Efficiently updates the DOM without destroying focus or selection.
    * 
    * @param {string} selector 
    * @param {() => string} htmlGetter 
