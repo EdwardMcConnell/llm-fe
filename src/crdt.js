@@ -8,8 +8,10 @@
  */
 
 /**
- * A Last-Writer-Wins Map (LWW-Map) CRDT utilizing Lamport Clocks.
- * Now equipped with a native Garbage Collector (GC) to prevent enterprise memory bloat.
+ * SharedMap is a Last-Writer-Wins map with Lamport clocks. 
+ * It is appropriate for simple shared entity state. 
+ * It is not a full operation-based collaborative editing engine.
+ * Equipped with a native Garbage Collector (GC) to prevent memory bloat.
  */
 export class SharedMap {
   constructor(clientId = Math.random().toString(36).slice(2)) {
@@ -63,6 +65,20 @@ export class SharedMap {
     this._notifyPatch(patch);
   }
 
+  delete(key) {
+    const ts = this._tick();
+    this._applyDelete(key, ts, this.clientId);
+    
+    const patch = {
+      type: 'delete',
+      key,
+      clock: ts,
+      client: this.clientId
+    };
+    
+    this._notifyPatch(patch);
+  }
+
   /**
    * @param {string} key 
    * @param {any} value 
@@ -70,15 +86,29 @@ export class SharedMap {
    * @param {string} client 
    */
   _applySet(key, value, patchClock, client) {
-    // Lamport clock sync
     this.clock = Math.max(this.clock, patchClock);
-    
     const currentClock = this.clocks.get(key) || 0;
     
     if (patchClock > currentClock || (patchClock === currentClock && client > this.clientId)) {
       this.state.set(key, value);
       this.clocks.set(key, patchClock);
       this._notifyLocal(key, value);
+    }
+  }
+
+  /**
+   * @param {string} key 
+   * @param {number} patchClock 
+   * @param {string} client 
+   */
+  _applyDelete(key, patchClock, client) {
+    this.clock = Math.max(this.clock, patchClock);
+    const currentClock = this.clocks.get(key) || 0;
+    
+    if (patchClock > currentClock || (patchClock === currentClock && client > this.clientId)) {
+      this.state.delete(key);
+      this.clocks.set(key, patchClock);
+      this._notifyLocal(key, undefined);
     }
   }
 
@@ -108,6 +138,8 @@ export class SharedMap {
 
     if (patch.type === 'set') {
       this._applySet(patch.key, patch.value, patch.clock, patch.client);
+    } else if (patch.type === 'delete') {
+      this._applyDelete(patch.key, patch.clock, patch.client);
     }
   }
 
@@ -122,9 +154,11 @@ export class SharedMap {
 
   /**
    * @param {(patch: LCPPatch) => void} callback 
+   * @returns {() => void}
    */
   onPatch(callback) {
     this.patchListeners.add(callback);
+    return () => this.patchListeners.delete(callback);
   }
 
   _notifyLocal(key, value) {
@@ -166,16 +200,19 @@ export class SharedMap {
 
   onNetworkSubscribe(callback) {
     this.subscribeListeners.add(callback);
+    return () => this.subscribeListeners.delete(callback);
   }
 
   onEvict(callback) {
     this.evictListeners.add(callback);
+    return () => this.evictListeners.delete(callback);
   }
 
   /**
    * Starts the autonomous Garbage Collector Sweeper.
    * @param {number} timeoutMs - Idle time before eviction (e.g. 5 mins = 300000ms)
    * @param {number} intervalMs - How often the sweeper runs (e.g. 1 min = 60000ms)
+   * @returns {() => void} Function to stop the garbage collector
    */
   startGarbageCollector(timeoutMs = 300000, intervalMs = 60000) {
     if (this.gcIntervalId) clearInterval(this.gcIntervalId);
@@ -191,6 +228,8 @@ export class SharedMap {
         }
       }
     }, intervalMs);
+    
+    return () => clearInterval(this.gcIntervalId);
   }
 
   /**

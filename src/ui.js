@@ -33,14 +33,16 @@ export class FeAccordionGroup extends FeElement {
   bind() {
     const groupName = this.getAttribute('name') || `accordion-group-${this.id || Math.random().toString(36).slice(2)}`;
     const slot = this.root.querySelector('slot');
-    slot.addEventListener('slotchange', () => {
+    const onSlotChange = () => {
       const children = slot.assignedElements();
       children.forEach(child => {
         if (child.tagName.toLowerCase() === 'fe-accordion' && !child.hasAttribute('name')) {
           child.setAttribute('name', groupName);
         }
       });
-    });
+    };
+    slot.addEventListener('slotchange', onSlotChange);
+    this._cleanups.push(() => slot.removeEventListener('slotchange', onSlotChange));
   }
 }
 
@@ -110,14 +112,17 @@ export class FeAccordion extends FeElement {
       });
     });
     observer.observe(this, { attributes: true });
+    this._cleanups.push(() => observer.disconnect());
     
-    details.addEventListener('toggle', () => {
+    const onToggle = () => {
       if (details.open) {
         this.setAttribute('open', '');
       } else {
         this.removeAttribute('open');
       }
-    });
+    };
+    details.addEventListener('toggle', onToggle);
+    this._cleanups.push(() => details.removeEventListener('toggle', onToggle));
   }
 }
 
@@ -178,7 +183,7 @@ export class FeTooltip extends FeElement {
 
     const triggerId = this.getAttribute('trigger');
     
-    setTimeout(() => {
+    const setupTimer = setTimeout(() => {
       const rootNode = this.getRootNode();
       const triggerEl = triggerId ? rootNode.querySelector(`#${triggerId}`) : this.previousElementSibling;
       if (!triggerEl) return;
@@ -204,7 +209,16 @@ export class FeTooltip extends FeElement {
       triggerEl.addEventListener('mouseleave', hide);
       triggerEl.addEventListener('focus', show);
       triggerEl.addEventListener('blur', hide);
+
+      this._cleanups.push(() => {
+        triggerEl.removeEventListener('mouseenter', show);
+        triggerEl.removeEventListener('mouseleave', hide);
+        triggerEl.removeEventListener('focus', show);
+        triggerEl.removeEventListener('blur', hide);
+        clearTimeout(timeout);
+      });
     }, 0);
+    this._cleanups.push(() => clearTimeout(setupTimer));
   }
 }
 
@@ -258,7 +272,7 @@ export class FeMenu extends FeElement {
         };
     }
 
-    setTimeout(() => {
+    const setupTimer = setTimeout(() => {
       const rootNode = this.getRootNode();
       const triggerEl = triggerId ? rootNode.querySelector(`#${triggerId}`) : this.previousElementSibling;
       if (!triggerEl) return;
@@ -276,10 +290,17 @@ export class FeMenu extends FeElement {
       triggerEl.addEventListener('click', toggle);
       triggerEl.setAttribute('aria-haspopup', 'menu');
       
-      menu.addEventListener('toggle', (e) => {
+      const onToggle = (e) => {
         triggerEl.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
+      };
+      menu.addEventListener('toggle', onToggle);
+
+      this._cleanups.push(() => {
+        triggerEl.removeEventListener('click', toggle);
+        menu.removeEventListener('toggle', onToggle);
       });
     }, 0);
+    this._cleanups.push(() => clearTimeout(setupTimer));
   }
 }
 
@@ -338,16 +359,19 @@ export class FeToast extends FeElement {
     }
 
     // Give DOM a microtick to render
-    setTimeout(() => {
+    const setupTimer = setTimeout(() => {
         try { toast.showPopover(); } catch(e) {}
         
         if (duration > 0) {
-          setTimeout(() => {
+          const hideTimer = setTimeout(() => {
             try { toast.hidePopover(); } catch(e) {}
-            setTimeout(() => this.remove(), 300);
+            const removeTimer = setTimeout(() => this.remove(), 300);
+            this._cleanups.push(() => clearTimeout(removeTimer));
           }, duration);
+          this._cleanups.push(() => clearTimeout(hideTimer));
         }
     }, 10);
+    this._cleanups.push(() => clearTimeout(setupTimer));
   }
 }
 
@@ -419,6 +443,13 @@ export class FeTabs extends FeElement {
     const panelSlot = this.root.querySelector('slot[name="panel"]');
     const indicator = this.root.querySelector('.indicator');
 
+    const updateIndicator = (tab) => {
+      if (!window.CSS || !CSS.supports('position-anchor', '--foo')) {
+        indicator.style.left = `${tab.offsetLeft}px`;
+        indicator.style.width = `${tab.offsetWidth}px`;
+      }
+    };
+
     const updateTabs = () => {
       const tabs = tabSlot.assignedElements();
       const panels = panelSlot.assignedElements();
@@ -432,60 +463,76 @@ export class FeTabs extends FeElement {
             panel.setAttribute('hidden', 'until-found');
           } else {
             panel.removeAttribute('hidden');
-            if (!window.CSS || !CSS.supports('position-anchor', '--foo')) {
-              indicator.style.left = `${tab.offsetLeft}px`;
-              indicator.style.width = `${tab.offsetWidth}px`;
-            }
+            updateIndicator(tab);
           }
-        }
-
-        tab.addEventListener('click', () => {
-          tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
-          tab.setAttribute('aria-selected', 'true');
-          
-          panels.forEach(p => p.setAttribute('hidden', 'until-found'));
-          if (panel) panel.removeAttribute('hidden');
-
-          if (!window.CSS || !CSS.supports('position-anchor', '--foo')) {
-            indicator.style.left = `${tab.offsetLeft}px`;
-            indicator.style.width = `${tab.offsetWidth}px`;
-          }
-        });
-      });
-
-      panels.forEach((panel, index) => {
-        panel.addEventListener('beforematch', () => {
-          tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
-          tabs[index].setAttribute('aria-selected', 'true');
-          
-          panels.forEach(p => {
-            if (p !== panel) p.setAttribute('hidden', 'until-found');
-          });
-
-          if (!window.CSS || !CSS.supports('position-anchor', '--foo')) {
-            indicator.style.left = `${tabs[index].offsetLeft}px`;
-            indicator.style.width = `${tabs[index].offsetWidth}px`;
-          }
-        });
-      });
-      
-      tabSlot.addEventListener('keydown', (e) => {
-        const selectedIndex = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true');
-        let nextIndex = selectedIndex;
-        if (e.key === 'ArrowRight') {
-          nextIndex = (selectedIndex + 1) % tabs.length;
-        } else if (e.key === 'ArrowLeft') {
-          nextIndex = (selectedIndex - 1 + tabs.length) % tabs.length;
-        }
-        if (nextIndex !== selectedIndex && nextIndex >= 0) {
-          tabs[nextIndex].click();
-          tabs[nextIndex].focus();
         }
       });
     };
 
-    tabSlot.addEventListener('slotchange', updateTabs);
-    panelSlot.addEventListener('slotchange', updateTabs);
+    const onSlotChange = () => updateTabs();
+    tabSlot.addEventListener('slotchange', onSlotChange);
+    panelSlot.addEventListener('slotchange', onSlotChange);
+    this._cleanups.push(() => {
+      tabSlot.removeEventListener('slotchange', onSlotChange);
+      panelSlot.removeEventListener('slotchange', onSlotChange);
+    });
+
+    const onClick = (e) => {
+      const tabs = tabSlot.assignedElements();
+      const panels = panelSlot.assignedElements();
+      const tab = e.target.closest('[role="tab"]');
+      if (!tab) return;
+      const index = tabs.indexOf(tab);
+      if (index === -1) return;
+
+      tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+      tab.setAttribute('aria-selected', 'true');
+      
+      panels.forEach(p => p.setAttribute('hidden', 'until-found'));
+      const panel = panels[index];
+      if (panel) panel.removeAttribute('hidden');
+
+      updateIndicator(tab);
+    };
+    tabSlot.addEventListener('click', onClick);
+    this._cleanups.push(() => tabSlot.removeEventListener('click', onClick));
+
+    const onBeforeMatch = (e) => {
+      const tabs = tabSlot.assignedElements();
+      const panels = panelSlot.assignedElements();
+      const panel = e.target.closest('[role="tabpanel"]');
+      if (!panel) return;
+      const index = panels.indexOf(panel);
+      if (index === -1) return;
+
+      tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+      tabs[index].setAttribute('aria-selected', 'true');
+      
+      panels.forEach(p => {
+        if (p !== panel) p.setAttribute('hidden', 'until-found');
+      });
+
+      updateIndicator(tabs[index]);
+    };
+    panelSlot.addEventListener('beforematch', onBeforeMatch);
+    this._cleanups.push(() => panelSlot.removeEventListener('beforematch', onBeforeMatch));
+    
+    const onKeyDown = (e) => {
+      const tabs = tabSlot.assignedElements();
+      const selectedIndex = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true');
+      let nextIndex = selectedIndex;
+      if (e.key === 'ArrowRight') {
+        nextIndex = (selectedIndex + 1) % tabs.length;
+      } else if (e.key === 'ArrowLeft') {
+        nextIndex = (selectedIndex - 1 + tabs.length) % tabs.length;
+      }
+      if (nextIndex !== selectedIndex && nextIndex >= 0) {
+        tabs[nextIndex].click();
+        tabs[nextIndex].focus();
+      }
+    };
+    tabSlot.addEventListener('keydown', onKeyDown);
+    this._cleanups.push(() => tabSlot.removeEventListener('keydown', onKeyDown));
   }
 }
 

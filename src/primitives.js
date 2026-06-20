@@ -59,15 +59,18 @@ export class FeButton extends FeElement {
       }
     });
     observer.observe(this, { attributes: true, attributeFilter: ['disabled'] });
+    this._cleanups.push(() => observer.disconnect());
 
     // Native Telemetry Hook (Phase 9)
-    btn.addEventListener('click', (e) => {
+    const onClick = (e) => {
       globalTelemetry.track('USER_ACTION', {
         component: 'fe-button',
         action: 'click',
         id: this.id || 'anonymous_button'
       });
-    });
+    };
+    btn.addEventListener('click', onClick);
+    this._cleanups.push(() => btn.removeEventListener('click', onClick));
   }
 }
 
@@ -106,11 +109,13 @@ export class FeDialog extends FeElement {
     const dialog = this.root.querySelector('#native-dialog');
     
     // Light dismiss (Click outside to close)
-    dialog.addEventListener('click', (e) => {
+    const onClick = (e) => {
       if (e.target === dialog) {
         dialog.close();
       }
-    });
+    };
+    dialog.addEventListener('click', onClick);
+    this._cleanups.push(() => dialog.removeEventListener('click', onClick));
   }
 
   open() {
@@ -168,16 +173,18 @@ export class FeLink extends FeElement {
     let prefetchTimeout = null;
 
     // 1. Intercept Click
-    this.addEventListener('click', (e) => {
+    const onClick = (e) => {
       e.preventDefault();
       const href = this.getAttribute('href');
       if (href) {
         globalRouter.navigate(href);
       }
-    });
+    };
+    this.addEventListener('click', onClick);
+    this._cleanups.push(() => this.removeEventListener('click', onClick));
 
     // 2. Hover Intent Pre-fetch
-    this.addEventListener('mouseenter', () => {
+    const onMouseEnter = () => {
       // If hovered for >50ms, prefetch the route data!
       prefetchTimeout = setTimeout(() => {
         const href = this.getAttribute('href');
@@ -185,12 +192,19 @@ export class FeLink extends FeElement {
           globalRouter.preload(href);
         }
       }, 50);
-    });
+    };
+    this.addEventListener('mouseenter', onMouseEnter);
+    this._cleanups.push(() => this.removeEventListener('mouseenter', onMouseEnter));
 
-    this.addEventListener('mouseleave', () => {
+    const onMouseLeave = () => {
       if (prefetchTimeout) {
         clearTimeout(prefetchTimeout);
       }
+    };
+    this.addEventListener('mouseleave', onMouseLeave);
+    this._cleanups.push(() => {
+      this.removeEventListener('mouseleave', onMouseLeave);
+      if (prefetchTimeout) clearTimeout(prefetchTimeout);
     });
   }
 }
@@ -218,11 +232,13 @@ export class FeForm extends FeElement {
     // The actual state binding happens in the parent component via this.bindForm()
 
     // Native Telemetry Hook (Phase 9)
-    form.addEventListener('submit', () => {
+    const onSubmit = () => {
       globalTelemetry.track('FORM_SUBMIT', {
         id: this.id || 'anonymous_form'
       });
-    });
+    };
+    form.addEventListener('submit', onSubmit);
+    this._cleanups.push(() => form.removeEventListener('submit', onSubmit));
   }
 }
 
@@ -422,20 +438,23 @@ export class FeGrid extends FeElement {
 
     const handleScroll = () => {
       if (!isTicking) {
-        window.requestAnimationFrame(this._renderWindow);
+        this._rafId = window.requestAnimationFrame(this._renderWindow);
         isTicking = true;
       }
     };
 
     this.addEventListener('scroll', handleScroll, { passive: true });
-    this._cleanups.push(() => this.removeEventListener('scroll', handleScroll));
+    this._cleanups.push(() => {
+      this.removeEventListener('scroll', handleScroll);
+      if (this._rafId) window.cancelAnimationFrame(this._rafId);
+    });
 
     // Reactivity Hook: Automatically re-run the full render logic when the array changes.
     const dispose = createEffect(() => {
       // Just reading getSignal() registers this component as a subscriber to the CRDT list!
       getSignal();
       // Fire render frame
-      window.requestAnimationFrame(this._renderWindow);
+      this._rafId = window.requestAnimationFrame(this._renderWindow);
     });
     this._cleanups.push(dispose);
   }
@@ -472,13 +491,13 @@ export class FeText extends FeElement {
   bind() {
     const textNode = this.root.querySelector('#text-node');
     
-    // We must load createSignal statically or use a manual trigger.
-    // Let's just import createSignal at the top.
+    // We already statically imported createEffect from reactivity.js at the top.
+    // We just need createSignal.
     import('./reactivity.js').then(({ createSignal }) => {
       const [getKey, setKey] = createSignal(this.getAttribute('t') || '');
       this._setKey = setKey;
 
-      createEffect(() => {
+      const dispose = createEffect(() => {
         const key = getKey();
         if (key) {
           textNode.textContent = globalI18n.t(key);
@@ -486,6 +505,7 @@ export class FeText extends FeElement {
           textNode.textContent = '';
         }
       });
+      this._cleanups.push(dispose);
     });
   }
 }

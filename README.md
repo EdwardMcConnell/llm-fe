@@ -24,6 +24,16 @@ Fe relies on **Named Invariants** backed by tests, not grandiose adjectives. Nev
 - **Invariant**: `FeGrid` scroll listeners and ResizeObservers are detached on disconnect. Proof: `test/primitives.test.js` > `FeGrid Reactive Effect and Event Listeners are strictly disposed on disconnect`.
 - **Invariant**: CRDT patches from the network are structurally validated before incrementing Lamport clocks. Proof: `src/crdt.js` > `merge()`.
 
+## Capability Detection Discipline
+
+Fe relies heavily on bleeding-edge native browser capabilities to replace legacy JS abstractions. Generated code MUST provide fallback layers or fail open gracefully:
+
+- **`popover` & `position-anchor`**: Fe provides automatic bounding-rect calculation fallbacks for `FeTooltip` and `FeMenu` if `CSS.supports('position-anchor')` returns false.
+- **`sibling-index()`**: Used for stacking `FeToast`. JS manual calculation is used as a fallback if not supported.
+- **`<dialog>` & `delegatesFocus`**: Assumed supported globally (Baseline 2022).
+- **`adoptedStyleSheets`**: Assumed supported for global theme injection.
+- **`hidden="until-found"`**: Used for `FeTabs` and `FeAccordion` accessibility. Degrades to standard `hidden` naturally.
+
 ## Using the Framework
 
 ### Core Primitives
@@ -32,8 +42,8 @@ The framework is built around custom Web Components extending `FeElement` (found
 - **Reactivity**: Uses proxy-based signals (`createSignal`, `createEffect`).
 - **Memory Management**: If you attach global listeners or timers, push the cleanup callback into `this._cleanups` inside your component's `bind()` method. `FeElement` executes them in `disconnectedCallback`.
 
-### The UI Component Library (`src/ui.js`)
-To utilize the high-performance primitives, simply import the UI file. 
+### The UI Component Library
+To utilize the high-performance primitives, simply import the main package or the UI file directly. This executes side-effect imports that auto-register the custom elements with the browser (e.g. `customElements.define('fe-button', FeButton)`). This pattern is chosen specifically to minimize setup boilerplate for generated code. 
 
 - **`<fe-card>`**: Strictly contained layout isolation (`contain: content`).
 - **`<fe-accordion>` & `<fe-accordion-group>`**: Uses native `<details>` and `<summary>`.

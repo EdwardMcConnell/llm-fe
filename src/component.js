@@ -1,4 +1,4 @@
-import { createEffect } from './reactivity.js';
+import { createEffect, createTransitionEffect } from './reactivity.js';
 import { globalSharedMap } from './store.js';
 import { globalDemandManager } from './data.js';
 import { globalTelemetry } from './telemetry.js';
@@ -417,11 +417,37 @@ export class FeElement extends HTMLElement {
       this.root.removeEventListener('drop', handleDrop);
     });
   }
+  /**
+   * Helper: Binds an effect to the component lifecycle.
+   * Automatically pushes the deterministic disposer into this._cleanups.
+   * @param {() => void|(() => void)} fn 
+   * @returns {() => void} The disposer
+   */
+  createEffect(fn) {
+    const dispose = createEffect(fn);
+    this._cleanups.push(dispose);
+    return dispose;
+  }
+
+  /**
+   * Helper: Binds a transition effect to the component lifecycle.
+   * Automatically pushes the deterministic disposer into this._cleanups.
+   * @param {() => void} fn 
+   * @returns {() => void} The disposer
+   */
+  createTransitionEffect(fn) {
+    const dispose = createTransitionEffect(fn);
+    this._cleanups.push(dispose);
+    return dispose;
+  }
 }
 
 // Development Warning for Unregistered Custom Elements
+// Process-lifetime dev tooling.
+let devObserver = null;
+
 if (typeof window !== 'undefined') {
-  const observer = new MutationObserver((mutations) => {
+  devObserver = new MutationObserver((mutations) => {
     mutations.forEach(m => {
       m.addedNodes.forEach(node => {
         if (node.nodeType === 1 && node.tagName.includes('-')) {
@@ -435,6 +461,13 @@ if (typeof window !== 'undefined') {
   });
   
   if (document.documentElement) {
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    devObserver.observe(document.documentElement, { childList: true, subtree: true });
+  }
+}
+
+export function teardownDevObserver() {
+  if (devObserver) {
+    devObserver.disconnect();
+    devObserver = null;
   }
 }

@@ -1,7 +1,7 @@
 # Fe UI: LLM Agent Behavioral Constraints
 
 ## CRITICAL DIRECTIVE: Test-Driven Development Mandatory
-You are building on the **Fe UI Framework**, a strict enterprise-grade SPA architecture.
+You are building on the **Fe UI Framework**, an LLM-native SPA architecture.
 For every single feature, component, or logic change you create, you **MUST** write an accompanying Unit Test and ensure End-to-End testability. 
 Code submitted without regression coverage is fundamentally flawed and will be REJECTED.
 
@@ -21,8 +21,8 @@ You are operating in an open-source autonomous repository. Any agent contributin
 1. **No Runtime Dependencies**: You may NOT run `npm install` for any external libraries. The framework must remain 100% vanilla (Zero-Dependency).
 2. **No Human-Written Code**: You are the sole author. Do not leave placeholders like `// TODO: Human implement this`. You must write the actual logic.
 3. **Strict Adherence**: You may not ignore any previous rules listed in this document or in the Fe UI Skill. TDD and Architectural integrity are non-negotiable.
-4. **Native-First Architecture**: You must prioritize modern HTML/CSS C++ browser implementations over JavaScript polyfills and hacks. If a browser natively supports a feature (e.g., `<dialog>`, `:user-invalid`, `content-visibility`), you MUST use it natively instead of recreating the behavior in JS. Do not implement "bad ideas that humans have thought of". However, you must think critically and weigh the best architectural decisions with all available information. While the `modern-web-guidance` skill is a powerful tool for discovering new APIs, do not anchor blindly to it—use your own reasoning to determine the optimal, mathematically perfect solution.
-5. **The LLM-First Mathematical Contract**: Do not build or use heavy runtime JavaScript schema validation engines (e.g., Zod, Joi clones) to catch typological errors between the frontend and backend. However, **internal generated code may trust framework primitives, but external input MUST be checked**. Add tiny purpose-built validators at trust boundaries (CRDT patches, WebSockets, forms). LLMs perform best when APIs are explicit, narrow, example-backed, mechanically verified, and runtime-observable.
+4. **Native-First Architecture**: You must prioritize modern HTML/CSS C++ browser implementations over JavaScript polyfills and hacks. If a browser natively supports a feature (e.g., `<dialog>`, `:user-invalid`, `content-visibility`), you MUST use it natively instead of recreating the behavior in JS. Do not implement "bad ideas that humans have thought of". However, you must think critically and weigh the best architectural decisions with all available information. While the `modern-web-guidance` skill is a powerful tool for discovering new APIs, do not anchor blindly to it—use your own reasoning to determine the optimal, most performant solution.
+5. **The LLM-First Contract**: Do not build or use heavy runtime JavaScript schema validation engines (e.g., Zod, Joi clones) to catch typological errors between the frontend and backend. However, **internal generated code may trust framework primitives, but external input MUST be checked**. Add tiny purpose-built validators at trust boundaries (CRDT patches, WebSockets, forms). LLMs perform best when APIs are explicit, narrow, example-backed, mechanically verified, and runtime-observable.
 6. **The LLM-to-LLM Performance Maximization Principle**: Humans will not maintain generated application code. Therefore generated code optimizes for LLM continuation, executable verification, runtime observability, and browser performance rather than human aesthetics. If verbose, highly granular code saves the browser a microsecond of parsing or JS evaluation, it MUST be used. Create specialized primitives rather than monolithic generic wrappers to avoid unnecessary runtime conditionals.
 
 ## LLM-Continuability Rules

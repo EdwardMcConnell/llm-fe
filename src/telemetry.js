@@ -24,8 +24,12 @@ export class TelemetryManager {
     this.batch.push(event);
 
     if (!this.batchTimeout) {
-      // Flush batch every 2 seconds
-      this.batchTimeout = setTimeout(() => this.flush(), 2000);
+      // Flush batch without blocking the main thread
+      if (typeof requestIdleCallback !== 'undefined') {
+        this.batchTimeout = requestIdleCallback(() => this.flush(), { timeout: 2000 });
+      } else {
+        this.batchTimeout = setTimeout(() => this.flush(), 2000);
+      }
     }
   }
 

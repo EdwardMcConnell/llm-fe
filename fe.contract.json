@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Fe UI Explicit Trust Boundaries",
+  "description": "Defines the precise shape of external network data. Fe UI rejects massive runtime JS schema validators. Instead, LLMs use this contract to mechanically generate exact, tiny, purpose-built validator functions at the network boundary.",
+  "type": "object",
+  "properties": {
+    "patch": {
+      "type": "object",
+      "required": ["type", "key", "clock", "client"],
+      "properties": {
+        "type": { "enum": ["set", "delete"] },
+        "key": { "type": "string" },
+        "value": {},
+        "clock": { "type": "number" },
+        "client": { "type": "string" }
+      }
+    }
+  }
+}

@@ -16,8 +16,8 @@ describe('Deterministic Localization (Phase 14)', () => {
     expect(globalI18n.t('greeting')).toBe('Hello');
   });
 
-  it('should return the raw key if totally missing', () => {
-    expect(globalI18n.t('missing_key')).toBe('missing_key');
+  it('should throw an error if totally missing', () => {
+    expect(() => globalI18n.t('missing_key')).toThrowError('FeI18n: Missing translation key "missing_key"');
   });
 
   it('should reactively update <fe-text> when language changes', async () => {
@@ -37,13 +37,15 @@ describe('Deterministic Localization (Phase 14)', () => {
   });
 
   it('should reactively update <fe-text> when CRDT dictionary syncs', async () => {
+    // Instead of missing totally, give it an initial value so it doesn't crash
+    globalI18n.loadTranslations('en', { dynamic_key: 'Initial Network Load' });
     const text = await mount('fe-text');
     text.setAttribute('t', 'dynamic_key');
     
     await flushMicrotasks();
     
     const node = text.root.querySelector('#text-node');
-    expect(node.textContent).toBe('dynamic_key'); // totally missing
+    expect(node.textContent).toBe('Initial Network Load');
     
     // Simulate network CRDT patch arriving
     globalI18n.loadTranslations('en', { dynamic_key: 'Network Loaded!' });

@@ -44,7 +44,7 @@ class I18nManager {
     }
     
     // Total failure fallback
-    return key;
+    throw new Error(`FeI18n: Missing translation key "${key}" for language "${lang}" and no English fallback exists.`);
   }
   
   /**

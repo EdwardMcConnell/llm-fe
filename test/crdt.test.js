@@ -67,6 +67,29 @@ describe('LLM-Native JSON CRDT (SharedMap)', () => {
     // 'client-Z' > 'client-A', so local wins
     expect(map.get('title')).toBe('Local Title');
   });
+
+  it('should apply native delete patches deterministically', () => {
+    const map = new SharedMap('client-A');
+    map.set('user123', { name: 'Alice' });
+    expect(map.get('user123')).toEqual({ name: 'Alice' });
+
+    map.delete('user123');
+    expect(map.get('user123')).toBeUndefined();
+    expect(map.clock).toBe(2);
+  });
+
+  it('should reject malformed patches mechanically', () => {
+    const map = new SharedMap('client-A');
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    map.merge(null);
+    map.merge({ type: 'set' }); // missing key, clock, client
+    map.merge({ type: 'set', key: '123', clock: 'bad' });
+    map.merge({ type: 'set', key: '123', clock: 1, client: '' });
+
+    expect(spy).toHaveBeenCalledTimes(4);
+    spy.mockRestore();
+  });
 });
 
 describe('SharedSignal', () => {

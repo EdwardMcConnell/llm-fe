@@ -28,14 +28,29 @@ export class MyDashboard extends FeElement {
     // This autonomously deduplicates network requests, caches via CRDT,
     // and returns the [getter, setter, unsubscribe] tuple.
     // The unsubscribe is automatically tracked by FeElement._cleanups.
-    const [getUserData, setUserData, unsubscribe] = this.demandData(
-      'user_123', 
-      () => fetch('/api/users/123').then(res => res.json())
+    // Note: demandData currently stores `null` while loading.
+    const [getUser, setUser, unsubscribeUser] = this.demandData(
+      'user:123',
+      async (token) => {
+        const response = await fetch('/api/users/123', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+
+        if (!response.ok) {
+          const error = new Error(`HTTP ${response.status}`);
+          error.status = response.status;
+          throw error;
+        }
+
+        const rawUser = await response.json();
+        // External input MUST be checked at the boundary
+        return rawUser;
+      }
     );
     
     this.createEffect(() => {
-      const data = getUserData();
-      if (!data) return; // Loading state
+      const data = getUser();
+      if (!data) return; // Loading state is null
       console.log('User loaded:', data);
     });
   }
