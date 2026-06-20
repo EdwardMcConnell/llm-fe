@@ -1,0 +1,71 @@
+{
+  "normalized-kanban": {
+    "tests": [
+      "disconnecting the board prevents any stale DOM patches from firing"
+    ],
+    "benchmarks": [
+      "Render 100 cards (Mount)",
+      "Patch Card Title (Hot Path)",
+      "Move Card Between Columns"
+    ],
+    "contracts": [
+      "kanban-card.contract.json"
+    ],
+    "generatedArtifacts": [
+      "kanban-card.generated.js"
+    ]
+  },
+  "data-grid": {
+    "tests": [
+      "cleans up reactive effects when disconnected"
+    ],
+    "benchmarks": [
+      "Render first window (10,000 rows virtualized)",
+      "Scroll window (10,000 rows virtualized)",
+      "Filter 10,000 rows"
+    ],
+    "contracts": [],
+    "generatedArtifacts": []
+  },
+  "settings-form": {
+    "tests": [
+      "renders initial form fields correctly",
+      "shows validation errors for invalid inputs",
+      "clears validation errors when inputs become valid",
+      "cleans up reactive effects when disconnected"
+    ],
+    "benchmarks": [
+      "Render Form (Mount)",
+      "Patch Form Field (Hot Path)"
+    ],
+    "contracts": [],
+    "generatedArtifacts": []
+  },
+  "live-dashboard": {
+    "tests": [
+      "renders initial dashboard metrics at 0",
+      "updates DOM reactively when shared map changes",
+      "applies danger class when CPU exceeds 85%",
+      "cleans up reactive effects when disconnected"
+    ],
+    "benchmarks": [
+      "Patch Dashboard High Frequency"
+    ],
+    "contracts": [],
+    "generatedArtifacts": []
+  },
+  "product-catalog": {
+    "tests": [
+      "renders loading state initially",
+      "renders products and updates cart on click",
+      "cleans up CRDT and Demand subscriptions when unmounted"
+    ],
+    "benchmarks": [
+      "Mount Catalog Component",
+      "Patch Cart State Reactively",
+      "Dispose Catalog"
+    ],
+    "contracts": [],
+    "generatedArtifacts": []
+  }
+}

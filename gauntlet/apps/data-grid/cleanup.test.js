@@ -13,6 +13,9 @@ beforeAll(() => {
   global.HTMLElement = dom.window.HTMLElement;
   global.Event = dom.window.Event;
   global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+  global.cancelAnimationFrame = (id) => clearTimeout(id);
+  dom.window.requestAnimationFrame = global.requestAnimationFrame;
+  dom.window.cancelAnimationFrame = global.cancelAnimationFrame;
   global.ResizeObserver = class {
     observe() {}
     unobserve() {}
@@ -25,7 +28,7 @@ afterAll(() => {
 });
 
 describe('Data Grid Cleanup Proof', () => {
-  test('disconnecting the grid prevents stale document listeners from firing', async () => {
+  test('cleans up reactive effects when disconnected', async () => {
     await import('../../../src/primitives.js');
     await import('../../../src/ui.js');
     await import('./grid.js');

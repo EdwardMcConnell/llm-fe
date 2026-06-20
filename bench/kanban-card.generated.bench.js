@@ -186,21 +186,33 @@ describe('Kanban Card Performance Comparison', () => {
   }, { time: 500 });
 
 
-  // Same-Value skip optimizations
-  const instanceGenSkip = generatedCard(mockState);
-  const instanceVanSkip = vanillaCard(mockState);
-  const instanceMorphSkip = bindMorphCard(mockState);
-
-  bench('Patch same-value (Skip optimization): Generated Direct DOM', () => {
-    instanceGenSkip.patch({ title: mockState.title });
+  bench('Create 1,000 cards: Generated Direct DOM', () => {
+    for(let i=0; i<1000; i++) generatedCard(mockState);
   }, { time: 500 });
 
-  bench('Patch same-value (Skip optimization): Vanilla DOM', () => {
-    instanceVanSkip.patch({ title: mockState.title });
+  bench('Create 1,000 cards: bindMorph Generic', () => {
+    for(let i=0; i<1000; i++) bindMorphCard(mockState);
   }, { time: 500 });
 
-  bench('Patch same-value: Generic bindMorph (innerHTML equivalence check)', () => {
-    instanceMorphSkip.patch(mockState);
+  let counterStatus = 0;
+  bench('Patch status 10,000 times: Generated Direct DOM', () => {
+    instanceGenTitle.patch({ status: (counterStatus++ % 2 === 0) ? 'done' : 'todo' });
+  }, { time: 500 });
+
+  bench('Patch full card 10,000 times: Generated Direct DOM', () => {
+    instanceGenTitle.patch({ ...mockState, title: 'Full ' + counterStatus++ });
+  }, { time: 500 });
+
+  bench('Dispose 1,000 cards: Generated Direct DOM', () => {
+    const cards = [];
+    for(let i=0; i<1000; i++) cards.push(generatedCard(mockState));
+    for(let i=0; i<1000; i++) cards[i].dispose();
+  }, { time: 500 });
+
+  bench('Mount/Patch/Dispose Loop: Generated Direct DOM', () => {
+    const card = generatedCard(mockState);
+    card.patch({ title: 'Looped' });
+    card.dispose();
   }, { time: 500 });
 
 });

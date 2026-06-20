@@ -2,6 +2,8 @@
 
 This document defines the strict shape of the CRDT state shared between the frontend and the WebSocket Hub. The Fe architecture uses explicit, normalized state to optimize LWW (Last-Writer-Wins) CRDT performance and determinism.
 
+**Canonical Reference:** The canonical reference for this architecture in practice is the `gauntlet/apps/normalized-kanban` application. Do NOT use any legacy samples that might employ hot-path `bindMorph` or single-array states.
+
 ## 1. Why One Array is Bad for LWW
 Storing `board_items = [all cards]` inside a single CRDT key creates massive network payloads and frequent collisions. If Client A edits task 1 and Client B edits task 2 concurrently, a single LWW key will overwrite one client's edits. 
 

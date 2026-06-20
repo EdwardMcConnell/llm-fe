@@ -8,8 +8,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bench": "vitest bench",
-    "generate": "node generator/index.js ir/kanban-card.ir.json",
-    "gauntlet": "node gauntlet/run.js"
+    "generate": "node generator/index.js ir/kanban-card.ir.json generated-examples/kanban-card/kanban-card.generated.js",
+    "gauntlet": "node gauntlet/run.js",
+    "verify:generated": "node generator/verify-generated.js"
   },
   "keywords": [],
   "author": "",

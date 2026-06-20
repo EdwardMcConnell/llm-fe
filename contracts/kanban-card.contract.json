@@ -28,7 +28,7 @@
     "edit": { "type": "click", "target": "editBtn", "emits": "kanban:item:edit" },
     "delete": { "type": "click", "target": "deleteBtn", "emits": "kanban:item:delete" },
     "select": { "type": "click", "target": "root", "emits": "kanban:item:select" },
-    "dragStart": { "type": "dragstart", "target": "root", "emits": "card:dragstart" }
+    "dragStart": { "type": "dragstart", "target": "dragHandle", "emits": "card:dragstart" }
   },
   "externalInputs": ["title", "description", "assignee", "status", "priority", "updatedAt", "lockedBy"],
   "cleanup": ["removeEventListeners"],

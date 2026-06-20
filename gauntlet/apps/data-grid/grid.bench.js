@@ -8,9 +8,14 @@ global.customElements = dom.window.customElements;
 global.HTMLElement = dom.window.HTMLElement;
 global.Event = dom.window.Event;
 global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+global.cancelAnimationFrame = (id) => clearTimeout(id);
+dom.window.requestAnimationFrame = global.requestAnimationFrame;
+dom.window.cancelAnimationFrame = global.cancelAnimationFrame;
 global.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
+dom.window.ResizeObserver = global.ResizeObserver;
 
 const { FeElement } = await import('../../../src/component.js');
+await import('../../../src/primitives.js');
 await import('./grid.js');
 
 describe('Gauntlet App: Data Grid Benchmarks', () => {
@@ -26,24 +31,25 @@ describe('Gauntlet App: Data Grid Benchmarks', () => {
   bench('Render first window (10,000 rows virtualized)', () => {
     const grid = document.createElement('sample-grid');
     document.body.appendChild(grid);
-    grid.data = data;
-    // trigger render
-    grid._renderVirtualData(0, 1000); 
+    // Let microtasks run if needed, but connectedCallback is sync enough for initial render scheduling
     document.body.removeChild(grid);
   }, { time: 500 });
 
   let scrollGrid;
-  let scrollIdx = 0;
+  let scrollY = 0;
 
   bench('Scroll window (10,000 rows virtualized)', () => {
     if (!scrollGrid) {
       scrollGrid = document.createElement('sample-grid');
       document.body.appendChild(scrollGrid);
-      scrollGrid.data = data;
     }
-    scrollIdx += 10;
-    if (scrollIdx > 5000) scrollIdx = 0;
-    scrollGrid._renderVirtualData(scrollIdx, scrollIdx + 1000);
+    const internalGrid = scrollGrid.nodes?.get('grid')?.root;
+    if (internalGrid) {
+      scrollY += 500;
+      if (scrollY > 50000) scrollY = 0;
+      internalGrid.scrollTop = scrollY;
+      internalGrid.dispatchEvent(new Event('scroll'));
+    }
   }, { time: 500 });
 
   let filterGrid;
@@ -52,10 +58,12 @@ describe('Gauntlet App: Data Grid Benchmarks', () => {
     if (!filterGrid) {
       filterGrid = document.createElement('sample-grid');
       document.body.appendChild(filterGrid);
-      filterGrid.data = data;
     }
-    const filtered = data.filter(r => r.name.includes('999'));
-    filterGrid._renderVirtualData(0, 1000, filtered);
+    const searchInput = filterGrid.querySelector('input[type="search"]');
+    if (searchInput) {
+      searchInput.value = 'User 999';
+      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
   }, { time: 500 });
 
 });

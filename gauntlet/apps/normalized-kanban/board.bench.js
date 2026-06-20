@@ -12,6 +12,7 @@ global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
 
 // We must import the elements AFTER setting globals
 const { FeElement } = await import('../../../src/component.js');
+await import('../../../src/primitives.js');
 await import('./board.js');
 
 describe('Gauntlet App: Normalized Kanban Benchmarks', () => {
