@@ -47,6 +47,8 @@ async function getBoardElement(page) {
     page1.on('console', msg => console.log('PAGE 1 CONSOLE:', msg.text()));
     page1.on('pageerror', err => console.log('PAGE 1 ERROR:', err.toString()));
     const page2 = await browser.newPage();
+    page2.on('console', msg => console.log('PAGE 2 CONSOLE:', msg.text()));
+    page2.on('pageerror', err => console.log('PAGE 2 ERROR:', err.toString()));
     
     // Use evaluate directly against the globalSharedMap in page1 to set up test state instantly
     await login(page1, 'client_A', 'pass');
@@ -79,6 +81,7 @@ async function getBoardElement(page) {
     let p1_titles = await page1.evaluate(() => {
       return Array.from(document.querySelector('fe-router').shadowRoot.querySelector('sample-layout').querySelector('sample-board').shadowRoot.querySelectorAll('.card-title')).map(n => n.textContent);
     });
+    console.log('p1_titles:', p1_titles);
     assert.ok(p1_titles.includes('Task 1 (A)') && p1_titles.includes('Task 2 (B)'), 'Both independent edits survived');
     console.log('✓ Scenario 1 passed');
 

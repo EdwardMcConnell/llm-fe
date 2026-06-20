@@ -35,6 +35,7 @@ export class AuthProvider {
       ${contract.config.tokenStorage === 'localStorage' ? `if (typeof window !== 'undefined') window.localStorage.setItem(this.storageKey, token);` : ``}
     } catch(e) {}
     this._notify();
+    return true;
   }
 
   async logout() {
@@ -43,6 +44,7 @@ export class AuthProvider {
       ${contract.config.tokenStorage === 'localStorage' ? `if (typeof window !== 'undefined') window.localStorage.removeItem(this.storageKey);` : ``}
     } catch(e) {}
     this._notify();
+    return true;
   }
 
   getToken() {

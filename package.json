@@ -16,7 +16,7 @@
     "generate:catalog": "node generator/app-generator.js contracts/product-catalog.contract.json",
     "generate:ops": "node generator/ops-console-generator.js",
     "test:native": "vitest run --dir test",
-    "test:browser": "node gauntlet/apps/normalized-kanban/e2e.node.js",
+    "test:browser": "node gauntlet/apps/normalized-kanban/e2e.node.js && node gauntlet/apps/data-grid/e2e.node.js && node gauntlet/apps/settings-form/e2e.node.js && node gauntlet/apps/live-dashboard/e2e.node.js && node gauntlet/apps/product-catalog/e2e.node.js",
     "gauntlet": "node gauntlet/run.js",
     "verify:generated": "node generator/verify-generated.js",
     "maturity": "node maturity/update-status.js",

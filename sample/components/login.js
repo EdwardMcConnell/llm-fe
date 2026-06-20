@@ -126,19 +126,20 @@ class SampleLogin extends FeElement {
     );
 
     this.bindForm('#login-form', formSignalTuple, async (values) => {
+      console.log('Login form submitted with values:', values);
       // Simulate network request
       await new Promise(resolve => setTimeout(resolve, 500));
       const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
       const payload = btoa(JSON.stringify({ user: values.username, exp: Math.floor(Date.now() / 1000) + 86400 }));
       const mockJwt = `${header}.${payload}.mocksignature`;
-      const success = await globalAuthProvider.login(mockJwt);
-      if (success) {
-        globalRouter.navigate('/');
-      }
+      await globalAuthProvider.login(mockJwt);
+      console.log('Navigating to / ...');
+      globalRouter.navigate('/');
     });
 
     // Workaround: make fe-button manually submit the fe-form if clicked
     this.bindEvent('fe-button[type="submit"]', 'click', () => {
+      console.log('Submit button clicked!');
       const form = this.root.querySelector('#login-form');
       form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     });

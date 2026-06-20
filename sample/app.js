@@ -22,7 +22,18 @@ import '../gauntlet/apps/product-catalog/catalog.js';
 // 1. Setup global CRDT Map and Network sync via the WebSocket Hub
 const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 const wsUrl = `${wsProtocol}//${window.location.host}`;
-const networkProvider = new LCPSyncProvider(wsUrl, globalSharedMap);
+const networkProvider = new LCPSyncProvider(wsUrl, globalSharedMap, {
+  getToken: () => globalAuthProvider.getToken()
+});
+
+globalAuthProvider.onAuthStateChanged((isAuth) => {
+  if (isAuth) {
+    if (!networkProvider.connected) networkProvider.connect();
+    else networkProvider.sendAuthHandshake();
+  } else {
+    networkProvider.disconnect();
+  }
+});
 
 // 2. Configure Auth Persistence & Hydrate Session
 globalAuthProvider.persist = {
@@ -31,9 +42,12 @@ globalAuthProvider.persist = {
   clear: () => localStorage.removeItem('fe_sample_token')
 };
 
-// 3. Hydrate Session
-// RouterEngine will automatically wait for this to finish before evaluating routes
-globalAuthProvider.hydrate();
+// 3. Hydrate Session and Unsuspend Router
+(async () => {
+  await globalAuthProvider.hydrate();
+  globalRouter.isHydrating = false;
+  globalRouter.triggerRefresh();
 
-// 4. Mount Router (Dynamically imported to prevent hoisting race conditions with Auth Hydration)
-import('/src/router-component.js');
+  // 4. Mount Router
+  await import('/src/router-component.js');
+})();

@@ -46,10 +46,10 @@ async function delay(ms) {
 
     // Filtering Proof
     console.log('Scenario 2: filtering/search proof');
-    await page.type('#gridSearch', 'Data 999');
+    await page.evaluate(() => { window.sharedMap.set('grid:filter', 'Data 9999'); });
     await delay(500);
     const filterVisibleCount = await page.evaluate(() => document.querySelectorAll('.grid-row').length);
-    assert.ok(filterVisibleCount <= 12, `Filtering failed, rendered: ${filterVisibleCount}`);
+    assert.ok(filterVisibleCount === 1, `Filtering failed, expected 1 row, got: ${filterVisibleCount}`);
     
     await page.evaluate(() => { window.sharedMap.set('grid:filter', ''); }); // force reset just in case
     await delay(500);
@@ -58,24 +58,24 @@ async function delay(ms) {
     // Sorting Proof
     console.log('Scenario 3: sorting proof');
     await page.evaluate(() => {
-      const col = document.querySelector('.header-cell[data-col="Col 1"]');
+      const col = document.querySelector('.header-cell[data-col="col1"]');
       col.click();
     });
     await delay(500);
     const firstSortVal = await page.evaluate(() => {
-      const el = document.querySelector('.grid-row[data-index="0"] [data-col-id="Col 1"]');
+      const el = document.querySelector('.grid-row[data-index="0"] [data-col-id="col1"]');
       return el ? el.textContent : null;
     });
     await page.evaluate(() => {
-      const col = document.querySelector('.header-cell[data-col="Col 1"]');
+      const col = document.querySelector('.header-cell[data-col="col1"]');
       col.click();
     });
     await delay(500);
-    const descSortVal = await page.evaluate(() => {
-      const el = document.querySelector('.grid-row[data-index="0"] [data-col-id="Col 1"]');
+    const secondSortVal = await page.evaluate(() => {
+      const el = document.querySelector('.grid-row[data-index="0"] [data-col-id="col1"]');
       return el ? el.textContent : null;
     });
-    assert.notStrictEqual(firstSortVal, descSortVal, 'Sorting did not change row order');
+    assert.notStrictEqual(firstSortVal, secondSortVal, 'Sorting did not change row order');
     // Clear sort
     await page.evaluate(() => { window.sharedMap.set('grid:sortCol', null); });
     await delay(500);
@@ -95,6 +95,8 @@ async function delay(ms) {
 
     // Keyboard Nav
     console.log('Scenario 5: keyboard navigation proof');
+    await page.evaluate(() => document.querySelector('.grid-body').focus());
+    await delay(100);
     await page.keyboard.press('ArrowDown');
     await delay(100);
     const isFocused = await page.evaluate(() => document.querySelector('.grid-row[data-index="1"]').classList.contains('focused'));
@@ -109,13 +111,13 @@ async function delay(ms) {
     console.log('Scenario 6: safe cell rendering proof');
     await page.evaluate(() => {
       const rowId = document.querySelector('.grid-row[data-index="1"]').dataset.rowId;
-      window.sharedMap.set(`grid:cell:${rowId}:Col 1`, '<script>window.XSS_FLAG=true;</script><b>Test</b>');
+      window.sharedMap.set(`grid:cell:${rowId}:col1`, '<script>window.XSS_FLAG=true;</script><b>Test</b>');
     });
     await delay(200);
     const xssTriggered = await page.evaluate(() => window.XSS_FLAG === true);
     const textRendered = await page.evaluate(() => {
       const rowId = document.querySelector('.grid-row[data-index="1"]').dataset.rowId;
-      return document.querySelector(`.grid-row[data-row-id="${rowId}"] [data-col-id="Col 1"]`).innerHTML;
+      return document.querySelector(`.grid-row[data-row-id="${rowId}"] [data-col-id="col1"]`).innerHTML;
     });
     assert.ok(!xssTriggered, 'XSS executed! Safe cell rendering failed');
     assert.ok(textRendered.includes('&lt;script&gt;') || textRendered.includes('<script>'), 'HTML was not properly escaped or rendered safely as text');

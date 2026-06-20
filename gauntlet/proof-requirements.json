@@ -78,7 +78,8 @@
       "settings-form.generated.js",
       "settings-form-app-wireup.generated.js",
       "settings-form.generated.test.js"
-    ]
+    ],
+    "browserProof": "gauntlet/apps/settings-form/e2e.node.js"
   },
   "live-dashboard": {
     "tests": [
@@ -106,7 +107,8 @@
       "live-dashboard-app-wireup.generated.js",
       "live-dashboard-app.generated.test.js",
       "live-dashboard-widget.generated.test.js"
-    ]
+    ],
+    "browserProof": "gauntlet/apps/live-dashboard/e2e.node.js"
   },
   "product-catalog": {
     "tests": [
@@ -127,7 +129,8 @@
       "product-catalog.generated.js",
       "product-card.generated.js",
       "product-catalog-app-wireup.generated.js"
-    ]
+    ],
+    "browserProof": "gauntlet/apps/product-catalog/e2e.node.js"
   },
   "customer-ops-console": {
     "tests": [

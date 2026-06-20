@@ -1,15 +1,15 @@
-import puppeteer from 'puppeteer-core';
-import { exec } from 'child_process';
+import puppeteer from 'puppeteer';
+import { spawn } from 'child_process';
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
 
 async function runE2E() {
+  console.log('Starting demo server for Product Catalog E2E validation...');
+  const serverProcess = spawn('node', ['sample/server.js'], { detached: true, stdio: 'ignore' });
+  await delay(2000); // Wait for server to start
+
   console.log('Launching Puppeteer for Product Catalog E2E validation...');
-  const browser = await puppeteer.launch({
-    executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    headless: "new",
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  const browser = await puppeteer.launch();
 
   try {
     const page = await browser.newPage();
@@ -60,6 +60,11 @@ async function runE2E() {
     process.exit(1);
   } finally {
     await browser.close();
+    try {
+      process.kill(-serverProcess.pid); // Kill process group
+    } catch (e) {
+      serverProcess.kill();
+    }
   }
 }
 
