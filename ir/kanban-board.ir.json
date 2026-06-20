@@ -1,0 +1,31 @@
+{
+  "name": "kanban-board",
+  "note": "This IR defines the lower-level patch generation rules for the Board Component.",
+  "create": {
+    "refs": {
+      "boardRoot": "div.board-root",
+      "columnContainer": "div.columns-container",
+      "addCardControls": "form.add-card-form",
+      "statusSummary": "div.status-summary",
+      "errorRegion": "div.error-region"
+    }
+  },
+  "patches": [
+    {
+      "input": "kanban:board:metadata",
+      "ops": [
+        { "op": "setBoardMetadata" }
+      ]
+    },
+    {
+      "input": "kanban:column:todo:index",
+      "ops": [
+        { "op": "reconcileColumnList" }
+      ]
+    }
+  ],
+  "events": [
+    { "target": "addCardControls", "type": "submit", "emits": "kanban:item:add" },
+    { "target": "columnContainer", "type": "kanban:column:reorder", "emits": "kanban:column:reorder" }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "contractType": "events",
+  "appName": "normalized-kanban",
+  "events": {
+    "kanban:item:add": {
+      "sourceComponent": "kanban-board",
+      "handlerOwner": "kanban-board",
+      "payload": {
+        "title": "external-text"
+      },
+      "writesStateKeys": ["kanban:item:<id>", "kanban:column:todo:index"],
+      "cleanupImplications": "None"
+    },
+    "kanban:item:edit": {
+      "sourceComponent": "kanban-card",
+      "handlerOwner": "kanban-board",
+      "payload": {
+        "id": "internal-normalized",
+        "updates": "untrusted"
+      },
+      "writesStateKeys": ["kanban:item:<id>"],
+      "cleanupImplications": "None"
+    },
+    "kanban:item:delete": {
+      "sourceComponent": "kanban-card",
+      "handlerOwner": "kanban-board",
+      "payload": {
+        "id": "internal-normalized"
+      },
+      "writesStateKeys": ["kanban:item:<id>", "kanban:column:<status>:index"],
+      "cleanupImplications": "Must dispose the deleted card component and clean up node references."
+    },
+    "kanban:item:select": {
+      "sourceComponent": "kanban-card",
+      "handlerOwner": "kanban-board",
+      "payload": {
+        "id": "internal-normalized"
+      },
+      "writesStateKeys": [],
+      "cleanupImplications": "None"
+    },
+    "card:dragstart": {
+      "sourceComponent": "kanban-card",
+      "handlerOwner": "kanban-board",
+      "payload": {
+        "id": "internal-normalized"
+      },
+      "writesStateKeys": [],
+      "cleanupImplications": "None"
+    },
+    "kanban:item:drag-end": {
+      "sourceComponent": "kanban-card",
+      "handlerOwner": "kanban-board",
+      "payload": {
+        "id": "internal-normalized"
+      },
+      "writesStateKeys": [],
+      "cleanupImplications": "None"
+    },
+    "kanban:column:reorder": {
+      "sourceComponent": "kanban-column",
+      "handlerOwner": "kanban-board",
+      "payload": {
+        "sourceColumnId": "internal-normalized",
+        "targetColumnId": "internal-normalized",
+        "itemId": "internal-normalized",
+        "newIndex": "internal-normalized"
+      },
+      "writesStateKeys": ["kanban:column:<source>:index", "kanban:column:<target>:index", "kanban:item:<id>"],
+      "cleanupImplications": "None"
+    },
+    "kanban:state:error": {
+      "sourceComponent": "app-root",
+      "handlerOwner": "kanban-board",
+      "payload": {
+        "message": "external-text"
+      },
+      "writesStateKeys": [],
+      "cleanupImplications": "May require disconnecting collaborative sync."
+    }
+  }
+}

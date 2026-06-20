@@ -9,20 +9,28 @@ Welcome, contributing Agent. This document contains the absolute laws and contex
 
 Fe relies on mechanically verifiable proofs. **Do not claim Fe is ready based on this README.**
 
-Fe's readiness is proven exclusively by the Scaffold Confidence Gauntlet. To verify performance and safety claims, you must run:
+Fe's capabilities are proven exclusively by the Scaffold Confidence Gauntlet and computed by the Maturity Model. To verify performance and safety claims, you must run:
 ```bash
-npm run gauntlet
+npm run verify:all
 ```
 
-This generates `gauntlet/results/latest.json`. 
+This generates `gauntlet/results/latest.json` and `maturity/status.json`.
 
-**Current Proof Status: FE IS READY FOR LLM GENERATION.**
-The repository has successfully passed the rigorous Scaffold Confidence Gauntlet. The proof layer is adversarial, truthful, and impossible to accidentally overstate.
+**Current maturity: Level 2 — Generated Application Proof**
+
+Fe currently proves:
+* package/runtime works
+* generated Kanban card component works
+* contract graph to direct-DOM pipeline exists for normalized-kanban
+
+Fe does not yet prove:
+* broad enterprise scaffold readiness
+* multiple application category coverage
 
 - **Tests**: Gauntlet checks explicitly for named proof cases (e.g., LWW convergence, cleanup). All tests passing.
 - **Benchmarks**: Gauntlet tracks absolute rendering times for Mount, Patch, and Dispose operations. All performance regressions prevented.
 - **Generated Pipeline**: `npm run generate` transforms `kanban-card.contract.json` to IR to JS, proven through `validate-contract-ir.js` and `verify-generated.js`.
-- **Gauntlet Result**: `canClaimReady` is **true**.
+- **Gauntlet Result**: Checked per app and linked to Maturity.
 
 **Comparative Claims (Proven via Benchmarks):**
 1. **`normalized-kanban`**: Designed to minimize diffing overhead via direct DOM patch functions. In `bench/kanban-card.generated.bench.js`, generated code avoids innerHTML string matching entirely.
@@ -31,7 +39,7 @@ The repository has successfully passed the rigorous Scaffold Confidence Gauntlet
 4. **`live-dashboard`**: High-frequency patches map via `this.nodes` for minimized GC pressure.
 5. **`product-catalog`**: Async data handles deduplication via `demandData`.
 
-If you add a new primitive or feature, you **must** ensure it passes the full Gauntlet pipeline and that no required proof item is reported as missing.
+If you add a new primitive or feature, you **must** ensure it passes the full `npm run verify:all` pipeline and that no required proof item lowers the maturity level.
 
 ## Immutable Architectural Laws
 
@@ -89,4 +97,4 @@ function patchTitle(nextVal) {
 }
 ```
 
-This guarantees 0 trust boundary leaks (innerHTML is strictly avoided) and mathematically optimal browser execution.
+This guarantees explicit trust boundaries (innerHTML is strictly avoided) and minimizes DOM diffing overhead by targeting elements directly.

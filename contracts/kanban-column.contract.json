@@ -1,0 +1,28 @@
+{
+  "name": "kanban-column",
+  "stateReads": [
+    "kanban:column:<status>:index",
+    "kanban:item:<id>"
+  ],
+  "ownedNodes": {
+    "columnRoot": { "type": "div", "className": "column-root" },
+    "titleNode": { "type": "h2", "className": "column-title" },
+    "countNode": { "type": "span", "className": "column-count" },
+    "cardListContainer": { "type": "div", "className": "card-list" },
+    "dropTarget": { "type": "div", "className": "drop-target" }
+  },
+  "patchBehavior": [
+    "update column item count natively",
+    "reconcile order using existing card DOM nodes (no unmounting unless deleted)",
+    "append new card nodes efficiently",
+    "remove missing card nodes",
+    "avoid full column rerender if only a single item changes (O(1) updates)"
+  ],
+  "events": {
+    "kanban:column:drop": { "target": "dropTarget", "type": "drop", "emits": "kanban:column:reorder" }
+  },
+  "cleanup": [
+    "drop native listeners on column node",
+    "child card disposal is delegated to the board (explicit owner)"
+  ]
+}

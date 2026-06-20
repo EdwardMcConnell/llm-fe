@@ -23,7 +23,10 @@ try {
   }
 
   const originalTestContent = fs.readFileSync(targetTestPath, 'utf8');
-  const tempTestContent = fs.readFileSync(tempTestPath, 'utf8');
+  let tempTestContent = fs.readFileSync(tempTestPath, 'utf8');
+
+  // Normalize the import path because outPath basename differs during verification
+  tempTestContent = tempTestContent.replace(/from '\.\/\.temp-gen\.js'/g, "from './kanban-card.generated.js'");
 
   if (originalTestContent !== tempTestContent) {
     console.error(`❌ Mismatch detected in ${targetTestPath}`);

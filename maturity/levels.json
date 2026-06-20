@@ -1,0 +1,143 @@
+[
+  {
+    "level": 0,
+    "name": "Runtime Experiment",
+    "canClaim": [
+      "Fe package imports work",
+      "Core tests pass",
+      "Basic runtime cleanup tests pass"
+    ],
+    "requirements": {
+      "packageImports": true,
+      "coreTestsPass": true,
+      "cleanupTestsPass": true
+    }
+  },
+  {
+    "level": 1,
+    "name": "Generated Component Proof",
+    "canClaim": [
+      "Fe has a generated component proof",
+      "Fe has a contract/IR/direct-DOM pipeline for kanban-card"
+    ],
+    "requirements": {
+      "level0": true,
+      "componentContracts": [
+        "contracts/kanban-card.contract.json"
+      ],
+      "irFiles": [
+        "ir/kanban-card.ir.json"
+      ],
+      "generatedArtifacts": [
+        "generated-examples/kanban-card/kanban-card.generated.js"
+      ],
+      "generatedTests": [
+        "generated-examples/kanban-card/kanban-card.generated.test.js"
+      ],
+      "generatedBenchmarks": [
+        "bench/kanban-card.generated.bench.js"
+      ],
+      "safeRenderingProof": true,
+      "cleanupProof": true
+    }
+  },
+  {
+    "level": 2,
+    "name": "Generated Application Proof",
+    "canClaim": [
+      "Fe has a generated application proof",
+      "Fe has a contract graph to direct-DOM pipeline for normalized-kanban"
+    ],
+    "cannotClaim": [
+      "Fe is enterprise-ready",
+      "Fe is proven for arbitrary LLM-built applications",
+      "Fe has generated app proof across multiple app categories"
+    ],
+    "requirements": {
+      "level1": true,
+      "componentContracts": [
+        "contracts/kanban-app.contract.json",
+        "contracts/kanban-state.contract.json",
+        "contracts/kanban-events.contract.json",
+        "contracts/kanban-trust.contract.json",
+        "contracts/kanban-board.contract.json",
+        "contracts/kanban-column.contract.json"
+      ],
+      "generatedArtifacts": [
+        "generated-examples/normalized-kanban/kanban-app.generated.js",
+        "generated-examples/normalized-kanban/kanban-state.generated.js"
+      ],
+      "generatedTests": [
+        "generated-examples/normalized-kanban/normalized-kanban.generated.test.js"
+      ],
+      "generatedBenchmarks": [
+        "bench/normalized-kanban.generated.bench.js"
+      ],
+      "gauntletAppProof": "normalized-kanban"
+    }
+  },
+  {
+    "level": 3,
+    "name": "Scaffold Gauntlet Proof",
+    "canClaim": [
+      "Fe has generated app proofs across multiple app categories",
+      "Fe is a validated LLM-native application scaffold"
+    ],
+    "cannotClaim": [
+      "Fe is enterprise-ready",
+      "Fe guarantees security/trust-boundaries across all scenarios"
+    ],
+    "requirements": {
+      "level2": true,
+      "gauntletAppProof": [
+        "normalized-kanban",
+        "data-grid",
+        "settings-form",
+        "live-dashboard",
+        "product-catalog"
+      ],
+      "comparativeBenchmarks": true,
+      "browserCapabilityManifest": true
+    }
+  },
+  {
+    "level": 4,
+    "name": "Enterprise Candidate",
+    "canClaim": [
+      "Fe is an enterprise candidate scaffold",
+      "Fe provides tested security boundaries and accessibility"
+    ],
+    "cannotClaim": [
+      "Fe is Production-Proven"
+    ],
+    "requirements": {
+      "level3": true,
+      "accessibilitySmokeTests": true,
+      "securityTrustBoundaryTests": true,
+      "browserCompatibilityPolicy": true,
+      "upgradeRegenerationWorkflow": true,
+      "performanceRegressionThresholds": true,
+      "verifyAllExists": true,
+      "documentedKnownLimitations": true
+    }
+  },
+  {
+    "level": 5,
+    "name": "Production-Proven",
+    "canClaim": [
+      "Fe is Production-Proven",
+      "Fe is enterprise-ready"
+    ],
+    "cannotClaim": [],
+    "requirements": {
+      "level4": true,
+      "realAppBuilt": true,
+      "productionTelemetry": true,
+      "bugHistory": true,
+      "performanceHistory": true,
+      "migrationHistory": true,
+      "longRunningMaintenance": true,
+      "documentedRecovery": true
+    }
+  }
+]

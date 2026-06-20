@@ -1,0 +1,19 @@
+{
+  "currentLevel": 2,
+  "currentLevelName": "Generated Application Proof",
+  "nextLevel": 3,
+  "nextLevelName": "Scaffold Gauntlet Proof",
+  "canClaim": [
+    "Fe has a generated application proof",
+    "Fe has a contract graph to direct-DOM pipeline for normalized-kanban"
+  ],
+  "cannotClaim": [
+    "Fe is enterprise-ready",
+    "Fe is proven for arbitrary LLM-built applications",
+    "Fe has generated app proof across multiple app categories",
+    "Fe guarantees security/trust-boundaries across all scenarios"
+  ],
+  "missingForNextLevel": [
+    "browserCapabilityManifest"
+  ]
+}

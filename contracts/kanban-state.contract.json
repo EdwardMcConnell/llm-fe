@@ -1,0 +1,65 @@
+{
+  "contractType": "state",
+  "appName": "normalized-kanban",
+  "description": "LWW normalized state definitions for the kanban application.",
+  "rules": [
+    "Independent item edits survive because items are keyed independently (kanban:item:<id>).",
+    "Same-item concurrent edits are resolved via LWW (Last-Write-Wins).",
+    "Same-column concurrent reorders are LWW unless a better ordering CRDT is introduced later.",
+    "Whole-board arrays are strictly prohibited for collaborative state.",
+    "All shared-state values are external/untrusted at the render boundary.",
+    "Every item must be normalized before rendering.",
+    "All text fields render strictly as text.",
+    "Status, priority, and class tokens must be normalized."
+  ],
+  "schemas": {
+    "BoardMetadata": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "trust": "external-text" },
+        "description": { "type": "string", "trust": "external-text" }
+      }
+    },
+    "ColumnIndex": {
+      "type": "object",
+      "properties": {
+        "itemIds": { "type": "array", "items": { "type": "string" }, "trust": "internal-normalized" }
+      }
+    },
+    "KanbanItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "trust": "internal-normalized" },
+        "title": { "type": "string", "trust": "external-text" },
+        "description": { "type": "string", "trust": "external-text" },
+        "status": { "type": "string", "trust": "external-enum", "enum": ["todo", "in-progress", "done"] },
+        "priority": { "type": "string", "trust": "external-enum", "enum": ["low", "medium", "high"] },
+        "assignee": { "type": "string", "trust": "external-text" },
+        "lockedBy": { "type": "string", "trust": "external-text" },
+        "updatedAt": { "type": "string", "trust": "external-time" }
+      }
+    }
+  },
+  "keys": {
+    "kanban:board:metadata": {
+      "schema": "BoardMetadata",
+      "collaborative": true
+    },
+    "kanban:column:todo:index": {
+      "schema": "ColumnIndex",
+      "collaborative": true
+    },
+    "kanban:column:in-progress:index": {
+      "schema": "ColumnIndex",
+      "collaborative": true
+    },
+    "kanban:column:done:index": {
+      "schema": "ColumnIndex",
+      "collaborative": true
+    },
+    "kanban:item:<id>": {
+      "schema": "KanbanItem",
+      "collaborative": true
+    }
+  }
+}

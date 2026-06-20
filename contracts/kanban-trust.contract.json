@@ -1,0 +1,29 @@
+{
+  "contractType": "trust",
+  "appName": "normalized-kanban",
+  "externalInputs": {
+    "sharedMapValues": "untrusted",
+    "urlParams": "untrusted",
+    "formInputValues": "untrusted",
+    "persistedState": "untrusted",
+    "networkSyncPatches": "untrusted"
+  },
+  "rules": {
+    "external-text": {
+      "allowedRender": ["textContent", "nodeValue"],
+      "prohibitedRender": ["innerHTML", "outerHTML"]
+    },
+    "external-enum": {
+      "validation": "normalize against allowed values defined in schema",
+      "allowedRender": ["textContent", "className", "classList"]
+    },
+    "external-time": {
+      "validation": "normalize via globalTime or explicit time normalizer",
+      "allowedRender": ["textContent", "setAttribute('datetime')"]
+    },
+    "external-html": {
+      "validation": "prohibited unless explicit trusted wrapper exists",
+      "allowedRender": []
+    }
+  }
+}

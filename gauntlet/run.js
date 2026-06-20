@@ -43,7 +43,9 @@ async function processApp(app) {
 
   // 1. Run Unit/Cleanup Tests via Vitest JSON Reporter
   console.log(`  - Running unit/cleanup tests...`);
-  const testCmd = `npx vitest run ${app.path} --reporter json`;
+  const genPath = `generated-examples/${app.name}`;
+  const testPaths = fs.existsSync(genPath) ? `${app.path} ${genPath}` : app.path;
+  const testCmd = `npx vitest run ${testPaths} --reporter json --passWithNoTests`;
   const testRes = runVitest(testCmd);
 
   let executedTests = [];
@@ -99,7 +101,8 @@ async function processApp(app) {
   if (reqs.benchmarks && reqs.benchmarks.length > 0) {
     // We parse the vitest bench output manually because the JSON reporter for bench is sometimes experimental
     try {
-      const benchCmd = `npx vitest bench ${app.path}/*.bench.js`;
+      const benchPaths = `${app.path}/*.bench.js bench/${app.name}*.bench.js`;
+      const benchCmd = `npx vitest bench ${benchPaths} --passWithNoTests`;
       const stdoutRaw = execSync(benchCmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
       const stdout = stdoutRaw.replace(/\x1B\[\d+;?\d*m/g, ''); // Strip ANSI colors
       
@@ -164,10 +167,12 @@ async function processApp(app) {
     let missingArtifacts = [];
     // Assuming artifacts are placed logically based on the app or in generated-examples
     for (const artifact of reqs.generatedArtifacts) {
-      const artifactDirName = artifact.replace('.generated.js', '');
-      const artifactPath = path.join('generated-examples', artifactDirName, artifact);
-      if (!fs.existsSync(artifactPath)) {
-        missingArtifacts.push(artifactPath);
+      const artifactDirName = artifact.replace('.generated.js', '').replace('.generated.test.js', '');
+      const path1 = path.join('generated-examples', artifactDirName, artifact);
+      const path2 = path.join('generated-examples', app.name, artifact);
+      
+      if (!fs.existsSync(path1) && !fs.existsSync(path2)) {
+        missingArtifacts.push(artifact);
       }
     }
     if (missingArtifacts.length > 0) {
@@ -217,13 +222,28 @@ async function runGauntlet() {
   fs.mkdirSync('gauntlet/results', { recursive: true });
   fs.writeFileSync('gauntlet/results/latest.json', JSON.stringify(finalReport, null, 2));
   
-  console.log(`\\n==================================`);
+  // Calculate maturity
+  execSync('node maturity/update-status.js', { stdio: 'inherit' });
+  const maturityStr = fs.readFileSync('maturity/status.json', 'utf8');
+  const maturity = JSON.parse(maturityStr);
+  
+  console.log(`\n==================================`);
   console.log(`Gauntlet Complete. Scorecard written to gauntlet/results/latest.json`);
-  console.log(`==================================\\n`);
+  console.log(`==================================\n`);
+  
+  console.log(`Maturity Level: ${maturity.currentLevel} - ${maturity.currentLevelName}`);
+  console.log(`Next Level: ${maturity.nextLevel} - ${maturity.nextLevelName}`);
+  console.log(`\nCan Claim:\n  * ${maturity.canClaim.join('\n  * ')}`);
+  console.log(`\nCannot Claim:\n  * ${maturity.cannotClaim.join('\n  * ')}`);
+  
+  if (maturity.missingForNextLevel.length > 0) {
+    console.log(`\nMissing for Next Level:\n  - ${maturity.missingForNextLevel.join('\n  - ')}\n`);
+  }
   
   if (!allPass) {
-    console.log(`Weakest area:\\n${weakestArea}\\n`);
-    console.log(`Next recommended task:\\n${nextRecommendedTask}\\n`);
+    console.log(`Weakest area:\n${weakestArea}\n`);
+    console.log(`Next recommended task:\n${nextRecommendedTask}\n`);
+    process.exit(1);
   } else {
     console.log(`All required proofs pass. The repository can claim readiness.`);
   }

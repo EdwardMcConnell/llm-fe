@@ -1,0 +1,20 @@
+{
+  "app": "normalized-kanban",
+  "kind": "application",
+  "stateContract": "contracts/kanban-state.contract.json",
+  "components": {
+    "kanban-board": "contracts/kanban-board.contract.json",
+    "kanban-column": "contracts/kanban-column.contract.json",
+    "kanban-card": "contracts/kanban-card.contract.json"
+  },
+  "events": "contracts/kanban-events.contract.json",
+  "trust": "contracts/kanban-trust.contract.json",
+  "generatedOutputs": [
+    "generated-examples/kanban-card/kanban-card.generated.js"
+  ],
+  "proof": {
+    "tests": [],
+    "benchmarks": [],
+    "gauntlet": []
+  }
+}

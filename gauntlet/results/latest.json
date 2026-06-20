@@ -5,7 +5,7 @@
       "tests": {
         "status": "pass",
         "source": "Unit/Cleanup Tests",
-        "proof": "1 tests passed",
+        "proof": "18 tests passed",
         "notes": []
       },
       "cleanup": {
@@ -25,22 +25,27 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Render 100 cards (Mount)": 87.6655,
-          "Patch Card Title (Hot Path)": 0.0085,
-          "Move Card Between Columns": 0.1306
+          "create board with 10 cards": 3.99,
+          "create board with 100 cards": 39.7032,
+          "create board with 1,000 cards": 388.43,
+          "patch one card title 10,000 times": 85.2819,
+          "move one card between columns 1,000 times": 24.3303,
+          "Render 100 cards (Mount)": 91.922,
+          "Patch Card Title (Hot Path)": 0.0089,
+          "Move Card Between Columns": 0.1234
         },
         "notes": []
       },
       "contracts": {
         "status": "pass",
         "source": "Contracts",
-        "proof": "kanban-card.contract.json",
+        "proof": "kanban-app.contract.json, kanban-state.contract.json, kanban-trust.contract.json, kanban-events.contract.json, kanban-card.contract.json, kanban-column.contract.json, kanban-board.contract.json",
         "notes": []
       },
       "generatedArtifacts": {
         "status": "pass",
         "source": "Generated Output",
-        "proof": "kanban-card.generated.js",
+        "proof": "kanban-app.generated.js, kanban-board.generated.js, kanban-column.generated.js, kanban-card.generated.js, kanban-state.generated.js, kanban-validators.generated.js, normalized-kanban.generated.test.js, kanban-card.generated.test.js",
         "notes": []
       }
     },
@@ -69,7 +74,7 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Render first window (10,000 rows virtualized)": 12.3627,
+          "Render first window (10,000 rows virtualized)": 13.3166,
           "Scroll window (10,000 rows virtualized)": 0,
           "Filter 10,000 rows": 0.0012
         },
@@ -113,8 +118,8 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Render Form (Mount)": 2.4492,
-          "Patch Form Field (Hot Path)": 1.5144
+          "Render Form (Mount)": 2.5997,
+          "Patch Form Field (Hot Path)": 1.3737
         },
         "notes": []
       },
@@ -156,7 +161,7 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Patch Dashboard High Frequency": 151.03
+          "Patch Dashboard High Frequency": 148.51
         },
         "notes": []
       },
@@ -198,9 +203,9 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Mount Catalog Component": 1.9441,
-          "Patch Cart State Reactively": 4.6003,
-          "Dispose Catalog": 2.7112
+          "Mount Catalog Component": 1.7484,
+          "Patch Cart State Reactively": 4.3153,
+          "Dispose Catalog": 2.5778
         },
         "notes": []
       },

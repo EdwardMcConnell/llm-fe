@@ -1,0 +1,36 @@
+{
+  "name": "kanban-board",
+  "stateReads": [
+    "kanban:board:metadata",
+    "kanban:column:todo:index",
+    "kanban:column:in-progress:index",
+    "kanban:column:done:index",
+    "kanban:item:<id>"
+  ],
+  "ownedNodes": {
+    "boardRoot": { "type": "div", "className": "board-root" },
+    "columnContainer": { "type": "div", "className": "columns-container" },
+    "addCardControls": { "type": "form", "className": "add-card-form" },
+    "statusSummary": { "type": "div", "className": "status-summary" },
+    "errorRegion": { "type": "div", "className": "error-region" }
+  },
+  "patchBehavior": [
+    "patch board metadata when updated",
+    "patch column index on order changes",
+    "insert card when new item added",
+    "remove card when item deleted",
+    "move card node between columns visually",
+    "call card.patch for item changes",
+    "dispose card instances when deleted to prevent leaks"
+  ],
+  "events": {
+    "kanban:item:add": { "target": "addCardControls", "type": "submit", "emits": "kanban:item:add" },
+    "kanban:column:reorder": { "target": "columnContainer", "type": "kanban:column:reorder", "emits": "kanban:column:reorder" }
+  },
+  "cleanup": [
+    "dispose all child cards via child.dispose()",
+    "remove board listeners",
+    "unsubscribe from shared state sync",
+    "clear local layout timers if any"
+  ]
+}

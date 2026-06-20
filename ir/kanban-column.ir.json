@@ -1,0 +1,25 @@
+{
+  "name": "kanban-column",
+  "note": "This IR defines the lower-level patch generation rules for the Column Component.",
+  "create": {
+    "refs": {
+      "columnRoot": "div.column-root",
+      "titleNode": "h2.column-title",
+      "countNode": "span.column-count",
+      "cardListContainer": "div.card-list",
+      "dropTarget": "div.drop-target"
+    }
+  },
+  "patches": [
+    {
+      "input": "kanban:column:<status>:index",
+      "ops": [
+        { "op": "reconcileColumnItems" },
+        { "op": "updateItemCount" }
+      ]
+    }
+  ],
+  "events": [
+    { "target": "dropTarget", "type": "drop", "emits": "kanban:column:drop" }
+  ]
+}
