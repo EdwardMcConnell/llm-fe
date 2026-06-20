@@ -1,0 +1,69 @@
+{
+  "module": "generated-examples/normalized-kanban/kanban-app.generated.js",
+  "components": [
+    {
+      "name": "kanban-column",
+      "create": {
+        "template": "<div class=\"column-root\" data-node=\"root\"><h2 class=\"column-title\" data-node=\"titleNode\"><span class=\"column-count\" data-node=\"countNode\">0</span></h2><div class=\"card-list\" data-node=\"listContainer\"></div></div>",
+        "refs": {
+          "root": "[data-node=\"root\"]",
+          "titleNode": "[data-node=\"titleNode\"]",
+          "countNode": "[data-node=\"countNode\"]",
+          "listContainer": "[data-node=\"listContainer\"]"
+        }
+      },
+      "patches": [
+        {
+          "name": "patchStatus",
+          "input": "status",
+          "ops": [
+            { "op": "setTextContent", "ref": "titleNode" },
+            { "op": "setClassToken", "ref": "root", "prefix": "column-root column-" }
+          ]
+        }
+      ],
+      "lists": [
+        {
+          "name": "cards",
+          "ref": "listContainer",
+          "itemKey": "id",
+          "countRef": "countNode"
+        }
+      ]
+    },
+    {
+      "name": "kanban-board",
+      "create": {
+        "template": "<div class=\"board-root\" data-node=\"root\"><div class=\"columns-container\" data-node=\"columnsContainer\"></div></div>",
+        "refs": {
+          "root": "[data-node=\"root\"]",
+          "columnsContainer": "[data-node=\"columnsContainer\"]"
+        }
+      },
+      "children": [
+        { "name": "todoCol", "component": "kanban-column", "container": "columnsContainer", "staticProps": { "status": "todo" } },
+        { "name": "inProgressCol", "component": "kanban-column", "container": "columnsContainer", "staticProps": { "status": "in-progress" } },
+        { "name": "doneCol", "component": "kanban-column", "container": "columnsContainer", "staticProps": { "status": "done" } }
+      ]
+    }
+  ],
+  "app": {
+    "name": "kanban-app",
+    "rootComponent": "kanban-board",
+    "state": {
+      "type": "SharedMap",
+      "subscriptions": [
+        {
+          "pattern": "kanban:item:*",
+          "action": "upsertCard",
+          "targetList": "dynamicColumn"
+        },
+        {
+          "pattern": "kanban:column:*:index",
+          "action": "reorderList",
+          "targetComponent": "columnByStatus"
+        }
+      ]
+    }
+  }
+}

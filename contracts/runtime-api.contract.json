@@ -1,0 +1,40 @@
+{
+  "contractType": "runtime-api",
+  "version": "1.0",
+  "description": "Defines the exact public APIs that the generated code is permitted to call. Generator must fail if it hallucinates APIs not in this list.",
+  "apis": {
+    "FeElement": {
+      "type": "class",
+      "importPath": "./component.js",
+      "allowedMethods": ["constructor", "connectedCallback", "disconnectedCallback"],
+      "allowedProperties": ["_cleanups"]
+    },
+    "createSignal": {
+      "type": "function",
+      "importPath": "./reactivity.js",
+      "signature": "createSignal(initialValue) => [getter, setter]"
+    },
+    "createEffect": {
+      "type": "function",
+      "importPath": "./reactivity.js",
+      "signature": "createEffect(fn) => disposer",
+      "rules": ["Must capture return value and push to _cleanups"]
+    },
+    "SharedMap": {
+      "type": "class",
+      "importPath": "./crdt.js",
+      "allowedMethods": ["subscribe", "set", "get", "delete", "has", "entries", "keys"],
+      "signature": "subscribe(callback) => disposer",
+      "rules": ["Subscribe returns a disposer that must be pushed to _cleanups"]
+    },
+    "globalSharedMap": {
+      "type": "instance",
+      "importPath": "./store.js",
+      "instanceOf": "SharedMap"
+    }
+  },
+  "domRules": {
+    "forbiddenMethods": ["innerHTML", "morphNode", "bindMorphTrustedHTML"],
+    "allowedProperties": ["textContent", "value", "className", "disabled", "checked"]
+  }
+}

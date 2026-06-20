@@ -1,0 +1,5 @@
+- [x] 1. Define the Runtime API Contract (`contracts/runtime-api.contract.json`)
+- [x] 2. Define the Explicit Kanban IR (`ir/normalized-kanban.ir.json`)
+- [x] 3. Rewrite the Deterministic Generator (`generator/app-generator.js`)
+- [x] 4. Create Browser Tests (`test/kanban-e2e.test.js`)
+- [x] 5. Run validations and benchmarks

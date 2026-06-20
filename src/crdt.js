@@ -50,6 +50,18 @@ export class SharedMap {
     return this.state.get(key);
   }
 
+  has(key) {
+    return this.state.has(key);
+  }
+
+  entries() {
+    return this.state.entries();
+  }
+
+  keys() {
+    return this.state.keys();
+  }
+
   set(key, value) {
     const ts = this._tick();
     this._applySet(key, value, ts, this.clientId);

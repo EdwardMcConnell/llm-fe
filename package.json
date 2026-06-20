@@ -13,6 +13,8 @@
     "gauntlet": "node gauntlet/run.js",
     "verify:generated": "node generator/verify-generated.js",
     "maturity": "node maturity/update-status.js",
+    "prompt": "node bin/prompt.js",
+    "chat": "node bin/ask-chatgpt.js",
     "verify:all": "npm run generate && npm run generate:kanban && npm run verify:generated && npm test && npm run bench && npm run gauntlet && npm run maturity"
   },
   "keywords": [],
