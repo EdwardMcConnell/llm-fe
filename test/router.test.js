@@ -15,6 +15,7 @@ describe('Fe Router (Phase 6)', () => {
 
   it('should initialize with correct path and allow navigation', () => {
     const router = new RouterEngine(manifest);
+    router.isHydrating = false;
     // In JSDOM, default location is /
     expect(router.getPath()).toBe('/');
 
@@ -24,6 +25,7 @@ describe('Fe Router (Phase 6)', () => {
 
   it('should match routes correctly', () => {
     const router = new RouterEngine(manifest);
+    router.isHydrating = false;
     expect(router.matchRoute('/')).toEqual({
       layout: 'fe-dashboard',
       slots: { main: 'fe-home' }
@@ -34,6 +36,7 @@ describe('Fe Router (Phase 6)', () => {
 
   it('should preload components invisibly in memory to trigger demandData', () => {
     const router = new RouterEngine(manifest);
+    router.isHydrating = false;
     
     // Spy on createElement to prove it creates the components in memory
     const createSpy = vi.spyOn(document, 'createElement');

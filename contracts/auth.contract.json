@@ -1,0 +1,20 @@
+{
+  "contractType": "auth",
+  "config": {
+    "loginPath": "/login",
+    "tokenStorage": "localStorage",
+    "tokenKey": "fe_auth_token",
+    "renewBeforeExpirationSeconds": 60
+  },
+  "roles": [
+    "guest",
+    "user",
+    "admin"
+  ],
+  "routes": {
+    "/": { "roles": ["user", "admin"] },
+    "/dashboard": { "roles": ["user", "admin"] },
+    "/settings": { "roles": ["admin"] },
+    "/login": { "roles": ["guest", "user", "admin"] }
+  }
+}

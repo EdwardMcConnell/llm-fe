@@ -1,5 +1,7 @@
 import puppeteer from 'puppeteer';
 import assert from 'assert';
+import { spawn } from 'child_process';
+import path from 'path';
 
 async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -33,6 +35,10 @@ async function getBoardElement(page) {
 }
 
 (async () => {
+  console.log('Starting demo server for E2E validation...');
+  const serverProcess = spawn('node', ['sample/server.js'], { detached: true, stdio: 'ignore' });
+  await delay(2000); // Wait for server to start
+  
   console.log('Launching Puppeteer for E2E validation...');
   const browser = await puppeteer.launch();
   
@@ -174,5 +180,10 @@ async function getBoardElement(page) {
     process.exit(1);
   } finally {
     await browser.close();
+    try {
+      process.kill(-serverProcess.pid); // Kill process group
+    } catch (e) {
+      serverProcess.kill();
+    }
   }
 })();

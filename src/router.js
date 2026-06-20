@@ -1,11 +1,11 @@
 import { createSignal } from './reactivity.js';
-import { globalAuthManager } from './auth.js';
 import { globalTelemetry } from './telemetry.js';
 
 /**
  * @typedef {Object} RouteEntry
  * @property {string} layout - The root layout component tag (e.g. 'fe-dashboard')
  * @property {Record<string, string>} slots - Map of slot names to component tags
+ * @property {boolean} [requiresAuth] - Whether the route requires authentication
  */
 
 /**
@@ -15,9 +15,13 @@ import { globalTelemetry } from './telemetry.js';
 export class RouterEngine {
   /**
    * @param {RouteManifest} manifest 
+   * @param {Object} [config]
+   * @param {(path: string, route: RouteEntry) => boolean|string} [config.routeGuard] - Callback to intercept navigation. Returns true to proceed, false to halt, or a string to redirect.
    */
-  constructor(manifest = {}) {
+  constructor(manifest = {}, config = {}) {
     this.manifest = manifest;
+    this.routeGuard = config.routeGuard || null;
+    this.isHydrating = true; // Apps should set to false when ready
     
     // The current URL path is a reactive signal
     const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
@@ -26,21 +30,23 @@ export class RouterEngine {
     // Internal reactive trigger to force route re-evaluations (e.g. after auth hydration)
     const [getRefreshTrigger, setRefreshTrigger] = createSignal(0);
     this._getRefreshTrigger = getRefreshTrigger;
+    this._setRefreshTrigger = setRefreshTrigger;
     
     this.getPath = getPath;
     this._setPath = setPath;
-
-    // Phase 18: Hydration-Aware Routing Link
-    // When AuthManager finishes hydration (or state changes), force the router to re-evaluate
-    globalAuthManager.onAuthStateChanged(() => {
-      setRefreshTrigger(Math.random());
-    });
 
     if (typeof window !== 'undefined') {
       window.addEventListener('popstate', () => {
         this._setPath(window.location.pathname);
       });
     }
+  }
+
+  /**
+   * Forces the router to re-evaluate the current route (useful after hydration completes)
+   */
+  triggerRefresh() {
+    this._setRefreshTrigger(Math.random());
   }
 
   /**
@@ -76,18 +82,22 @@ export class RouterEngine {
     const route = this.manifest[path] || null;
     
     // Phase 18: Hydration-Aware Routing Guard
-    if (globalAuthManager.isHydrating) {
-      // Suppress navigation and return null. <fe-router> will safely idle.
+    // If the app explicitly sets isHydrating to true, we pause routing.
+    if (this.isHydrating) {
       return null;
     }
 
     // Phase 8: Enterprise Route Guard
-    if (route && route.requiresAuth && !globalAuthManager.isAuthenticated()) {
-      // Force redirect to login
-      console.warn(`Fe Router: Access to ${path} denied. Redirecting to /login.`);
-      this.navigate('/login');
-      // Return the login route so the UI paints it immediately
-      return this.manifest['/login'] || null;
+    // Delegated entirely to the generated app wireup
+    if (route && this.routeGuard) {
+      const guardResult = this.routeGuard(path, route);
+      if (guardResult === false) {
+        return null;
+      }
+      if (typeof guardResult === 'string' && guardResult !== path) {
+        this.navigate(guardResult);
+        return this.manifest[guardResult] || null;
+      }
     }
 
     return route;
@@ -107,13 +117,9 @@ export class RouterEngine {
     if (typeof document !== 'undefined') {
       try {
         const layoutEl = document.createElement(route.layout);
-        // We don't need to append it to the body; just creating it 
-        // might be enough to trigger constructor data demands.
-        // If components use connectedCallback for demands, we can append to a detached fragment.
         const fragment = document.createDocumentFragment();
         fragment.appendChild(layoutEl);
         
-        // Also preload slot components
         for (const [slotName, tag] of Object.entries(route.slots || {})) {
           const slotEl = document.createElement(tag);
           slotEl.setAttribute('slot', slotName);

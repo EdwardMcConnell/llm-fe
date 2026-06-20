@@ -1,6 +1,6 @@
 import { FeElement } from '/src/component.js';
 import { createFormSignal } from '/src/form.js';
-import { globalAuthManager } from '/src/auth.js';
+import { globalAuthProvider } from '/generated-examples/auth/auth.generated.js';
 import { globalRouter } from '/src/router.js';
 
 class SampleLogin extends FeElement {
@@ -131,7 +131,7 @@ class SampleLogin extends FeElement {
       const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
       const payload = btoa(JSON.stringify({ user: values.username, exp: Math.floor(Date.now() / 1000) + 86400 }));
       const mockJwt = `${header}.${payload}.mocksignature`;
-      const success = await globalAuthManager.login(mockJwt);
+      const success = await globalAuthProvider.login(mockJwt);
       if (success) {
         globalRouter.navigate('/');
       }

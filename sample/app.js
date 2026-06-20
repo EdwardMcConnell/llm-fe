@@ -1,8 +1,8 @@
 import './manifest.js';
 import { globalRouter } from '/src/router.js';
 console.log('Manifest initialized:', globalRouter.manifest);
-import { globalAuthManager } from '/src/auth.js';
-console.log('Is Authenticated?', globalAuthManager.isAuthenticated());
+import { globalAuthProvider } from '/generated-examples/auth/auth.generated.js';
+console.log('Is Authenticated?', globalAuthProvider.isAuthenticated());
 import { globalSharedMap } from '/src/store.js';
 import { LCPSyncProvider } from '/src/network.js';
 
@@ -25,7 +25,7 @@ const wsUrl = `${wsProtocol}//${window.location.host}`;
 const networkProvider = new LCPSyncProvider(wsUrl, globalSharedMap);
 
 // 2. Configure Auth Persistence & Hydrate Session
-globalAuthManager.persist = {
+globalAuthProvider.persist = {
   read: () => localStorage.getItem('fe_sample_token'),
   write: (token) => localStorage.setItem('fe_sample_token', token),
   clear: () => localStorage.removeItem('fe_sample_token')
@@ -33,7 +33,7 @@ globalAuthManager.persist = {
 
 // 3. Hydrate Session
 // RouterEngine will automatically wait for this to finish before evaluating routes
-globalAuthManager.hydrate();
+globalAuthProvider.hydrate();
 
 // 4. Mount Router (Dynamically imported to prevent hoisting race conditions with Auth Hydration)
 import('/src/router-component.js');

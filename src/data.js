@@ -1,50 +1,47 @@
 import { createSharedSignal } from './shared.js';
-import { globalAuthManager } from './auth.js';
 
 /**
  * The Demand Manager handles in-flight deduplication of API requests.
  * Designed to work invisibly so the LLM doesn't have to worry about race conditions.
  */
 class DemandManager {
-  constructor() {
+  /**
+   * @param {Object} [config]
+   * @param {() => string|null} [config.getToken] - Returns the current auth token
+   * @param {(fetcher: () => Promise<any>) => Promise<any>} [config.on401] - Callback to handle 401 retries
+   */
+  constructor(config = {}) {
     /** @type {Map<string, Promise<any>>} */
     this.inFlight = new Map();
-    this.isRefreshing = false;
-    this.refreshPromise = null;
+    this.getToken = config.getToken || (() => null);
+    this.on401 = config.on401 || null;
   }
 
   /**
-   * Internal executor that handles 401 replays seamlessly.
+   * Configures auth hooks dynamically (useful for generated wireups)
+   * @param {{ getToken?: () => string|null, on401?: (fetcher: () => Promise<any>) => Promise<any> }} config 
+   */
+  setConfig(config) {
+    if (config.getToken) this.getToken = config.getToken;
+    if (config.on401) this.on401 = config.on401;
+  }
+
+  /**
+   * Internal executor that handles 401 replays seamlessly if configured.
    */
   async _executeWithReplay(fetcher) {
-    // If a refresh is currently happening, wait for it before even trying
-    if (this.isRefreshing && this.refreshPromise) {
-      await this.refreshPromise;
-    }
-
     try {
       // Pass the current token to the LLM's fetcher so it doesn't have to look it up
-      return await fetcher(globalAuthManager.getToken());
+      return await fetcher(this.getToken());
     } catch (err) {
       // Catch 401 Unauthorized errors
       if (err.status === 401 || (err.message && err.message.includes('401'))) {
-        console.warn('DemandManager: 401 Unauthorized caught. Triggering Replay Engine...');
-        
-        if (!this.isRefreshing) {
-          this.isRefreshing = true;
-          this.refreshPromise = globalAuthManager.forceRefresh().finally(() => {
-            this.isRefreshing = false;
-          });
+        if (this.on401) {
+          console.warn('DemandManager: 401 Unauthorized caught. Delegating to auth config...');
+          return await this.on401(fetcher);
         }
-        
-        // Wait for the new token
-        await this.refreshPromise;
-        
-        // Replay the exact same fetcher seamlessly with the NEW token
-        console.log('DemandManager: Replaying fetch...');
-        return await fetcher(globalAuthManager.getToken());
       }
-      throw err; // Not a 401, rethrow
+      throw err; // Not a 401, or no retry configured, rethrow
     }
   }
 

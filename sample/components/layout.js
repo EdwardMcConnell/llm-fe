@@ -1,5 +1,5 @@
 import { FeElement } from '/src/component.js';
-import { globalAuthManager } from '/src/auth.js';
+import { globalAuthProvider } from '/generated-examples/auth/auth.generated.js';
 import { globalRouter } from '/src/router.js';
 import { globalToast } from '/src/ui.js';
 
@@ -146,13 +146,13 @@ class SampleLayout extends FeElement {
     const logoutBtn = this.root.querySelector('#logout-btn');
 
     // Make logout button visible only when authenticated
-    const unsub = globalAuthManager.onAuthStateChanged((isAuth) => {
+    const unsub = globalAuthProvider.onAuthStateChanged((isAuth) => {
       logoutBtn.style.display = isAuth ? 'inline-flex' : 'none';
     });
     this._cleanups.push(unsub);
 
     this.bindEvent('#logout-btn', 'click', async () => {
-      await globalAuthManager.logout();
+      await globalAuthProvider.logout();
       globalRouter.navigate('/login');
     });
 

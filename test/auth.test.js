@@ -1,39 +1,37 @@
-import { describe, it, expect, vi } from 'vitest';
-import { AuthManager } from '../src/auth.js';
+import { describe, it, expect } from 'vitest';
+import { AuthProvider } from '../generated-examples/auth/auth.generated.js';
 
-describe('Fe AuthManager (Phase 8)', () => {
-  it('should initialize and enforce refreshTokenFn contract', () => {
-    expect(() => new AuthManager()).toThrow();
-    
-    const validManager = new AuthManager(async () => 'new-token');
-    expect(validManager.isAuthenticated()).toBe(false);
+describe('Generated AuthProvider (Contract-First)', () => {
+  it('should initialize correctly', () => {
+    const provider = new AuthProvider();
+    expect(provider.isAuthenticated()).toBe(false);
   });
 
-  it('should login, decode mock JWT, and notify listeners', () => {
-    const manager = new AuthManager(async () => 'new-token');
+  it('should login, store token, and notify listeners', async () => {
+    const provider = new AuthProvider();
     
     let notifiedAuth = false;
-    manager.onAuthStateChanged((isAuth) => {
+    provider.onAuthStateChanged((isAuth) => {
       notifiedAuth = isAuth;
     });
 
-    // Mock a JWT payload: { "exp": 9999999999 } -> base64
-    const mockPayload = btoa(JSON.stringify({ exp: 9999999999 }));
-    manager.login(`header.${mockPayload}.signature`);
+    await provider.login('mock-token');
 
-    expect(manager.isAuthenticated()).toBe(true);
+    expect(provider.isAuthenticated()).toBe(true);
+    expect(provider.getToken()).toBe('mock-token');
     expect(notifiedAuth).toBe(true);
   });
 
-  it('should force refresh on demand', async () => {
-    const mockPayload = btoa(JSON.stringify({ exp: 9999999999 }));
-    const validMockToken = `header.${mockPayload}.signature`;
+  it('should evaluate routeGuard correctly based on contract rules', async () => {
+    const provider = new AuthProvider();
+    
+    // Guest access to a protected route should redirect
+    expect(provider.routeGuard('/dashboard')).toBe('/login');
+    // Guest access to an unprotected route should allow
+    expect(provider.routeGuard('/login')).toBe(true);
 
-    const manager = new AuthManager(async () => validMockToken);
-    
-    await manager.forceRefresh();
-    
-    expect(manager.getToken()).toBe(validMockToken);
-    expect(manager.isAuthenticated()).toBe(true);
+    // After login, protected routes should be allowed
+    await provider.login('mock-token');
+    expect(provider.routeGuard('/dashboard')).toBe(true);
   });
 });

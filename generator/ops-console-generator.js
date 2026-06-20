@@ -6,6 +6,7 @@ fs.mkdirSync(outDir, { recursive: true });
 
 // Copy all the previously generated primitive components AND their wireups!
 const filesToCopy = [
+  { src: 'generated-examples/auth/auth.generated.js', dest: 'auth.generated.js' },
   { src: 'generated-examples/data-grid/data-grid.generated.js', dest: 'data-grid.generated.js' },
   
   { src: 'generated-examples/settings-form/settings-form.generated.js', dest: 'settings-form.generated.js' },
@@ -39,8 +40,22 @@ import { createDataGrid } from './data-grid.generated.js';
 import { createSettingsApp } from './settings-form-app-wireup.generated.js';
 import { createKanbanApp } from './kanban-app.generated.js';
 import { createDashboard } from './live-dashboard-app-wireup.generated.js';
+import { globalAuthProvider } from './auth.generated.js';
+import { globalRouter } from '../../src/router.js';
+import { globalDemandManager } from '../../src/data.js';
 
 export function createCustomerOpsConsole(root, sharedMap) {
+  // Wire up generated Auth Provider to Framework Primitives natively
+  globalRouter.routeGuard = (path, routeDef) => globalAuthProvider.routeGuard(path, routeDef);
+  
+  globalDemandManager.setConfig({
+    getToken: () => globalAuthProvider.getToken(),
+    on401: async (fetcher) => {
+      // Generated 401 retry loop
+      return await fetcher(globalAuthProvider.getToken());
+    }
+  });
+
   const template = document.createElement('template');
   template.innerHTML = \`<div class="ops-console-root">
     <nav class="sidebar">

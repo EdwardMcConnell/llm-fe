@@ -1,7 +1,7 @@
 import { FeElement } from '/src/component.js';
 import { globalSharedMap } from '/src/store.js';
 import { createFormSignal } from '/src/form.js';
-import { globalAuthManager } from '/src/auth.js';
+import { globalAuthProvider } from '../../../generated-examples/auth/auth.generated.js';
 import { globalToast } from '/src/ui.js';
 import { createKanbanCard } from '../../../generated-examples/kanban-card/kanban-card.generated.js';
 import { 
@@ -12,7 +12,7 @@ import {
 } from '../../../sample/validators.js';
 
 function getCurrentUser() {
-  const token = globalAuthManager.getToken();
+  const token = globalAuthProvider.getToken();
   if (!token) return 'anonymous';
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));

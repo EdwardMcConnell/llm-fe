@@ -21,6 +21,7 @@
     "dashboardContainer": ".dashboard-container"
   },
   "components": {
+    "auth": "contracts/auth.contract.json",
     "data-grid": "contracts/data-grid.contract.json",
     "settings-form": "contracts/settings-form.contract.json",
     "kanban-board": "contracts/kanban-board.contract.json",
