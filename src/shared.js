@@ -20,7 +20,7 @@ export class SharedSignal extends Signal {
     this.key = key;
 
     // Listen for remote patches or other local mutations
-    this.sharedMap.subscribe((updatedKey, updatedValue) => {
+    this._unsubscribeFromSharedMap = this.sharedMap.subscribe((updatedKey, updatedValue) => {
       if (updatedKey === this.key) {
         // Bypass the local `set` method to avoid re-broadcasting
         super.set(updatedValue);
@@ -43,6 +43,16 @@ export class SharedSignal extends Signal {
       this.sharedMap.set(this.key, newValue);
       // Update local reactive state
       super.set(newValue);
+    }
+  }
+
+  /**
+   * Detaches this signal from the global CRDT map.
+   */
+  dispose() {
+    if (this._unsubscribeFromSharedMap) {
+      this._unsubscribeFromSharedMap();
+      this._unsubscribeFromSharedMap = null;
     }
   }
 }
@@ -75,6 +85,7 @@ export function createSharedSignal(sharedMap, key, initialValue) {
 
   const unsubscribe = () => {
     sharedMap.decrementSubscriber(key);
+    signal.dispose(); // Fully sever the listener closure
   };
 
   return [getter, setter, unsubscribe];

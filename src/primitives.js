@@ -431,12 +431,13 @@ export class FeGrid extends FeElement {
     this._cleanups.push(() => this.removeEventListener('scroll', handleScroll));
 
     // Reactivity Hook: Automatically re-run the full render logic when the array changes.
-    createEffect(() => {
+    const dispose = createEffect(() => {
       // Just reading getSignal() registers this component as a subscriber to the CRDT list!
       getSignal();
       // Fire render frame
       window.requestAnimationFrame(this._renderWindow);
     });
+    this._cleanups.push(dispose);
   }
 }
 

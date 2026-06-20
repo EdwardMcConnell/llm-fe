@@ -139,32 +139,54 @@ export function createEffect(fn) {
  * Provides hardware-accelerated native morphing.
  * 
  * @param {() => void} fn
+ * @returns {() => void} A disposer function.
  */
 export function createTransitionEffect(fn) {
   let isFirstRun = true;
+  /** @type {Set<Signal<any>>} */
+  const signals = new Set();
 
   const effect = () => {
+    activeEffect = effect;
+    activeEffectSignals = signals;
+
+    // Clear previous dependencies before re-running
+    for (const signal of signals) {
+      signal.subscribers.delete(effect);
+    }
+    signals.clear();
+
+    const runWithCleanup = () => {
+      try {
+        fn();
+      } finally {
+        activeEffect = null;
+        activeEffectSignals = null;
+      }
+    };
+
     if (!isFirstRun && document.startViewTransition) {
       // Hardware-accelerated morphing on state change
       try {
-        document.startViewTransition(() => {
-          activeEffect = effect;
-          try { fn(); } finally { activeEffect = null; }
-        });
+        document.startViewTransition(runWithCleanup);
       } catch (err) {
         // Phase 18: Headless Browser / E2E Testing Self-Healing
-        // If the document isn't fully active (Puppeteer) and throws InvalidStateError,
-        // we natively catch it and fall back to synchronous rendering instantly.
-        activeEffect = effect;
-        try { fn(); } finally { activeEffect = null; }
+        runWithCleanup();
       }
     } else {
       // Synchronous run
-      activeEffect = effect;
-      try { fn(); } finally { activeEffect = null; }
+      runWithCleanup();
       isFirstRun = false;
     }
   };
   
   effect();
+
+  // Return a deterministic disposer
+  return () => {
+    for (const signal of signals) {
+      signal.subscribers.delete(effect);
+    }
+    signals.clear();
+  };
 }
