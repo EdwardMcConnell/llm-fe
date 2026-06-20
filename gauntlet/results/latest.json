@@ -25,14 +25,14 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "create board with 10 cards": 4.7825,
-          "create board with 100 cards": 46.3343,
-          "create board with 1,000 cards": 468.22,
-          "patch one card title 10,000 times": 81.8484,
-          "move one card between columns 1,000 times": 19.488,
-          "Render 100 cards (Mount)": 111.19,
-          "Patch Card Title (Hot Path)": 0.0088,
-          "Move Card Between Columns": 0.1297
+          "create board with 10 cards": 5.0369,
+          "create board with 100 cards": 48.8352,
+          "create board with 1,000 cards": 490.8,
+          "patch one card title 10,000 times": 85.757,
+          "move one card between columns 1,000 times": 19.4769,
+          "Render 100 cards (Mount)": 110.11,
+          "Patch Card Title (Hot Path)": 0.0092,
+          "Move Card Between Columns": 0.129
         },
         "notes": []
       },
@@ -81,8 +81,8 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "create dashboard with 10 widgets": 1.466,
-          "patch one widget 10,000 times (high-frequency stream)": 44.6207
+          "create dashboard with 10 widgets": 1.537,
+          "patch one widget 10,000 times (high-frequency stream)": 43.4878
         },
         "notes": []
       },
@@ -131,8 +131,8 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Render Form (Mount)": 0.481,
-          "Patch Form Field (Hot Path)": 1.189
+          "Render Form (Mount)": 0.581,
+          "Patch Form Field (Hot Path)": 1.1769
         },
         "notes": []
       },
@@ -159,21 +159,23 @@
     {
       "app": "data-grid",
       "tests": {
-        "status": "pass",
+        "status": "fail",
         "source": "Unit/Cleanup Tests",
-        "proof": "7 tests passed",
-        "notes": []
+        "proof": "missing",
+        "notes": [
+          "Test suite failed execution."
+        ]
       },
       "cleanup": {
-        "status": "pass",
+        "status": "fail",
         "source": "Cleanup Proof",
-        "proof": "Cleanup requirements satisfied",
+        "proof": "missing",
         "notes": []
       },
       "safeRendering": {
-        "status": "pass",
+        "status": "fail",
         "source": "Safe Rendering Proof",
-        "proof": "Safe rendering constraints verified",
+        "proof": "missing",
         "notes": []
       },
       "benchmarks": {
@@ -181,9 +183,9 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Render first window (10,000 rows virtualized)": 1.5493,
-          "Scroll window (10,000 rows virtualized)": 1.2006,
-          "Filter 10,000 rows": 0.1167
+          "Render first window (10,000 rows virtualized)": 101.34,
+          "Scroll window (10,000 rows virtualized)": 1.2659,
+          "Filter 10,000 rows": 1.3518
         },
         "notes": []
       },
@@ -205,7 +207,7 @@
         "proof": "gauntlet/apps/data-grid/e2e.node.js",
         "notes": []
       },
-      "proofTier": "A"
+      "proofTier": "B"
     },
     {
       "app": "product-catalog",
@@ -232,9 +234,9 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Mount Catalog Component": 1.0442,
-          "Patch Cart State Reactively": 0.0034,
-          "Dispose Catalog": 0.9186
+          "Mount Catalog Component": 1.0393,
+          "Patch Cart State Reactively": 0.0042,
+          "Dispose Catalog": 0.924
         },
         "notes": []
       },
@@ -307,8 +309,8 @@
     }
   ],
   "summary": {
-    "canClaimReady": true,
-    "weakestArea": "None",
-    "nextRecommendedTask": "None. Gauntlet is fully passing."
+    "canClaimReady": false,
+    "weakestArea": "tests failing for data-grid",
+    "nextRecommendedTask": "Test suite failed execution."
   }
 }

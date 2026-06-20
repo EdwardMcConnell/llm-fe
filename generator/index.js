@@ -203,11 +203,12 @@ function formatCurrency(val) {
   const handlers = [];
   if (ir.events) {
     for (const ev of ir.events) {
-      code += `  function handle${ev.name}(event) {
-      eventSink({ type: '${ev.emits}', sourceEvent: event });
-    }
-    ${ev.target === 'root' ? 'root' : ev.target + 'Element'}.addEventListener('${ev.type}', handle${ev.name});\n\n`;
-      handlers.push(ev);
+      const handlerName = ev.name || 'undefined';
+      code += `  function handle${handlerName}(event) {\n`;
+      code += `      eventSink({ type: '${ev.emits}', sourceEvent: event });\n`;
+      code += `    }\n`;
+      code += `    ${ev.target === 'root' ? 'root' : ev.target + 'Element'}.addEventListener('${ev.type}', handle${handlerName});\n\n`;
+      handlers.push({ ...ev, handlerName });
     }
   }
   // Master patch
@@ -229,9 +230,7 @@ function formatCurrency(val) {
   // Dispose
   code += `  function dispose() {\n`;
   for (const ev of handlers) {
-    if (ev.cleanup) {
-      code += `    ${ev.target === 'root' ? 'root' : ev.target + 'Element'}.removeEventListener('${ev.type}', handle${ev.name});\n`;
-    }
+    code += `    ${ev.target === 'root' ? 'root' : ev.target + 'Element'}.removeEventListener('${ev.type}', handle${ev.name || 'undefined'});\n`;
   }
   if (ir.lists) {
     for (const list of ir.lists) {

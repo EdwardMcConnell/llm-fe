@@ -1,17 +1,23 @@
 {
-  "currentLevel": 4,
-  "currentLevelName": "Enterprise Candidate",
-  "nextLevel": 5,
-  "nextLevelName": "Production-Proven",
+  "currentLevel": 2,
+  "currentLevelName": "Generated Application Proof",
+  "nextLevel": 3,
+  "nextLevelName": "Multi-App Generated Example Gauntlet",
   "canClaim": [
-    "Fe is an enterprise candidate scaffold",
-    "Fe provides tested security boundaries and accessibility"
+    "Fe has a generated application proof",
+    "Fe has a contract graph to direct-DOM pipeline for normalized-kanban"
   ],
   "cannotClaim": [
-    "Fe is Production-Proven"
+    "Fe is enterprise-ready",
+    "Fe is proven for arbitrary LLM-built applications",
+    "Fe has generated app proof across multiple app categories",
+    "enterprise readiness",
+    "arbitrary application support",
+    "general framework replacement",
+    "broad superiority over existing frontend frameworks",
+    "production-proven reliability"
   ],
   "missingForNextLevel": [
-    "productionTelemetry",
-    "bugHistory"
+    "gauntletAppProof (Tier A required): data-grid"
   ]
 }
