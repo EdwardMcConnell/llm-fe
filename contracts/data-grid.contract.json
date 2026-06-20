@@ -1,13 +1,14 @@
 {
   "app": "data-grid",
   "state": {
-    "columns": "array<string>",
-    "rows": "array<string>",
-    "cell_*:*": "string"
+    "grid:columns": { "type": "array" },
+    "grid:rows": { "type": "array" },
+    "grid:cell:<id>:<col>": { "type": "string" }
   },
-  "events": [
-    "grid:cell:edit",
-    "grid:row:delete",
-    "grid:column:sort"
-  ]
+  "ownedNodes": {
+    "root": "host element",
+    "header": "header container",
+    "body": "body container"
+  },
+  "events": {}
 }

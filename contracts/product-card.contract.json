@@ -1,0 +1,27 @@
+{
+  "name": "product-card",
+  "state": {
+    "title": { "type": "string" },
+    "price": { "type": "number" },
+    "img": { "type": "string" }
+  },
+  "ownedNodes": {
+    "root": "host element",
+    "img": "image element",
+    "title": "title text",
+    "price": "price text",
+    "btn": "add to cart button"
+  },
+  "events": {
+    "add_to_cart": {
+      "type": "click",
+      "target": "btn",
+      "emits": "catalog:add_to_cart"
+    },
+    "img_load": {
+      "type": "load",
+      "target": "img",
+      "emits": "catalog:img_load"
+    }
+  }
+}

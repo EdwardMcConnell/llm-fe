@@ -1,0 +1,23 @@
+{
+  "name": "Fe Browser Capability Manifest",
+  "version": "1.0.0",
+  "description": "Defines the baseline DOM API expectations for Fe generated code.",
+  "capabilities": [
+    "Node.nodeValue",
+    "Element.textContent",
+    "Element.className",
+    "BroadcastChannel",
+    "IndexedDB",
+    "customElements",
+    "ShadowDOM",
+    "CSS Custom Properties",
+    ":user-invalid",
+    ":checked",
+    ":focus-within",
+    "FormData",
+    "<dialog>",
+    "popover",
+    "anchor()"
+  ],
+  "dependencies": []
+}

@@ -180,6 +180,10 @@ export function ${fnName}(initialState = {}, eventSink = () => {}) {
       const d = nextVal.map((v, i) => (i === 0 ? 'M' : 'L') + (i * step) + ',' + (30 - ((v - min) / range) * 30)).join(' ');
       ${target}.setAttribute('d', d);
     }\n`;
+      } else if (op.op === 'setInputProperty') {
+        code += `    if (${target}.value !== nextVal) ${target}.value = nextVal == null ? '' : nextVal;\n`;
+      } else if (op.op === 'setCheckboxProperty') {
+        code += `    if (${target}.checked !== !!nextVal) ${target}.checked = !!nextVal;\n`;
       } else if (op.op === 'reconcileList') {
         code += `    reconcile${op.listName.charAt(0).toUpperCase() + op.listName.slice(1)}Order(nextVal);\n`;
       }

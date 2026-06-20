@@ -45,8 +45,8 @@
       "Scroll window (10,000 rows virtualized)",
       "Filter 10,000 rows"
     ],
-    "contracts": [],
-    "generatedArtifacts": []
+    "contracts": [ "data-grid.contract.json" ],
+    "generatedArtifacts": [ "data-grid.generated.js", "data-grid-app-wireup.generated.js" ]
   },
   "settings-form": {
     "tests": [
@@ -59,8 +59,14 @@
       "Render Form (Mount)",
       "Patch Form Field (Hot Path)"
     ],
-    "contracts": [],
-    "generatedArtifacts": []
+    "contracts": [
+      "settings-form.contract.json"
+    ],
+    "generatedArtifacts": [
+      "settings-form.generated.js",
+      "settings-form-app-wireup.generated.js",
+      "settings-form.generated.test.js"
+    ]
   },
   "live-dashboard": {
     "tests": [
@@ -101,7 +107,7 @@
       "Patch Cart State Reactively",
       "Dispose Catalog"
     ],
-    "contracts": [],
-    "generatedArtifacts": []
+    "contracts": [ "product-catalog.contract.json", "product-card.contract.json" ],
+    "generatedArtifacts": [ "product-catalog.generated.js", "product-card.generated.js", "product-catalog-app-wireup.generated.js" ]
   }
 }

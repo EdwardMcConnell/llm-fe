@@ -139,4 +139,10 @@ export function createDataGrid(sharedMap) {
 }
 `;
   fs.writeFileSync(path.join(outDir, 'data-grid.generated.js'), code);
+  let wireupCode = `import { createDataGrid } from './data-grid.generated.js';
+export function createGridApp(sharedMap) {
+  return createDataGrid(sharedMap);
+}
+`;
+  fs.writeFileSync(path.join(outDir, 'data-grid-app-wireup.generated.js'), wireupCode);
 }

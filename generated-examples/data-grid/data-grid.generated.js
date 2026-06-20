@@ -1,11 +1,11 @@
-// Compiled deterministically from generated-examples/data-grid/data-grid.generated.js Data Grid IR
+// Compiled deterministically from data-grid.ir.json Data Grid IR
 export function createDataGrid(sharedMap) {
   const template = document.createElement('template');
-  template.innerHTML = `<div class="data-grid" data-node="root"><div class="grid-header" data-node="header"></div><div class="grid-body" data-node="body"></div></div>`;
+  template.innerHTML = `<div data-node="root" style="display:flex; flex-direction:column; width:100%; height:100%; font-family:sans-serif;"><style>.grid-header { display: flex; font-weight: bold; border-bottom: 1px solid #444; background: #222; color: #ccc; } .grid-cell { flex: 1; padding: 8px; border-right: 1px solid #333; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } .grid-body { flex: 1; position: relative; overflow-y: auto; background: #111; color: #eee; } .grid-row { display: flex; width: 100%; border-bottom: 1px solid #222; }</style><div class="grid-header" id="gridHeader"></div><div class="grid-body" id="gridBody"></div></div>`;
   const root = template.content.firstElementChild.cloneNode(true);
   
-  const headerElement = root.querySelector(`[data-node="header"]`);
-  const bodyElement = root.querySelector(`[data-node="body"]`);
+  const headerElement = root.querySelector(`#gridHeader`);
+  const bodyElement = root.querySelector(`#gridBody`);
 
   // Virtualization State
   const ROW_HEIGHT = 32;

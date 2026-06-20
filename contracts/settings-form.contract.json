@@ -1,0 +1,38 @@
+{
+  "app": "settings-form",
+  "state": {
+    "username": { "type": "string" },
+    "email": { "type": "string" },
+    "notificationsEnabled": { "type": "boolean" },
+    "theme": { "type": "enum", "values": ["system", "light", "dark"] },
+    "isSubmitting": { "type": "boolean" },
+    "usernameError": { "type": "string" },
+    "usernameErrorVisible": { "type": "boolean" },
+    "emailError": { "type": "string" },
+    "emailErrorVisible": { "type": "boolean" }
+  },
+  "ownedNodes": {
+    "root": "host element",
+    "form": "form container",
+    "usernameInput": "username input",
+    "usernameError": "username error message",
+    "emailInput": "email input",
+    "emailError": "email error message",
+    "notificationsInput": "notifications checkbox",
+    "themeInput": "theme select",
+    "saveBtn": "submit button",
+    "saveSpinner": "submit loading spinner"
+  },
+  "events": {
+    "submit": {
+      "target": "form",
+      "type": "submit",
+      "emits": "settings:submit"
+    },
+    "input": {
+      "target": "form",
+      "type": "input",
+      "emits": "settings:input"
+    }
+  }
+}

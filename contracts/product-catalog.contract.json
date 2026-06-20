@@ -1,0 +1,18 @@
+{
+  "app": "product-catalog",
+  "state": {
+    "cartCount": { "type": "number" },
+    "showLoading": { "type": "boolean" },
+    "showError": { "type": "boolean" },
+    "showGrid": { "type": "boolean" },
+    "productsIndex": { "type": "array" }
+  },
+  "ownedNodes": {
+    "root": "host element",
+    "cartCount": "cart count text",
+    "loadingState": "loading message",
+    "errorState": "error message",
+    "productGrid": "grid container"
+  },
+  "events": {}
+}

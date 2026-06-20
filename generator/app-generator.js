@@ -79,9 +79,42 @@ async function generateApp() {
     );
 
     generateDashboardAppWireup(outDir);
+  } else if (appName === 'settings-form') {
+    const { generateComponent, validateRuntimeAPI } = await import('./index.js');
+    validateRuntimeAPI(appIr);
+    generateComponent(
+      appContract, 
+      appIr, 
+      appContractPath, 
+      `ir/settings-form.ir.json`, 
+      path.join(outDir, 'settings-form.generated.js')
+    );
+    generateSettingsFormWireup(outDir);
   } else if (appName === 'data-grid') {
     const { generateDataGrid } = await import('./data-grid-generator.js');
     generateDataGrid(appContract, appIr, outDir);
+  } else if (appName === 'product-catalog') {
+    const { generateComponent, validateRuntimeAPI } = await import('./index.js');
+    const cardIr = loadJson('ir/product-card.ir.json');
+    validateRuntimeAPI(cardIr);
+    generateComponent(
+      loadJson('contracts/product-card.contract.json'), 
+      cardIr, 
+      'contracts/product-card.contract.json', 
+      'ir/product-card.ir.json', 
+      path.join(outDir, 'product-card.generated.js')
+    );
+
+    validateRuntimeAPI(appIr);
+    generateComponent(
+      appContract, 
+      appIr, 
+      appContractPath, 
+      'ir/product-catalog.ir.json', 
+      path.join(outDir, 'product-catalog.generated.js')
+    );
+
+    generateProductCatalogWireup(outDir);
   }
 }
 
@@ -246,7 +279,7 @@ export function createInitialBoardState(map) {
 try {
   await generateApp();
 } catch (e) {
-  console.error(e.message);
+  console.error(e.stack);
   process.exit(1);
 }
 
@@ -306,4 +339,184 @@ export function createDashboard(sharedMap) {
 }
 `;
   fs.writeFileSync(path.join(outDir, 'live-dashboard-app-wireup.generated.js'), code);
+}
+
+function generateSettingsFormWireup(outDir) {
+  let code = `// Compiled deterministically from Settings Form App IR
+import { createSettingsForm } from './settings-form.generated.js';
+import { createFormSignal } from '/src/form.js';
+import { createEffect } from '/src/reactivity.js';
+import { globalSharedMap } from '/src/store.js';
+import { globalToast } from '/src/ui.js';
+
+export function createSettingsApp() {
+  const initialValues = { username: '', email: '', notificationsEnabled: false, theme: 'system' };
+  const validate = (values) => {
+    const errors = {};
+    if (!values.username || values.username.length < 3) errors.username = 'Username must be at least 3 characters.';
+    if (!values.email || !values.email.includes('@')) errors.email = 'A valid email is required.';
+    return errors;
+  };
+
+  const [getForm, formActions] = createFormSignal(initialValues, validate);
+  
+  const storedUsername = globalSharedMap.get('settings_username');
+  const storedEmail = globalSharedMap.get('settings_email');
+  const storedNotifications = globalSharedMap.get('settings_notifications');
+  const storedTheme = globalSharedMap.get('settings_theme');
+  
+  if (storedUsername) formActions.setFieldValue('username', storedUsername);
+  if (storedEmail) formActions.setFieldValue('email', storedEmail);
+  if (storedNotifications !== undefined) formActions.setFieldValue('notificationsEnabled', storedNotifications);
+  if (storedTheme) formActions.setFieldValue('theme', storedTheme);
+
+  let comp;
+
+  function handleEvent(ev) {
+    if (ev.type === 'settings:submit') {
+       ev.sourceEvent.preventDefault();
+       formActions.submit(async (values) => {
+         await new Promise(r => setTimeout(r, 600));
+         globalSharedMap.set('settings_username', values.username);
+         globalSharedMap.set('settings_email', values.email);
+         globalSharedMap.set('settings_notifications', values.notificationsEnabled);
+         globalSharedMap.set('settings_theme', values.theme);
+         globalToast.show('Settings saved successfully', 'success');
+       });
+    } else if (ev.type === 'settings:input') {
+       const target = ev.sourceEvent.target;
+       const value = target.type === 'checkbox' ? target.checked : target.value;
+       formActions.setFieldValue(target.name, value);
+    }
+  }
+
+  comp = createSettingsForm({}, handleEvent);
+
+  const cleanups = [];
+  cleanups.push(createEffect(() => {
+    const state = getForm();
+    const patchObj = {
+      username: state.values.username || '',
+      email: state.values.email || '',
+      notificationsEnabled: !!state.values.notificationsEnabled,
+      theme: state.values.theme || 'system',
+      usernameError: state.errors.username || '',
+      usernameErrorVisible: !!state.errors.username,
+      emailError: state.errors.email || '',
+      emailErrorVisible: !!state.errors.email,
+      isSubmitting: !!state.isSubmitting
+    };
+    comp.patch(patchObj);
+  }));
+
+  return {
+    root: comp.root,
+    dispose: () => {
+      comp.dispose();
+      cleanups.forEach(c => c());
+    }
+  };
+}
+`;
+  fs.writeFileSync(path.join(outDir, 'settings-form-app-wireup.generated.js'), code);
+}
+
+function generateProductCatalogWireup(outDir) {
+  let code = `// Compiled deterministically from Product Catalog App IR
+import { createProductCatalog } from './product-catalog.generated.js';
+import { createProductCard } from './product-card.generated.js';
+import { globalSharedMap } from '/src/store.js';
+import { createEffect } from '/src/reactivity.js';
+import { globalDemandManager } from '/src/data.js';
+
+export function createCatalogApp() {
+  const app = createProductCatalog({});
+  const cards = new Map();
+
+  // 1. Fetch data using demandData
+  const [getProducts] = globalDemandManager.demand(globalSharedMap, 'catalog:products', async () => {
+    // Mock fetch
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve([
+          { id: 'p1', title: 'Ergonomic Keyboard', price: 129.99, img: 'https://placehold.co/400x400/png?text=Keyboard' },
+          { id: 'p2', title: 'Wireless Mouse', price: 59.99, img: 'https://placehold.co/400x400/png?text=Mouse' },
+          { id: 'p3', title: 'Ultra HD Monitor', price: 349.99, img: 'https://placehold.co/400x400/png?text=Monitor' },
+          { id: 'p4', title: 'USB-C Hub', price: 45.00, img: 'https://placehold.co/400x400/png?text=Hub' }
+        ]);
+      }, 50);
+    });
+  });
+
+  function handleEvent(ev) {
+    if (ev.type === 'catalog:add_to_cart') {
+       const id = ev.sourceEvent.target.closest('[data-node="root"]')?.dataset?.id;
+       if (!id) return;
+       const currentCart = globalSharedMap.get('cart:items') || [];
+       globalSharedMap.set('cart:items', [...currentCart, id]);
+    }
+  }
+
+  // 2. React to CRDT cart state
+  const cleanups = [];
+  
+  globalSharedMap.incrementSubscriber('cart:items');
+  cleanups.push(() => globalSharedMap.decrementSubscriber('cart:items'));
+
+  const unsub = globalSharedMap.subscribe((key, value) => {
+    if (key === 'cart:items') {
+      app.patch({ cartCount: (value || []).length });
+    }
+  });
+  cleanups.push(unsub);
+  
+  const initialCart = globalSharedMap.get('cart:items') || [];
+  app.patch({ cartCount: initialCart.length });
+
+  // 3. Render Catalog Reactively
+  const disposer = createEffect(() => {
+    const products = getProducts();
+
+    if (!products) {
+      app.patch({ showLoading: true, showError: false, showGrid: false });
+      return;
+    }
+
+    if (products.error) {
+      app.patch({ showLoading: false, showError: true, showGrid: false });
+      return;
+    }
+
+    app.patch({ showLoading: false, showError: false, showGrid: true });
+
+    const currentIds = products.map(p => p.id);
+    for (const product of products) {
+      let card = cards.get(product.id);
+      if (!card) {
+        card = createProductCard(product, handleEvent);
+        // Bind dataset id for event handling mapping
+        card.root.dataset.id = product.id;
+        cards.set(product.id, card);
+        app.insertProducts(product.id, card);
+      } else {
+        card.patch(product);
+      }
+    }
+    
+    app.patch({ productsIndex: currentIds });
+  });
+  cleanups.push(disposer);
+
+  return {
+    root: app.root,
+    dispose: () => {
+      for (const card of cards.values()) card.dispose();
+      cards.clear();
+      app.dispose();
+      cleanups.forEach(c => c());
+    }
+  };
+}
+`;
+  fs.writeFileSync(path.join(outDir, 'product-catalog-app-wireup.generated.js'), code);
 }

@@ -4,11 +4,10 @@ import { execSync } from 'child_process';
 
 const APPS = [
   { name: 'normalized-kanban', path: 'gauntlet/apps/normalized-kanban' },
-  { name: 'live-dashboard', path: 'test/live-dashboard.generated.test.js' }
-  // Other apps demoted until fully generated from contract -> IR -> Direct DOM
-  // { name: 'data-grid', path: 'gauntlet/apps/data-grid' },
-  // { name: 'settings-form', path: 'gauntlet/apps/settings-form' },
-  // { name: 'product-catalog', path: 'gauntlet/apps/product-catalog' }
+  { name: 'live-dashboard', path: 'test/live-dashboard.generated.test.js' },
+  { name: 'settings-form', path: 'test/settings-form.generated.test.js' },
+  { name: 'data-grid', path: 'test/data-grid.generated.test.js' },
+  { name: 'product-catalog', path: 'test/product-catalog.generated.test.js' }
 ];
 
 const requirementsRaw = fs.readFileSync('gauntlet/proof-requirements.json', 'utf8');
