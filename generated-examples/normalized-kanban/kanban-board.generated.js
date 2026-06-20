@@ -16,7 +16,6 @@ function formatCurrency(val) {
   if (val == null) return '';
   return '$' + Number(val).toFixed(2);
 }
-
 export function createKanbanBoard(initialState = {}, eventSink = () => {}) {
   const template = document.createElement('template');
   template.innerHTML = `<div class="board-root" data-node="root"><div class="columns-container" data-node="columnsContainer"></div></div>`;

@@ -14,7 +14,6 @@ function formatCurrency(val) {
   if (val == null) return '';
   return '$' + Number(val).toFixed(2);
 }
-
 export function createProductCard(initialState = {}, eventSink = () => {}) {
   const template = document.createElement('template');
   template.innerHTML = `<div data-node="root" class="product-card"><style>.product-card { background: var(--surface-2); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s; } .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); } .product-image-container { width: 100%; aspect-ratio: 1; background: var(--surface-3); border-radius: var(--radius-md); overflow: hidden; position: relative; } .product-image { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.3s; } .product-image.loaded { opacity: 1; } .product-info { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; } .product-title { font-weight: 600; font-size: 1.125rem; margin: 0; } .product-price { color: var(--brand-primary); font-weight: 700; font-size: 1.25rem; } .add-to-cart { margin-top: auto; width: 100%; }</style><div class="product-image-container"><img id="productImg" class="product-image" loading="lazy" alt="Product"></div><div class="product-info"><h3 class="product-title" id="productTitle"></h3><span class="product-price" id="productPrice"></span></div><fe-button class="add-to-cart" id="addToCartBtn">Add to Cart</fe-button></div>`;

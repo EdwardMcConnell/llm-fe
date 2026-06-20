@@ -14,7 +14,6 @@ function formatCurrency(val) {
   if (val == null) return '';
   return '$' + Number(val).toFixed(2);
 }
-
 export function createLiveDashboardApp(initialState = {}, eventSink = () => {}) {
   const template = document.createElement('template');
   template.innerHTML = `<div class="dashboard-app-root" data-node="root"><header class="dashboard-header" data-node="header"><h1 class="dashboard-title" data-node="title">Live Telemetry</h1></header><div class="dashboard-grid" data-node="grid"></div></div>`;

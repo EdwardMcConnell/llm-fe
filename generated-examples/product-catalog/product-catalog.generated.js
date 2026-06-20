@@ -14,7 +14,6 @@ function formatCurrency(val) {
   if (val == null) return '';
   return '$' + Number(val).toFixed(2);
 }
-
 export function createProductCatalog(initialState = {}, eventSink = () => {}) {
   const template = document.createElement('template');
   template.innerHTML = `<div data-node="root"><style>:host { display: block; padding: 2rem; background: var(--surface-1); color: var(--text-primary); } .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; } .header h2 { margin: 0; color: var(--brand-primary); } .cart-badge { background: var(--brand-primary); color: var(--text-inverse); padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 600; font-size: 0.875rem; } .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 2rem; } .loading-state, .error-state { text-align: center; padding: 4rem; color: var(--text-secondary); }</style><div class="header"><h2>Product Catalog</h2><div class="cart-badge">Cart: <span id="cartCount">0</span></div></div><div id="contentArea"><div id="loadingState" class="loading-state">Loading products...</div><div id="errorState" class="error-state" style="display:none;">Failed to load products.</div><div id="productGrid" class="grid" style="display:none;"></div></div></div>`;

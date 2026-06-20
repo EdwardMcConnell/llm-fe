@@ -14,7 +14,6 @@ function formatCurrency(val) {
   if (val == null) return '';
   return '$' + Number(val).toFixed(2);
 }
-
 export function createKanbanCard(initialState = {}, eventSink = () => {}) {
   const template = document.createElement('template');
   template.innerHTML = `<fe-card class="card" data-node="root"><div class="drag-handle" data-node="dragHandle" draggable="true">:::</div><div class="lock-badge" data-node="lockIndicator"></div><div class="card-title" data-node="titleNode"></div><p class="card-desc" data-node="descNode"></p><p class="card-due-date" data-node="dueDateNode"></p><div class="card-badges"><span class="badge-status" data-node="statusBadge"></span><span class="badge-priority" data-node="priorityBadge"></span><span class="urgent-flag" data-node="urgentFlag">✔️</span></div><div class="card-assignee" data-node="assigneeNode"></div><div class="card-meta"><fe-time format="relative" data-node="timeNode"></fe-time></div><div class="card-actions"><button class="edit-btn" data-node="editBtn">Edit</button><button class="delete-btn" data-node="deleteBtn">Delete</button></div></fe-card>`;

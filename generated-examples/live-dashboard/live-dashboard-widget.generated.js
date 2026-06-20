@@ -14,7 +14,6 @@ function formatCurrency(val) {
   if (val == null) return '';
   return '$' + Number(val).toFixed(2);
 }
-
 export function createLiveDashboardWidget(initialState = {}, eventSink = () => {}) {
   const template = document.createElement('template');
   template.innerHTML = `<div class="widget-root" data-node="root"><h3 class="widget-title" data-node="titleNode"></h3><div class="widget-value" data-node="valueNode"></div><svg class="widget-sparkline" data-node="svgRoot" viewBox="0 0 100 30" preserveAspectRatio="none"><path class="sparkline-path" data-node="svgPath" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"></path></svg></div>`;
