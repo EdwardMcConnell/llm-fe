@@ -158,6 +158,20 @@ const server = http.createServer((req, res) => {
     return handlePrompt(req, res);
   }
 
+  if (req.method === 'POST' && req.url === '/_sync') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      // Broadcast the patch to all clients EXCEPT the sender (we'll just broadcast to all and let CRDT ignore dupes for now)
+      for (const client of clients) {
+        client.write(`data: sync:${body}\n\n`);
+      }
+      res.writeHead(200);
+      res.end('{"status":"ok"}');
+    });
+    return;
+  }
+
   // Simple static file server
   let filePath = path.join(rootDir, req.url === '/' ? 'demo/index.html' : req.url);
   

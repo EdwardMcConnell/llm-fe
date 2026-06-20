@@ -13,6 +13,8 @@ sse.onmessage = (event) => {
     window.location.reload();
   } else if (event.data.startsWith('msg:')) {
     showStatus(event.data.substring(4));
+  } else if (event.data.startsWith('sync:')) {
+    sharedMap.merge(JSON.parse(event.data.substring(5)));
   }
 };
 
@@ -58,7 +60,19 @@ promptInput.addEventListener('keydown', (e) => {
 });
 
 // Initialize Application
-const sharedMap = new SharedMap('kanban-demo');
+const sharedMap = new SharedMap('kanban-demo-' + Math.random().toString(36).slice(2));
+window.__SHARED_MAP__ = sharedMap;
+
+// Hook up network sync
+sharedMap.onPatch((patch) => {
+  // Prevent echo loops: if patch originated from someone else, we don't broadcast it again
+  if (patch.client !== sharedMap.clientId) return;
+
+  fetch('/_sync', {
+    method: 'POST',
+    body: JSON.stringify(patch)
+  }).catch(console.error);
+});
 
 // Add some sample data so the board isn't empty
 sharedMap.set('kanban:item:1', { id: '1', title: 'Implement Hot-Path', status: 'in-progress' });

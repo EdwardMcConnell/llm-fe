@@ -1,4 +1,4 @@
-- [x] 1. Create `server/hot-path.js` (HTTP/SSE server)
-- [x] 2. Create `demo/index.html` and `demo/client.js` with Prompt Bar
-- [x] 3. Update `package.json` scripts (`npm run demo`)
-- [x] 4. Test the IR mutation loop locally with OpenAI
+- [x] 1. Create `server/sync-layer.js` (Zero-dependency SSE + POST sync server)
+- [x] 2. Update `src/crdt.js` to support network sync (already supported)
+- [x] 3. Update `demo/client.js` to connect the `SharedMap` to the sync server
+- [x] 4. Test collaborative editing locally across two browser windows
