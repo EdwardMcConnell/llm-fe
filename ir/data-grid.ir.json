@@ -1,0 +1,30 @@
+{
+  "module": "generated-examples/data-grid/data-grid.generated.js",
+  "create": {
+    "template": "<div class=\"data-grid\" data-node=\"root\"><div class=\"grid-header\" data-node=\"header\"></div><div class=\"grid-body\" data-node=\"body\"></div></div>",
+    "refs": {
+      "root": "[data-node=\"root\"]",
+      "header": "[data-node=\"header\"]",
+      "body": "[data-node=\"body\"]"
+    }
+  },
+  "patches": [
+    {
+      "name": "patchColumns",
+      "input": "columns",
+      "ops": [
+        { "op": "mountChildren", "ref": "header", "tag": "div", "class": "grid-cell header-cell" }
+      ]
+    },
+    {
+      "name": "patchRows",
+      "input": "rows",
+      "ops": [
+        { "op": "mountChildren", "ref": "body", "tag": "div", "class": "grid-row" }
+      ]
+    }
+  ],
+  "events": [
+    { "name": "onScroll", "target": "body", "type": "scroll", "emits": "grid:scroll", "cleanup": true }
+  ]
+}

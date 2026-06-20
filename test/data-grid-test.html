@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .grid-body { height: 400px; overflow-y: auto; position: relative; }
+    .grid-row { height: 32px; display: flex; width: 100%; box-sizing: border-box; border-bottom: 1px solid #ccc; }
+    .grid-cell { flex: 1; padding: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import { SharedMap } from '../src/crdt.js';
+    import { createDataGrid } from '../generated-examples/data-grid/data-grid.generated.js';
+    
+    const sharedMap = new SharedMap('test');
+    
+    // Seed 10,000 rows
+    const rows = [];
+    for(let i=0; i<10000; i++) {
+      rows.push('row_'+i);
+      sharedMap.set('grid:cell:row_'+i+':col1', 'Data ' + i);
+    }
+    sharedMap.set('grid:columns', ['col1']);
+    sharedMap.set('grid:rows', rows);
+
+    const grid = createDataGrid(sharedMap);
+    document.getElementById('root').appendChild(grid.root);
+    window.sharedMap = sharedMap;
+  </script>
+</body>
+</html>

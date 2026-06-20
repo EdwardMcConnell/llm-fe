@@ -14,33 +14,35 @@ function loadJson(p) {
 
 async function generateApp() {
   const appContract = loadJson(appContractPath);
-  const outDir = 'generated-examples/' + appContract.app;
+  const appName = appContract.app;
+  const outDir = 'generated-examples/' + appName;
   fs.mkdirSync(outDir, { recursive: true });
 
-  // For this proof, we will compile the IR directly.
-  const appIr = loadJson('ir/normalized-kanban.ir.json');
+  const appIr = loadJson(`ir/${appName}.ir.json`);
   
-  // Reuse the existing single-component generator for the card
-  const { generateComponent } = await import('./index.js');
-  const cardIr = loadJson('ir/kanban-card.ir.json');
-  generateComponent(
-    loadJson('contracts/kanban-card.contract.json'), 
-    cardIr, 
-    'contracts/kanban-card.contract.json', 
-    'ir/kanban-card.ir.json', 
-    path.join(outDir, 'kanban-card.generated.js')
-  );
+  if (appName === 'normalized-kanban') {
+    const { generateComponent } = await import('./index.js');
+    const cardIr = loadJson('ir/kanban-card.ir.json');
+    generateComponent(
+      loadJson('contracts/kanban-card.contract.json'), 
+      cardIr, 
+      'contracts/kanban-card.contract.json', 
+      'ir/kanban-card.ir.json', 
+      path.join(outDir, 'kanban-card.generated.js')
+    );
 
-  // Compile the compound components from the new IR
-  for (const comp of appIr.components) {
-    if (comp.name === 'kanban-column') generateColumnFromIR(comp, outDir);
-    if (comp.name === 'kanban-board') generateBoardFromIR(comp, outDir);
+    for (const comp of appIr.components) {
+      if (comp.name === 'kanban-column') generateColumnFromIR(comp, outDir);
+      if (comp.name === 'kanban-board') generateBoardFromIR(comp, outDir);
+    }
+
+    generateStateFromIR(outDir);
+    generateAppWireupFromIR(appIr.app, outDir);
+    generateValidators(outDir);
+  } else if (appName === 'data-grid') {
+    const { generateDataGrid } = await import('./data-grid-generator.js');
+    generateDataGrid(appContract, appIr, outDir);
   }
-
-  // Generate wireup and state
-  generateStateFromIR(outDir);
-  generateAppWireupFromIR(appIr.app, outDir);
-  generateValidators(outDir);
 }
 
 function generateColumnFromIR(ir, outDir) {

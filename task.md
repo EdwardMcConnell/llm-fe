@@ -1,4 +1,6 @@
-- [x] 1. Create `server/sync-layer.js` (Zero-dependency SSE + POST sync server)
-- [x] 2. Update `src/crdt.js` to support network sync (already supported)
-- [x] 3. Update `demo/client.js` to connect the `SharedMap` to the sync server
-- [x] 4. Test collaborative editing locally across two browser windows
+- [x] 1. Define `contracts/data-grid.contract.json` (State Schema & Trust Boundaries)
+- [x] 2. Create `ir/data-grid.ir.json` (Explicit UI Patch Operations)
+- [x] 3. Generate the component using `node generator/app-generator.js contracts/data-grid.contract.json`
+- [x] 4. Implement virtualization in the IR (Row recycling based on scroll)
+- [x] 5. Write E2E Tests for the Data Grid in `test/data-grid-e2e.test.js`
+- [x] 6. Integrate with Network Sync Layer (SSE)

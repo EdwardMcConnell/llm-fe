@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fe Framework - Data Grid Demo</title>
+  <style>
+    body { font-family: -apple-system, system-ui; background: #f0f2f5; margin: 0; padding: 20px; }
+    .grid-container {
+      background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      width: 100%; max-width: 800px; margin: 0 auto; overflow: hidden;
+    }
+    .data-grid { display: flex; flex-direction: column; width: 100%; }
+    .grid-header { display: flex; background: #fafafa; border-bottom: 1px solid #ddd; font-weight: bold; }
+    .grid-body { height: 500px; overflow-y: auto; position: relative; }
+    .grid-row { display: flex; border-bottom: 1px solid #eee; height: 32px; box-sizing: border-box; }
+    .grid-cell { flex: 1; padding: 4px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; line-height: 24px; }
+    .header-cell { padding: 8px; line-height: 16px; }
+    #status { position: fixed; top: 10px; right: 10px; padding: 10px; background: #333; color: white; border-radius: 4px; opacity: 0; transition: opacity 0.3s; }
+  </style>
+</head>
+<body>
+  <div id="status">Syncing...</div>
+  <div class="grid-container" id="app-container"></div>
+  <script type="module" src="./client-data-grid.js"></script>
+</body>
+</html>
