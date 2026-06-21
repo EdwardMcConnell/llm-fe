@@ -10,25 +10,26 @@ function loadJson(p) {
   }
 }
 
-const levels = loadJson('maturity/levels.json');
-if (!levels) {
-  console.error('❌ Could not load maturity/levels.json');
+const reqs = loadJson('gauntlet/proof-requirements.json');
+if (!reqs) {
+  console.error('❌ Could not load gauntlet/proof-requirements.json');
   process.exit(1);
 }
 
 // Collect all generated artifacts from maturity requirements
 const allGeneratedFiles = new Set();
-for (const level of levels) {
-  if (level.requirements) {
-    if (level.requirements.generatedArtifacts) {
-      level.requirements.generatedArtifacts.forEach(f => allGeneratedFiles.add(f));
-    }
-    if (level.requirements.generatedTests) {
-      level.requirements.generatedTests.forEach(f => allGeneratedFiles.add(f));
-    }
-    if (level.requirements.generatedBenchmarks) {
-      level.requirements.generatedBenchmarks.forEach(f => allGeneratedFiles.add(f));
-    }
+for (const app of Object.keys(reqs)) {
+  const appReqs = reqs[app];
+  if (appReqs.generatedArtifacts) {
+    appReqs.generatedArtifacts.forEach(f => {
+      const artifactDirName = f.replace('.generated.js', '').replace('.generated.test.js', '');
+      const path1 = path.join('generated-examples', artifactDirName, f);
+      const path2 = path.join('generated-examples', app, f);
+      
+      if (fs.existsSync(path1)) allGeneratedFiles.add(path1);
+      else if (fs.existsSync(path2)) allGeneratedFiles.add(path2);
+      else allGeneratedFiles.add(path1); // default to something to show failure
+    });
   }
 }
 

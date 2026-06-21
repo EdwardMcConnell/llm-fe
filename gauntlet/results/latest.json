@@ -25,14 +25,14 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "create board with 10 cards": 4.9751,
-          "create board with 100 cards": 47.6388,
-          "create board with 1,000 cards": 461.63,
-          "patch one card title 10,000 times": 93.7278,
-          "move one card between columns 1,000 times": 19.1755,
-          "Render 100 cards (Mount)": 106.1,
-          "Patch Card Title (Hot Path)": 0.0091,
-          "Move Card Between Columns": 0.127
+          "create board with 10 cards": 4.8306,
+          "create board with 100 cards": 46.7068,
+          "create board with 1,000 cards": 492.09,
+          "patch one card title 10,000 times": 82.0512,
+          "move one card between columns 1,000 times": 21.7645,
+          "Render 100 cards (Mount)": 111.86,
+          "Patch Card Title (Hot Path)": 0.0105,
+          "Move Card Between Columns": 0.1246
         },
         "notes": []
       },
@@ -81,8 +81,8 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "create dashboard with 10 widgets": 1.477,
-          "patch one widget 10,000 times (high-frequency stream)": 44.7144
+          "create dashboard with 10 widgets": 1.8827,
+          "patch one widget 10,000 times (high-frequency stream)": 43.3929
         },
         "notes": []
       },
@@ -131,8 +131,8 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Render Form (Mount)": 0.483,
-          "Patch Form Field (Hot Path)": 1.1827
+          "Render Form (Mount)": 0.5204,
+          "Patch Form Field (Hot Path)": 1.2848
         },
         "notes": []
       },
@@ -181,9 +181,9 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Render first window (10,000 rows virtualized)": 100.9,
-          "Scroll window (10,000 rows virtualized)": 1.263,
-          "Filter 10,000 rows": 0.1958
+          "Render first window (10,000 rows virtualized)": 106.75,
+          "Scroll window (10,000 rows virtualized)": 1.3341,
+          "Filter 10,000 rows": 0.4829
         },
         "notes": []
       },
@@ -232,9 +232,9 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Mount Catalog Component": 1.0936,
+          "Mount Catalog Component": 1.26,
           "Patch Cart State Reactively": 0.0032,
-          "Dispose Catalog": 1.1634
+          "Dispose Catalog": 1.0742
         },
         "notes": []
       },
@@ -279,10 +279,13 @@
         "notes": []
       },
       "benchmarks": {
-        "status": "skipped",
+        "status": "pass",
         "source": "Benchmarks",
-        "proof": "missing",
-        "results": {},
+        "proof": "All required benchmarks executed successfully",
+        "results": {
+          "Mount Full Console": 2.0299,
+          "Cross-Component Patch (Select Row & Update Form)": 0.014
+        },
         "notes": []
       },
       "contracts": {
@@ -292,18 +295,18 @@
         "notes": []
       },
       "generatedArtifacts": {
-        "status": "skipped",
+        "status": "pass",
         "source": "Generated Output",
-        "proof": "missing",
+        "proof": "customer-ops-console.generated.js, auth.generated.js",
         "notes": []
       },
       "browserProof": {
-        "status": "skipped",
+        "status": "pass",
         "source": "Browser Proof",
-        "proof": "missing",
+        "proof": "gauntlet/apps/customer-ops-console/e2e.node.js",
         "notes": []
       },
-      "proofTier": "C"
+      "proofTier": "A"
     }
   ],
   "summary": {

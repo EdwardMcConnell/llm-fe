@@ -15,12 +15,7 @@ To run Fe-generated applications natively without errors, the target environment
 
 ### Recommended Browser Versions
 
-Fe guarantees functional deterministic correctness in the following baseline browsers (and newer):
-
-*   **Google Chrome:** 90+
-*   **Mozilla Firefox:** 88+
-*   **Apple Safari:** 14.1+
-*   **Microsoft Edge:** 90+
+Fe relies on modern APIs that are supported in recent browser versions (Chrome 90+, Firefox 88+, Safari 14.1+, Edge 90+). However, **Fe is currently only Chromium-proven.** Cross-browser guarantees are not yet claimed.
 
 ## Unsupported Environments
 
@@ -29,4 +24,4 @@ Fe guarantees functional deterministic correctness in the following baseline bro
 
 ## Testing & Guarantees
 
-As part of the Fe gauntlet, end-to-end (E2E) UI testing is strictly enforced via Puppeteer (Chromium engine) to ensure that the generated Direct-DOM manipulations behave identically and perfectly deterministically.
+As part of the Fe gauntlet, end-to-end (E2E) UI testing is strictly enforced via Puppeteer (Chromium engine) to ensure that the generated Direct-DOM manipulations behave identically and perfectly deterministically. Fe is explicitly Chromium-proven, and we do not claim full cross-browser proof at this maturity stage.

@@ -1,13 +1,14 @@
 {
   "currentLevel": 4,
-  "currentLevelName": "Enterprise Candidate",
+  "currentLevelName": "Enterprise Readiness Workbench",
   "nextLevel": 5,
   "nextLevelName": "Production-Proven",
   "canClaim": [
-    "Fe is an enterprise candidate scaffold",
-    "Fe provides tested security boundaries and accessibility"
+    "Fe is an experimental enterprise readiness workbench",
+    "Fe provides tested security boundaries and accessibility for its generated apps"
   ],
   "cannotClaim": [
+    "Fe is ready for production SaaS",
     "Fe is Production-Proven"
   ],
   "missingForNextLevel": [

@@ -57,12 +57,13 @@ The gauntlet (`npm run gauntlet`) classifies apps into proof tiers:
 
 * **Tier A — Canonical proof**: Full contract, IR, generated output, test, browser proof, and benchmark coverage.
   * `normalized-kanban`
-* **Tier B — Generated example**: Generated artifact exists with some tests/benchmarks, but lacks full canonical browser proof.
   * `data-grid`
   * `settings-form`
   * `live-dashboard`
   * `product-catalog`
-* **Tier C — Experimental sample**: Useful exploration, missing complete contracts/IR/generated artifacts.
+  * `customer-ops-console`
+* **Tier B — Generated example**: Generated artifact exists with some tests/benchmarks, but lacks full canonical browser proof.
+* **Tier C — Experimental sample**: Useful exploration, missing complete contracts/IR/generated artifacts. Should not contribute to readiness until it has generated artifacts, benchmarks, and browser proof.
 * **Tier D — Placeholder/future target**: Listed but not proven.
 
 ## How the pipeline works

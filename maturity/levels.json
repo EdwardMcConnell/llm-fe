@@ -107,12 +107,13 @@
   },
   {
     "level": 4,
-    "name": "Enterprise Candidate",
+    "name": "Enterprise Readiness Workbench",
     "canClaim": [
-      "Fe is an enterprise candidate scaffold",
-      "Fe provides tested security boundaries and accessibility"
+      "Fe is an experimental enterprise readiness workbench",
+      "Fe provides tested security boundaries and accessibility for its generated apps"
     ],
     "cannotClaim": [
+      "Fe is ready for production SaaS",
       "Fe is Production-Proven"
     ],
     "requirements": {

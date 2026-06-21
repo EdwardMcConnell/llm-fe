@@ -8,7 +8,7 @@ const APPS = [
   { name: 'settings-form', path: 'test/settings-form.generated.test.js' },
   { name: 'data-grid', path: 'test/data-grid.generated.test.js test/data-grid-e2e.test.js' },
   { name: 'product-catalog', path: 'test/product-catalog.generated.test.js' },
-  { name: 'customer-ops-console', path: 'test/customer-ops-console-e2e.test.js' }
+  { name: 'customer-ops-console', path: 'test/customer-ops-console-e2e.test.js gauntlet/apps/customer-ops-console' }
 ];
 
 const requirementsRaw = fs.readFileSync('gauntlet/proof-requirements.json', 'utf8');
@@ -190,7 +190,13 @@ async function processApp(app) {
   // 5. Browser Proof
   if (reqs.browserProof) {
     if (fs.existsSync(reqs.browserProof)) {
-      result.browserProof = { status: "pass", source: "Browser Proof", proof: reqs.browserProof, notes: [] };
+      try {
+        console.log(`  - Executing browser proof: ${reqs.browserProof}...`);
+        execSync(`node ${reqs.browserProof}`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+        result.browserProof = { status: "pass", source: "Browser Proof", proof: reqs.browserProof, notes: [] };
+      } catch (err) {
+        result.browserProof = { status: "fail", source: "Browser Proof", proof: "failed execution", notes: [`Browser proof failed execution`] };
+      }
     } else {
       result.browserProof = { status: "fail", source: "Browser Proof", proof: "missing", notes: [`Missing browser proof script: ${reqs.browserProof}`] };
     }

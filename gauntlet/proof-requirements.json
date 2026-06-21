@@ -138,9 +138,17 @@
       "cross-component reactivity: selects a customer in the grid and syncs to settings form",
       "cross-component reactivity: edits customer in form and syncs back to grid and kanban"
     ],
-    "benchmarks": [],
+    "benchmarks": [
+      "Mount Full Console",
+      "Cross-Component Patch (Select Row & Update Form)"
+    ],
     "contracts": [
       "customer-ops-console.contract.json"
-    ]
+    ],
+    "generatedArtifacts": [
+      "customer-ops-console.generated.js",
+      "auth.generated.js"
+    ],
+    "browserProof": "gauntlet/apps/customer-ops-console/e2e.node.js"
   }
 }
