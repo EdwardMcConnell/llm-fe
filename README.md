@@ -20,6 +20,7 @@ Because humans do not maintain the generated output, Fe prioritizes deterministi
 Fe is experimental.
 Fe has a serious generated normalized Kanban proof.
 Fe has emerging generated examples across additional app categories.
+Fe has a fully proven autonomous repair loop capable of self-healing generated application logic.
 Fe is not yet proven for arbitrary applications.
 Fe is not enterprise-ready.
 Fe is not a general replacement for existing frontend frameworks.
@@ -30,6 +31,7 @@ Maturity is computed automatically by `npm run maturity`, not asserted manually.
 ## What is proven today
 
 The strongest canonical proof today is normalized Kanban (`normalized-kanban`).
+Fe also has an active and proven Autonomous Repair Loop that can ingest telemetry, isolate bugs to contract boundaries, natively verify failing DOM tests, and patch/regenerate the fixing codebase without manual intervention.
 Other app examples exist, but proof depth may vary.
 
 ## What is not proven
