@@ -140,4 +140,7 @@ Benchmarks must be current. Missing values must not be zero. Benchmarks should g
 
 ## Roadmap: next proof target
 
-The generator currently relies on some app-specific wireups (documented in `generator/README.md`). The long-term direction is a fully generic contract/IR compiler. The next target is to generalize the IR vocabulary to handle structural DOM reconciliation (morph/insert/remove) natively across all Tier B examples, promoting them to Tier A canonical proofs.
+The next target is **Level 5: Autonomous Repair Loop Proven**.
+The goal is to prove that Fe can ingest runtime telemetry, localize failures to contracts/IR, generate a failing regression test, patch the correct contract/IR, regenerate artifacts, pass verification, and record the repair—without silent production mutation.
+
+We explicitly do *not* frame this as "Production-Proven" until Fe has real production deployment history.

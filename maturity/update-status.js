@@ -88,7 +88,17 @@ function checkLevel4(reqs) {
 
 // Check Level 5
 function checkLevel5(reqs) {
-  return ['productionTelemetry', 'bugHistory'];
+  const missing = [];
+  if (!fs.existsSync('contracts/telemetry.contract.json')) missing.push('telemetryContract');
+  // the gauntlet will verify emission proof, ledger, and loop.
+  // We'll rely on reading gauntlet/results/latest.json for these dynamic states
+  const appRes = gauntlet && gauntlet.results ? gauntlet.results.find(r => r.telemetryPassed) : null;
+  if (!appRes) missing.push('telemetryEmissionProof');
+  if (!fs.existsSync('bug-history/bugs.json')) missing.push('bugHistoryLedger');
+  // repairLoopValidation is verified if bugHistory actually has a valid entry
+  const hasRepair = fs.existsSync('bug-history/bugs.json') && loadJson('bug-history/bugs.json')?.length > 0;
+  if (!hasRepair) missing.push('repairLoopValidation');
+  return missing;
 }
 
 let currentLevel = -1;

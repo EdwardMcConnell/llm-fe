@@ -283,7 +283,8 @@ export function createDataGrid(initialState = {}, eventSink = () => {}) {
     searchElement.removeEventListener('input', handleundefined);
   }
 
+  const _provenance = {"appId":"data-grid","componentId":"data-grid","artifactPath":"generated-examples/data-grid/data-grid.generated.js","sourceContractPath":"contracts/data-grid.contract.json","sourceIrPath":"ir/data-grid.ir.json"};
   patch(initialState);
 
-  return { root, patch, dispose, patchVirtualCell };
+  return { root, patch, dispose, _provenance, patchVirtualCell };
 }

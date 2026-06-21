@@ -60,7 +60,8 @@ export function createLiveDashboardApp(initialState = {}, eventSink = () => {}) 
     widgetsInstances.clear();
   }
 
+  const _provenance = {"appId":"live-dashboard-app","componentId":"live-dashboard-app","artifactPath":"generated-examples/live-dashboard/live-dashboard-app.generated.js","sourceContractPath":"contracts/live-dashboard-app.contract.json","sourceIrPath":"ir/live-dashboard-app.ir.json"};
   patch(initialState);
 
-  return { root, patch, dispose, insertWidgets, removeWidgets, reconcileWidgetsOrder };
+  return { root, patch, dispose, _provenance, insertWidgets, removeWidgets, reconcileWidgetsOrder };
 }

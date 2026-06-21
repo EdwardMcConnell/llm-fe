@@ -129,21 +129,21 @@
   },
   {
     "level": 5,
-    "name": "Production-Proven",
+    "name": "Autonomous Repair Loop Proven",
     "canClaim": [
-      "Fe is Production-Proven",
-      "Fe is enterprise-ready"
+      "Fe is Autonomous Repair Loop Proven",
+      "Fe can self-heal localizable contract boundaries"
     ],
-    "cannotClaim": [],
+    "cannotClaim": [
+      "Fe is Production-Proven",
+      "Fe is ready for arbitrary customer-critical SaaS"
+    ],
     "requirements": {
       "level4": true,
-      "realAppBuilt": true,
-      "productionTelemetry": true,
-      "bugHistory": true,
-      "performanceHistory": true,
-      "migrationHistory": true,
-      "longRunningMaintenance": true,
-      "documentedRecovery": true
+      "telemetryContract": true,
+      "telemetryEmissionProof": true,
+      "bugHistoryLedger": true,
+      "repairLoopValidation": true
     }
   }
 ]

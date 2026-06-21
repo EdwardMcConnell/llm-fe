@@ -1,0 +1,95 @@
+{
+  "contractType": "TelemetrySchema",
+  "version": "1.0.0",
+  "description": "Strict schema for machine-actionable telemetry designed to mechanically localize failures without human debugging.",
+  "eventEnvelope": {
+    "schemaVersion": "string",
+    "eventId": "string",
+    "eventKind": ["generatedException", "contractInvariantViolation", "trustBoundaryViolation", "validatorRejection", "runtimeApiViolation", "statePatchRejected", "stateConvergenceViolation", "eventPayloadViolation", "disposeLeakDetected", "staleDomMutationAfterDispose", "performanceBudgetViolation", "accessibilityInvariantViolation", "browserCompatibilityViolation", "resourceStateUnhandled", "permissionPolicyViolation"],
+    "severity": ["critical", "error", "warning"],
+    "timestamp": "number"
+  },
+  "appMetadata": {
+    "appId": "string",
+    "appVersion": "string",
+    "routeId": "string",
+    "proofTier": "string"
+  },
+  "provenance": {
+    "buildId": "string",
+    "gitSha": "string",
+    "runtimeVersion": "string",
+    "generatorVersion": "string",
+    "runtimeApiContractHash": "string",
+    "contractBundleHash": "string",
+    "irBundleHash": "string",
+    "artifactBundleHash": "string"
+  },
+  "environment": {
+    "browser": "string",
+    "browserVersion": "string",
+    "engine": "string",
+    "os": "string",
+    "viewport": "string",
+    "locale": "string",
+    "timezone": "string"
+  },
+  "generatedLocalization": {
+    "componentId": "string",
+    "componentInstanceId": "string",
+    "generatedArtifact": "string",
+    "generatedExport": "string",
+    "generatedFunction": "string",
+    "sourceLocation": "string|null"
+  },
+  "contractLocalization": {
+    "appContractPointer": "string|null",
+    "stateContractPointer": "string|null",
+    "trustContractPointer": "string|null",
+    "eventContractPointer": "string|null",
+    "irNodeId": "string|null",
+    "irOperation": "string|null"
+  },
+  "failureClassification": {
+    "category": "string",
+    "boundary": "string",
+    "validator": "string",
+    "expectedShape": "object|string",
+    "receivedShape": "object|string",
+    "actionTaken": "string",
+    "fallbackRendered": "boolean",
+    "userVisibleImpact": "boolean"
+  },
+  "stateContext": {
+    "stateKey": "string|null",
+    "operation": "string|null",
+    "entityId": "string|null",
+    "field": "string|null",
+    "patchId": "string|null",
+    "correlationId": "string|null",
+    "deterministicOrdering": "number|null"
+  },
+  "recentTrace": {
+    "actions": "array<{type: string, relativeTimestamp: number, detailShape: object}>"
+  },
+  "reproduction": {
+    "sanitizedFixtureId": "string|null",
+    "minimalStateSnapshotHash": "string|null",
+    "actionReplay": "array<object>",
+    "deterministicSeed": "string|null"
+  },
+  "privacy": {
+    "rawValuesIncluded": "boolean",
+    "piiPolicy": "string",
+    "tenantIdHash": "string|null",
+    "userIdHash": "string|null",
+    "retentionClass": "string"
+  },
+  "repairPolicy": {
+    "allowedPatchTargets": ["contract", "ir", "generator"],
+    "forbiddenPatchTargets": ["production_dom", "runtime_api_core", "trust_boundary_weaken"],
+    "requiresHumanApproval": "boolean",
+    "requiresNewFailingTest": "boolean",
+    "requiresVerifyAll": "boolean"
+  }
+}

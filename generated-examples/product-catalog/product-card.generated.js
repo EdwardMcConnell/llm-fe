@@ -68,7 +68,8 @@ export function createProductCard(initialState = {}, eventSink = () => {}) {
     imgElement.removeEventListener('load', handleImgLoad);
   }
 
+  const _provenance = {"appId":"product-card","componentId":"product-card","artifactPath":"generated-examples/product-catalog/product-card.generated.js","sourceContractPath":"contracts/product-card.contract.json","sourceIrPath":"ir/product-card.ir.json"};
   patch(initialState);
 
-  return { root, patch, dispose };
+  return { root, patch, dispose, _provenance };
 }

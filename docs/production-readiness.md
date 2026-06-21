@@ -82,6 +82,11 @@ Fe will not claim production readiness until every one of the following 18 dimen
 - **Definition:** The repository must provide unambiguous instructions, limitations, and invariants so that future autonomous agents can maintain or evolve the codebase without drifting into anti-patterns.
 - **Proof Requirement:** Documents like this one, alongside `SKILL.md` or `AGENTS.md` guidelines, must be continually updated and respected.
 
+### 19. Autonomous Repair Loop Policies (Level 5)
+- **Definition:** The system must be capable of ingesting deterministic telemetry from a trust boundary violation or crash, localizing it to a specific contract/IR node, generating a failing regression test, and patching the contract/IR to fix it—without human debugging.
+- **Repair Policy Strictness:** The autonomous loop is forbidden from making silent mutations to production. Every repair must generate a candidate PR/build, must include a new failing test that the patch fixes, and must pass `verify:all` to ensure no previous requirements (performance, accessibility, security) have been weakened. Autonomous agents may not weaken security permissions or modify handwritten generated outputs manually.
+- **Proof Requirement:** The gauntlet must simulate a malformed data attack, confirm the resulting telemetry strictly conforms to `telemetry.contract.json`, and assert that the repair loop accurately logged the fix into the `bug-history/bugs.json` ledger.
+
 ---
 
 ## Conclusion

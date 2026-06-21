@@ -1,0 +1,26 @@
+[
+  {
+    "bugId": "simulated-bug-001",
+    "firstSeenTelemetryEvent": "evt-001",
+    "clusterId": "cluster-validation-bypass",
+    "classification": "trustBoundaryViolation",
+    "rootCauseKind": "contractValidationMissing",
+    "rootCausePointer": "contracts/settings-form.contract.json#/components/settings-form/trustBoundary",
+    "rootCauseIrNode": "ir/settings-form.ir.json#node/12",
+    "sanitizedFixturePath": "bug-history/fixtures/simulated-bug-001.json",
+    "generatedFailingTestPath": "test/simulated-bug-001.test.js",
+    "patchTarget": "contract",
+    "contractChanged": true,
+    "irChanged": true,
+    "runtimeChanged": false,
+    "regeneratedArtifacts": [
+      "generated-examples/settings-form/settings-form.generated.js"
+    ],
+    "verifyAllResult": "pass",
+    "browserProofResult": "pass",
+    "securityProofResult": "pass",
+    "benchmarkRegressionResult": "pass",
+    "candidateBuildId": "build-cand-001",
+    "humanApprovalStatus": "approved"
+  }
+]

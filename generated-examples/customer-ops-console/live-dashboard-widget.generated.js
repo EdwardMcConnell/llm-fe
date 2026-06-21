@@ -81,7 +81,8 @@ export function createLiveDashboardWidget(initialState = {}, eventSink = () => {
   function dispose() {
   }
 
+  const _provenance = {"appId":"live-dashboard-widget","componentId":"live-dashboard-widget","artifactPath":"generated-examples/live-dashboard/live-dashboard-widget.generated.js","sourceContractPath":"contracts/live-dashboard-widget.contract.json","sourceIrPath":"ir/live-dashboard-widget.ir.json"};
   patch(initialState);
 
-  return { root, patch, dispose };
+  return { root, patch, dispose, _provenance };
 }

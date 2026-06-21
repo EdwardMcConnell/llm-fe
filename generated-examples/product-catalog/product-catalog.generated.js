@@ -93,7 +93,8 @@ export function createProductCatalog(initialState = {}, eventSink = () => {}) {
     productsInstances.clear();
   }
 
+  const _provenance = {"appId":"product-catalog","componentId":"product-catalog","artifactPath":"generated-examples/product-catalog/product-catalog.generated.js","sourceContractPath":"contracts/product-catalog.contract.json","sourceIrPath":"ir/product-catalog.ir.json"};
   patch(initialState);
 
-  return { root, patch, dispose, insertProducts, removeProducts, reconcileProductsOrder };
+  return { root, patch, dispose, _provenance, insertProducts, removeProducts, reconcileProductsOrder };
 }

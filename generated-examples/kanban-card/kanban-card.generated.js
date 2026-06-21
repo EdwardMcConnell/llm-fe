@@ -140,7 +140,8 @@ export function createKanbanCard(initialState = {}, eventSink = () => {}) {
     dragHandleElement.removeEventListener('dragstart', handleonDragStart);
   }
 
+  const _provenance = {"appId":"kanban-card","componentId":"kanban-card","artifactPath":"generated-examples/kanban-card/kanban-card.generated.js","sourceContractPath":"contracts/kanban-card.contract.json","sourceIrPath":"ir/kanban-card.ir.json"};
   patch(initialState);
 
-  return { root, patch, dispose };
+  return { root, patch, dispose, _provenance };
 }

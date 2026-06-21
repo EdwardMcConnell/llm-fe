@@ -62,7 +62,8 @@ export function createKanbanColumn(initialState = {}, eventSink = () => {}) {
     cardsInstances.clear();
   }
 
+  const _provenance = {"appId":"kanban-column","componentId":"kanban-column","artifactPath":"generated-examples/normalized-kanban/kanban-column.generated.js","sourceContractPath":"contracts/kanban-column.contract.json","sourceIrPath":"ir/normalized-kanban.ir.json"};
   patch(initialState);
 
-  return { root, patch, dispose, insertCards, removeCards, reconcileCardsOrder };
+  return { root, patch, dispose, _provenance, insertCards, removeCards, reconcileCardsOrder };
 }

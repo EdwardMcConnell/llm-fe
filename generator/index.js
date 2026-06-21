@@ -242,7 +242,16 @@ function formatCurrency(val) {
   }
   code += `  }\n\n`;
 
-  let exportObj = `root, patch, dispose`;
+  const provenanceObj = {
+    appId: componentName,
+    componentId: componentName,
+    artifactPath: outPath,
+    sourceContractPath: contractPath,
+    sourceIrPath: irPath
+  };
+  code += `  const _provenance = ${JSON.stringify(provenanceObj)};\n`;
+
+  let exportObj = `root, patch, dispose, _provenance`;
   if (ir.lists) {
     for (const list of ir.lists) {
       const listCap = list.name.charAt(0).toUpperCase() + list.name.slice(1);

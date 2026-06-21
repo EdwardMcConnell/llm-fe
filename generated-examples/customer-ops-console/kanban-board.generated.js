@@ -42,7 +42,8 @@ export function createKanbanBoard(initialState = {}, eventSink = () => {}) {
     for (const child of Object.values(children)) child.dispose();
   }
 
+  const _provenance = {"appId":"kanban-board","componentId":"kanban-board","artifactPath":"generated-examples/normalized-kanban/kanban-board.generated.js","sourceContractPath":"contracts/kanban-board.contract.json","sourceIrPath":"ir/normalized-kanban.ir.json"};
   patch(initialState);
 
-  return { root, patch, dispose, children };
+  return { root, patch, dispose, _provenance, children };
 }

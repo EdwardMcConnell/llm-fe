@@ -122,7 +122,8 @@ export function createSettingsForm(initialState = {}, eventSink = () => {}) {
     formElement.removeEventListener('input', handleInput);
   }
 
+  const _provenance = {"appId":"settings-form","componentId":"settings-form","artifactPath":"generated-examples/settings-form/settings-form.generated.js","sourceContractPath":"contracts/settings-form.contract.json","sourceIrPath":"ir/settings-form.ir.json"};
   patch(initialState);
 
-  return { root, patch, dispose };
+  return { root, patch, dispose, _provenance };
 }

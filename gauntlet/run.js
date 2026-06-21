@@ -243,10 +243,26 @@ async function runGauntlet() {
     }
   }
 
+  let telemetryPassed = false;
+  try {
+    console.log(`\nRunning Telemetry Repair Loop Proof...`);
+    execSync('node gauntlet/telemetry-loop-proof.js', { stdio: 'inherit' });
+    telemetryPassed = true;
+  } catch (e) {
+    console.log('Telemetry Proof Failed.');
+  }
+
+  // Push an aggregate telemetry result into the results array so update-status.js can find it
+  results.push({
+    app: "telemetry-loop",
+    telemetryPassed
+  });
+
   const finalReport = {
     results,
     summary: {
       canClaimReady: allPass,
+      telemetryPassed,
       weakestArea: weakestArea || 'None',
       nextRecommendedTask: nextRecommendedTask || 'None. Gauntlet is fully passing.'
     }
