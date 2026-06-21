@@ -121,6 +121,16 @@ Before changing code:
 
 Prefer changing `contracts/` → `ir/` → `generator/` before editing `generated-examples/`. Generated files should be regenerated, not hand-polished.
 
+## For Humans
+
+Do not contribute to or maintain generated application code manually. 
+Fe is designed entirely for LLM authorship. Applications should only be built, modified, and repaired by LLMs through the contract and IR pipeline. 
+
+If you are a human reading this:
+1. Do not hand-edit files in `generated-examples/`.
+2. Do not write manual bug fixes in production code. 
+3. Delegate all features, patches, and architectural changes to an LLM agent, and verify them using the `verify:all` pipeline.
+
 ## Non-goals
 
 Do not add:
@@ -138,9 +148,9 @@ Performance claims must cite explicit benchmark output. Do not make broad or uns
 
 Benchmarks must be current. Missing values must not be zero. Benchmarks should guide engineering, not marketing.
 
-## Roadmap: next proof target
+## Roadmap: Next Proof Target
 
-The next target is **Level 5: Autonomous Repair Loop Proven**.
-The goal is to prove that Fe can ingest runtime telemetry, localize failures to contracts/IR, generate a failing regression test, patch the correct contract/IR, regenerate artifacts, pass verification, and record the repair—without silent production mutation.
+Fe has successfully proven **Level 5: Autonomous Repair Loop Proven**.
+It can mathematically ingest runtime telemetry, localize failures to contracts/IR, generate failing regression tests, patch the correct contract/IR, regenerate artifacts, and pass verification—without silent production mutation.
 
-We explicitly do *not* frame this as "Production-Proven" until Fe has real production deployment history.
+Future targets will focus on expanding runtime capabilities and scaling application complexity. We explicitly do *not* frame Fe as "Production-Proven" until it has real production deployment history.
