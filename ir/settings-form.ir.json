@@ -164,7 +164,7 @@
       {
         "name": "settings",
         "initialValues": "{ username: '', email: '', notificationsEnabled: false, theme: 'system' }",
-        "validate": "(values) => {\n    const errors = {};\n    if (!values.email || !values.email.includes('@')) errors.email = 'A valid email is required.';\n    return errors;\n  }",
+        "validate": "(values) => {\n    const errors = {};\n    if (!values.username || values.username.length < 3) errors.username = 'Username must be at least 3 characters.';\n    if (!values.email || !values.email.includes('@')) errors.email = 'A valid email is required.';\n    return errors;\n  }",
         "syncFrom": [
           {
             "field": "username",
