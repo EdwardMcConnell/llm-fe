@@ -8,6 +8,7 @@
     "rootCausePointer": "contracts/settings-form.contract.json#/components/settings-form/trustBoundary",
     "rootCauseIrNode": "ir/settings-form.ir.json#node/12",
     "sanitizedFixturePath": "bug-history/fixtures/simulated-bug-001.json",
+    "preFixArtifactPath": "bug-history/regressions/simulated-bug-001-prefix-artifact.js",
     "generatedFailingTestPath": "test/simulated-bug-001.test.js",
     "patchTarget": "contract",
     "contractChanged": true,

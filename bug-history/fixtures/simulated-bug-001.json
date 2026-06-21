@@ -1,0 +1,100 @@
+{
+  "eventEnvelope": {
+    "schemaVersion": "1.0.0",
+    "eventId": "evt-001",
+    "eventKind": "trustBoundaryViolation",
+    "severity": "error",
+    "timestamp": 1690000000
+  },
+  "appMetadata": {
+    "appId": "settings-form",
+    "appVersion": "1.0.0",
+    "routeId": "settings",
+    "proofTier": "A"
+  },
+  "provenance": {
+    "buildId": "build-001",
+    "gitSha": "abc1234",
+    "runtimeVersion": "1.0.0",
+    "generatorVersion": "1.0.0",
+    "runtimeApiContractHash": "hash1",
+    "contractBundleHash": "hash2",
+    "irBundleHash": "hash3",
+    "artifactBundleHash": "hash4"
+  },
+  "environment": {
+    "browser": "Chrome",
+    "browserVersion": "120",
+    "engine": "V8",
+    "os": "macOS",
+    "viewport": "1024x768",
+    "locale": "en-US",
+    "timezone": "UTC"
+  },
+  "generatedLocalization": {
+    "componentId": "settings-form",
+    "componentInstanceId": "inst-1",
+    "generatedArtifact": "generated-examples/settings-form/settings-form.generated.js",
+    "generatedExport": "createSettingsForm",
+    "generatedFunction": "patch",
+    "sourceLocation": null
+  },
+  "contractLocalization": {
+    "appContractPointer": "contracts/settings-form.contract.json#/components/settings-form",
+    "stateContractPointer": null,
+    "trustContractPointer": "contracts/settings-form.contract.json#/components/settings-form/trustBoundary",
+    "eventContractPointer": null,
+    "irNodeId": "node/12",
+    "irOperation": "validate_input"
+  },
+  "failureClassification": {
+    "category": "security",
+    "boundary": "input_validation",
+    "validator": "usernameValidator",
+    "expectedShape": "string_min_3",
+    "receivedShape": "string_len_1",
+    "actionTaken": "rejected_patch",
+    "fallbackRendered": true,
+    "userVisibleImpact": true
+  },
+  "stateContext": {
+    "stateKey": "settings_username",
+    "operation": "update",
+    "entityId": null,
+    "field": "username",
+    "patchId": "patch-001",
+    "correlationId": "corr-001",
+    "deterministicOrdering": 1
+  },
+  "recentTrace": {
+    "actions": [
+      {
+        "type": "input",
+        "relativeTimestamp": -100,
+        "detailShape": { "target": "usernameInput", "valueShape": "string_len_1" }
+      }
+    ]
+  },
+  "reproduction": {
+    "sanitizedFixtureId": "fixture-001",
+    "minimalStateSnapshotHash": "hash-123",
+    "actionReplay": [
+      { "type": "input", "target": "#usernameInput", "value": "a" }
+    ],
+    "deterministicSeed": "1234"
+  },
+  "privacy": {
+    "rawValuesIncluded": false,
+    "piiPolicy": "redact_all",
+    "tenantIdHash": "hash_t1",
+    "userIdHash": "hash_u1",
+    "retentionClass": "ephemeral"
+  },
+  "repairPolicy": {
+    "allowedPatchTargets": ["contract", "ir", "generator"],
+    "forbiddenPatchTargets": ["production_dom", "runtime_api_core", "trust_boundary_weaken"],
+    "requiresHumanApproval": true,
+    "requiresNewFailingTest": true,
+    "requiresVerifyAll": true
+  }
+}
