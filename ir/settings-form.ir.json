@@ -139,22 +139,49 @@
     "exportName": "createSettingsApp",
     "rootComponent": "settings-form",
     "appImports": [
-      { "name": "createSettingsForm", "module": "./settings-form.generated.js" },
-      { "name": "createFormSignal", "module": "/src/form.js" },
-      { "name": "createEffect", "module": "/src/reactivity.js" },
-      { "name": "globalSharedMap", "module": "/src/store.js" },
-      { "name": "globalToast", "module": "/src/ui.js" }
+      {
+        "name": "createSettingsForm",
+        "module": "./settings-form.generated.js"
+      },
+      {
+        "name": "createFormSignal",
+        "module": "/src/form.js"
+      },
+      {
+        "name": "createEffect",
+        "module": "/src/reactivity.js"
+      },
+      {
+        "name": "globalSharedMap",
+        "module": "/src/store.js"
+      },
+      {
+        "name": "globalToast",
+        "module": "/src/ui.js"
+      }
     ],
     "forms": [
       {
         "name": "settings",
         "initialValues": "{ username: '', email: '', notificationsEnabled: false, theme: 'system' }",
-        "validate": "(values) => {\n    const errors = {};\n    if (!values.username || values.username.length < 3) errors.username = 'Username must be at least 3 characters.';\n    if (!values.email || !values.email.includes('@')) errors.email = 'A valid email is required.';\n    return errors;\n  }",
+        "validate": "(values) => {\n    const errors = {};\n    if (!values.email || !values.email.includes('@')) errors.email = 'A valid email is required.';\n    return errors;\n  }",
         "syncFrom": [
-          { "field": "username", "key": "settings_username" },
-          { "field": "email", "key": "settings_email" },
-          { "field": "notificationsEnabled", "key": "settings_notifications" },
-          { "field": "theme", "key": "settings_theme" }
+          {
+            "field": "username",
+            "key": "settings_username"
+          },
+          {
+            "field": "email",
+            "key": "settings_email"
+          },
+          {
+            "field": "notificationsEnabled",
+            "key": "settings_notifications"
+          },
+          {
+            "field": "theme",
+            "key": "settings_theme"
+          }
         ]
       }
     ],

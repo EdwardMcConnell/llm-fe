@@ -8,7 +8,6 @@ import { globalToast } from '/src/ui.js';
 export function createSettingsApp(sharedMap = globalSharedMap) {
   const validatesettings = (values) => {
     const errors = {};
-    if (!values.username || values.username.length < 3) errors.username = 'Username must be at least 3 characters.';
     if (!values.email || !values.email.includes('@')) errors.email = 'A valid email is required.';
     return errors;
   };

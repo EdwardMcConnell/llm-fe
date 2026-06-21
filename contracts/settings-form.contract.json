@@ -59,14 +59,6 @@
     }
   },
   "components": {
-    "settings-form": {
-      "trustBoundary": {
-        "validationRules": {
-          "settingValue": {
-            "minLength": 3
-          }
-        }
-      }
-    }
+    "settings-form": {}
   }
 }
