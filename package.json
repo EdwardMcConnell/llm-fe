@@ -20,6 +20,7 @@
     "gauntlet": "node gauntlet/run.js",
     "verify:generated": "node generator/verify-generated.js",
     "maturity": "node maturity/update-status.js",
+    "repair": "node bin/repair-loop.js",
     "prompt": "node bin/prompt.js",
     "chat": "node bin/ask-chatgpt.js",
     "verify:all": "npm run generate && npm run generate:kanban && npm run generate:dashboard && npm run generate:settings && npm run generate:grid && npm run generate:catalog && npm run generate:ops && npm run verify:generated && npm run test:native && npm run test:browser && npm run bench && npm run gauntlet && npm run maturity"

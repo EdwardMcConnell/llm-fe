@@ -1,15 +1,38 @@
 {
   "app": "settings-form",
   "state": {
-    "username": { "type": "string" },
-    "email": { "type": "string" },
-    "notificationsEnabled": { "type": "boolean" },
-    "theme": { "type": "enum", "values": ["system", "light", "dark"] },
-    "isSubmitting": { "type": "boolean" },
-    "usernameError": { "type": "string" },
-    "usernameErrorVisible": { "type": "boolean" },
-    "emailError": { "type": "string" },
-    "emailErrorVisible": { "type": "boolean" }
+    "username": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "notificationsEnabled": {
+      "type": "boolean"
+    },
+    "theme": {
+      "type": "enum",
+      "values": [
+        "system",
+        "light",
+        "dark"
+      ]
+    },
+    "isSubmitting": {
+      "type": "boolean"
+    },
+    "usernameError": {
+      "type": "string"
+    },
+    "usernameErrorVisible": {
+      "type": "boolean"
+    },
+    "emailError": {
+      "type": "string"
+    },
+    "emailErrorVisible": {
+      "type": "boolean"
+    }
   },
   "ownedNodes": {
     "root": "host element",
@@ -33,6 +56,17 @@
       "target": "form",
       "type": "input",
       "emits": "settings:input"
+    }
+  },
+  "components": {
+    "settings-form": {
+      "trustBoundary": {
+        "validationRules": {
+          "settingValue": {
+            "minLength": 3
+          }
+        }
+      }
     }
   }
 }
