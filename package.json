@@ -1,10 +1,20 @@
 {
   "name": "fe",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "description": "The frontend for LLM-based web application development.",
   "main": "src/index.js",
   "type": "module",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EdwardMcConnell/llm-fe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EdwardMcConnell/llm-fe/issues"
+  },
+  "homepage": "https://github.com/EdwardMcConnell/llm-fe#readme",
   "scripts": {
+    "release:alpha": "npm version prerelease --preid=alpha && npm publish --tag alpha",
     "test": "vitest run", "demo": "node server/hot-path.js",
     "test:watch": "vitest",
     "bench": "vitest bench",
@@ -25,8 +35,16 @@
     "chat": "node bin/ask-chatgpt.js",
     "verify:all": "npm run generate && npm run generate:kanban && npm run generate:dashboard && npm run generate:settings && npm run generate:grid && npm run generate:catalog && npm run generate:ops && npm run verify:generated && npm run test:native && npm run test:browser && npm run bench && npm run gauntlet && npm run maturity"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "llm",
+    "ai",
+    "frontend",
+    "ui",
+    "compiler",
+    "direct-dom",
+    "framework"
+  ],
+  "author": "Edward McConnell",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^25.9.3",
