@@ -126,11 +126,17 @@ Prefer changing `contracts/` → `ir/` → `generator/` before editing `generate
 Do not contribute to or maintain generated application code manually. 
 Fe is designed entirely for LLM authorship. Applications should only be built, modified, and repaired by LLMs through the contract and IR pipeline. 
 
+**How LLM Agents Leverage this Scaffold:**
+Instead of having an LLM "guess" how to write a generic React component or debug a stack trace, Fe forces the LLM to act as a compiler engineer. 
+1. **Deterministic Boundaries:** LLMs manipulate strict JSON definitions (`contracts/` and `ir/`) which define the exact state, trust boundaries, and DOM operations.
+2. **Mechanical Compilation:** The LLM runs the generator script to compile these definitions into highly-performant, direct-DOM vanilla JavaScript.
+3. **Automated Verification:** The LLM does not rely on "looks good to me" visual checks. It runs `npm run verify:all` to mathematically prove that its generated artifacts pass unit tests, E2E browser proofs, and strict performance benchmarks.
+4. **Autonomous Self-Healing:** When bugs occur, production telemetry is not written for human debugging. It is structured explicitly for the LLM. The LLM ingests the telemetry, uses embedded provenance metadata to trace the failure to a specific contract/IR node, generates a failing regression test, patches the contract, and regenerates the app.
+
 If you are a human reading this:
 1. Do not hand-edit files in `generated-examples/`.
 2. Do not write manual bug fixes in production code. 
-3. Delegate all features, patches, and architectural changes to an LLM agent, and verify them using the `verify:all` pipeline.
-
+3. Delegate all features, patches, and architectural changes to an LLM agent, and review their `verify:all` output.
 ## Non-goals
 
 Do not add:
