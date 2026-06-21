@@ -1,18 +1,15 @@
 {
-  "currentLevel": 4,
-  "currentLevelName": "Enterprise Readiness Workbench",
-  "nextLevel": 5,
-  "nextLevelName": "Production-Proven",
+  "currentLevel": 5,
+  "currentLevelName": "Autonomous Repair Loop Proven",
+  "nextLevel": 0,
+  "nextLevelName": "Runtime Experiment",
   "canClaim": [
-    "Fe is an experimental enterprise readiness workbench",
-    "Fe provides tested security boundaries and accessibility for its generated apps"
+    "Fe is Autonomous Repair Loop Proven",
+    "Fe can self-heal localizable contract boundaries"
   ],
   "cannotClaim": [
-    "Fe is ready for production SaaS",
-    "Fe is Production-Proven"
+    "Fe is Production-Proven",
+    "Fe is ready for arbitrary customer-critical SaaS"
   ],
-  "missingForNextLevel": [
-    "productionTelemetry",
-    "bugHistory"
-  ]
+  "missingForNextLevel": []
 }
