@@ -1,0 +1,41 @@
+{
+  "app": "demo-shell",
+  "component": "demo-shell-app",
+  "kind": "application",
+  "state": {
+    "activeRoute": {
+      "type": "string",
+      "trust": "internal"
+    }
+  },
+  "ownedNodes": {
+    "root": { "tag": "div", "class": "demo-shell-root" },
+    "sidebar": { "tag": "aside", "class": "demo-sidebar" },
+    "brand": { "tag": "div", "class": "demo-brand" },
+    "navList": { "tag": "ul", "class": "demo-nav-list" },
+    "navKanban": { "tag": "li", "class": "demo-nav-item" },
+    "navGrid": { "tag": "li", "class": "demo-nav-item" },
+    "navDashboard": { "tag": "li", "class": "demo-nav-item" },
+    "navSettings": { "tag": "li", "class": "demo-nav-item" },
+    "navCatalog": { "tag": "li", "class": "demo-nav-item" },
+    "navOps": { "tag": "li", "class": "demo-nav-item" },
+    "mainArea": { "tag": "main", "class": "demo-main" },
+    "header": { "tag": "header", "class": "demo-header" },
+    "appContainer": { "tag": "div", "class": "demo-app-container" }
+  },
+  "events": {
+    "navKanban": { "target": "navKanban", "type": "click", "emits": "demo:nav:kanban" },
+    "navGrid": { "target": "navGrid", "type": "click", "emits": "demo:nav:grid" },
+    "navDashboard": { "target": "navDashboard", "type": "click", "emits": "demo:nav:dashboard" },
+    "navSettings": { "target": "navSettings", "type": "click", "emits": "demo:nav:settings" },
+    "navCatalog": { "target": "navCatalog", "type": "click", "emits": "demo:nav:catalog" },
+    "navOps": { "target": "navOps", "type": "click", "emits": "demo:nav:ops" }
+  },
+  "externalInputs": [],
+  "cleanup": [],
+  "browserFeatures": [],
+  "performanceBudget": {
+    "patchOps": 6,
+    "skipSameValue": true
+  }
+}

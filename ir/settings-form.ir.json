@@ -145,7 +145,7 @@
       },
       {
         "name": "createFormSignal",
-        "module": "/src/form.js"
+        "module": "../../src/form.js"
       },
       {
         "name": "createEffect",

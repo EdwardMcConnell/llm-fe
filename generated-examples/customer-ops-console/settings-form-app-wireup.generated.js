@@ -1,6 +1,6 @@
 // Compiled deterministically from settings-form App IR
 import { createSettingsForm } from './settings-form.generated.js';
-import { createFormSignal } from '/src/form.js';
+import { createFormSignal } from '../../src/form.js';
 import { createEffect } from '/src/reactivity.js';
 import { globalSharedMap } from '/src/store.js';
 import { globalToast } from '/src/ui.js';

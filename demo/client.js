@@ -1,7 +1,14 @@
 import { SharedMap } from '../src/crdt.js';
-import { createKanbanApp } from '../generated-examples/normalized-kanban/kanban-app.generated.js';
+import { createDemoShell } from '../generated-examples/demo-shell/demo-shell-app-wireup.generated.js';
 
-const appContainer = document.getElementById('app-container');
+import { createKanbanApp } from '../generated-examples/normalized-kanban/kanban-app.generated.js';
+import { createGridApp } from '../generated-examples/data-grid/data-grid-app-wireup.generated.js';
+import { createDashboard } from '../generated-examples/live-dashboard/live-dashboard-app-wireup.generated.js';
+import { createSettingsApp } from '../generated-examples/settings-form/settings-form-app-wireup.generated.js';
+import { createCatalogApp } from '../generated-examples/product-catalog/product-catalog-app-wireup.generated.js';
+import { createCustomerOpsConsole } from '../generated-examples/customer-ops-console/customer-ops-console.generated.js';
+
+const rootElement = document.getElementById('root');
 const promptInput = document.getElementById('prompt-input');
 const promptBtn = document.getElementById('prompt-btn');
 const statusEl = document.getElementById('status');
@@ -60,28 +67,70 @@ promptInput.addEventListener('keydown', (e) => {
 });
 
 // Initialize Application
-const sharedMap = new SharedMap('kanban-demo-' + Math.random().toString(36).slice(2));
+const sharedMap = new SharedMap('demo-' + Math.random().toString(36).slice(2));
 window.__SHARED_MAP__ = sharedMap;
 
 // Hook up network sync
 sharedMap.onPatch((patch) => {
-  // Prevent echo loops: if patch originated from someone else, we don't broadcast it again
   if (patch.client !== sharedMap.clientId) return;
-
   fetch('/_sync', {
     method: 'POST',
     body: JSON.stringify(patch)
   }).catch(console.error);
 });
 
-// Add some sample data so the board isn't empty
+// Seed data
 sharedMap.set('kanban:item:1', { id: '1', title: 'Implement Hot-Path', status: 'in-progress' });
 sharedMap.set('kanban:item:2', { id: '2', title: 'Write tests', status: 'todo' });
 sharedMap.set('kanban:item:3', { id: '3', title: 'Setup GitHub Actions', status: 'done' });
-
 sharedMap.set('kanban:column:todo:index', { itemIds: ['2'] });
 sharedMap.set('kanban:column:in-progress:index', { itemIds: ['1'] });
 sharedMap.set('kanban:column:done:index', { itemIds: ['3'] });
 
-const app = createKanbanApp(sharedMap);
-appContainer.appendChild(app.root);
+sharedMap.set('demo:route', { route: 'kanban' }); // Initial route
+
+const shell = createDemoShell(sharedMap);
+rootElement.appendChild(shell.root);
+
+const appContainer = shell.root.querySelector('.demo-app-container');
+
+let currentApp = null;
+function mountApp(route) {
+  if (currentApp) {
+    if (currentApp.dispose) currentApp.dispose();
+    appContainer.innerHTML = '';
+  }
+
+  if (route === 'kanban') {
+    currentApp = createKanbanApp(sharedMap);
+    appContainer.appendChild(currentApp.root);
+  } else if (route === 'grid') {
+    currentApp = createGridApp(sharedMap);
+    appContainer.appendChild(currentApp.root);
+  } else if (route === 'dashboard') {
+    currentApp = createDashboard(sharedMap);
+    appContainer.appendChild(currentApp.root);
+  } else if (route === 'settings') {
+    currentApp = createSettingsApp(sharedMap);
+    appContainer.appendChild(currentApp.root);
+  } else if (route === 'catalog') {
+    currentApp = createCatalogApp(sharedMap);
+    appContainer.appendChild(currentApp.root);
+  } else if (route === 'ops') {
+    createCustomerOpsConsole(appContainer, sharedMap);
+    currentApp = { dispose: () => { appContainer.innerHTML = ''; } };
+  }
+}
+
+// Router
+let lastRoute = null;
+sharedMap.onPatch((patch) => {
+  if (patch.key === 'demo:route') {
+    if (patch.value && patch.value.route !== lastRoute) {
+      lastRoute = patch.value.route;
+      mountApp(lastRoute);
+    }
+  }
+});
+mountApp('kanban'); // initial mount
+

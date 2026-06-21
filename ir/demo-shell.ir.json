@@ -1,0 +1,163 @@
+{
+  "module": "generated-examples/demo-shell/demo-shell.generated.js",
+  "name": "demo-shell",
+  "create": {
+    "template": "<div class=\"demo-shell-root\" data-node=\"root\"><aside class=\"demo-sidebar\" data-node=\"sidebar\"><div class=\"demo-brand\" data-node=\"brand\">Fe Framework</div><ul class=\"demo-nav-list\" data-node=\"navList\"><li class=\"demo-nav-item\" data-node=\"navKanban\">Normalized Kanban</li><li class=\"demo-nav-item\" data-node=\"navGrid\">Data Grid</li><li class=\"demo-nav-item\" data-node=\"navDashboard\">Live Dashboard</li><li class=\"demo-nav-item\" data-node=\"navSettings\">Settings Form</li><li class=\"demo-nav-item\" data-node=\"navCatalog\">Product Catalog</li><li class=\"demo-nav-item\" data-node=\"navOps\">Customer Ops</li></ul></aside><main class=\"demo-main\" data-node=\"mainArea\"><header class=\"demo-header\" data-node=\"header\">Demo Explorer</header><div class=\"demo-app-container\" data-node=\"appContainer\"></div></main></div>",
+    "refs": {
+      "root": "[data-node=\"root\"]",
+      "sidebar": "[data-node=\"sidebar\"]",
+      "brand": "[data-node=\"brand\"]",
+      "navList": "[data-node=\"navList\"]",
+      "navKanban": "[data-node=\"navKanban\"]",
+      "navGrid": "[data-node=\"navGrid\"]",
+      "navDashboard": "[data-node=\"navDashboard\"]",
+      "navSettings": "[data-node=\"navSettings\"]",
+      "navCatalog": "[data-node=\"navCatalog\"]",
+      "navOps": "[data-node=\"navOps\"]",
+      "mainArea": "[data-node=\"mainArea\"]",
+      "header": "[data-node=\"header\"]",
+      "appContainer": "[data-node=\"appContainer\"]"
+    }
+  },
+  "patches": [
+    {
+      "name": "patchActiveRoute",
+      "input": "activeRoute",
+      "ops": [
+        {
+          "op": "setAttribute",
+          "ref": "navKanban",
+          "attr": "data-active",
+          "valuePath": "kanban"
+        },
+        {
+          "op": "setAttribute",
+          "ref": "navGrid",
+          "attr": "data-active",
+          "valuePath": "grid"
+        },
+        {
+          "op": "setAttribute",
+          "ref": "navDashboard",
+          "attr": "data-active",
+          "valuePath": "dashboard"
+        },
+        {
+          "op": "setAttribute",
+          "ref": "navSettings",
+          "attr": "data-active",
+          "valuePath": "settings"
+        },
+        {
+          "op": "setAttribute",
+          "ref": "navCatalog",
+          "attr": "data-active",
+          "valuePath": "catalog"
+        },
+        {
+          "op": "setAttribute",
+          "ref": "navOps",
+          "attr": "data-active",
+          "valuePath": "ops"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "NavKanban",
+      "target": "navKanban",
+      "type": "click",
+      "emits": "demo:nav:kanban",
+      "cleanup": true
+    },
+    {
+      "name": "NavGrid",
+      "target": "navGrid",
+      "type": "click",
+      "emits": "demo:nav:grid",
+      "cleanup": true
+    },
+    {
+      "name": "NavDashboard",
+      "target": "navDashboard",
+      "type": "click",
+      "emits": "demo:nav:dashboard",
+      "cleanup": true
+    },
+    {
+      "name": "NavSettings",
+      "target": "navSettings",
+      "type": "click",
+      "emits": "demo:nav:settings",
+      "cleanup": true
+    },
+    {
+      "name": "NavCatalog",
+      "target": "navCatalog",
+      "type": "click",
+      "emits": "demo:nav:catalog",
+      "cleanup": true
+    },
+    {
+      "name": "NavOps",
+      "target": "navOps",
+      "type": "click",
+      "emits": "demo:nav:ops",
+      "cleanup": true
+    }
+  ],
+  "wireup": {
+    "moduleName": "demo-shell-app-wireup.generated.js",
+    "exportName": "createDemoShell",
+    "rootComponent": "demo-shell",
+    "appImports": [
+      {
+        "name": "createDemoShellApp",
+        "module": "./demo-shell.generated.js"
+      }
+    ],
+    "children": [],
+    "events": [
+      {
+        "type": "demo:nav:kanban",
+        "extract": "ev.sourceEvent.preventDefault();",
+        "action": "sharedMap.set('demo:route', { route: 'kanban' });"
+      },
+      {
+        "type": "demo:nav:grid",
+        "extract": "ev.sourceEvent.preventDefault();",
+        "action": "sharedMap.set('demo:route', { route: 'grid' });"
+      },
+      {
+        "type": "demo:nav:dashboard",
+        "extract": "ev.sourceEvent.preventDefault();",
+        "action": "sharedMap.set('demo:route', { route: 'dashboard' });"
+      },
+      {
+        "type": "demo:nav:settings",
+        "extract": "ev.sourceEvent.preventDefault();",
+        "action": "sharedMap.set('demo:route', { route: 'settings' });"
+      },
+      {
+        "type": "demo:nav:catalog",
+        "extract": "ev.sourceEvent.preventDefault();",
+        "action": "sharedMap.set('demo:route', { route: 'catalog' });"
+      },
+      {
+        "type": "demo:nav:ops",
+        "extract": "ev.sourceEvent.preventDefault();",
+        "action": "sharedMap.set('demo:route', { route: 'ops' });"
+      }
+    ],
+    "subscriptions": [
+      {
+        "pattern": "demo:route",
+        "matchType": "exact",
+        "action": "patchApp",
+        "input": "activeRoute",
+        "valuePath": "route"
+      }
+    ]
+  }
+}

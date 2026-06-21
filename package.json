@@ -25,6 +25,7 @@
     "generate:grid": "node generator/app-generator.js contracts/data-grid.contract.json",
     "generate:catalog": "node generator/app-generator.js contracts/product-catalog.contract.json",
     "generate:ops": "node generator/ops-console-generator.js",
+    "generate:demo-shell": "node generator/app-generator.js contracts/demo-shell.contract.json",
     "test:native": "vitest run --dir test",
     "test:browser": "node gauntlet/apps/normalized-kanban/e2e.node.js && node gauntlet/apps/data-grid/e2e.node.js && node gauntlet/apps/settings-form/e2e.node.js && node gauntlet/apps/live-dashboard/e2e.node.js && node gauntlet/apps/product-catalog/e2e.node.js",
     "gauntlet": "node gauntlet/run.js",
@@ -33,7 +34,7 @@
     "repair": "node bin/repair-loop.js",
     "prompt": "node bin/prompt.js",
     "chat": "node bin/ask-chatgpt.js",
-    "verify:all": "npm run generate && npm run generate:kanban && npm run generate:dashboard && npm run generate:settings && npm run generate:grid && npm run generate:catalog && npm run generate:ops && npm run verify:generated && npm run test:native && npm run test:browser && npm run bench && npm run gauntlet && npm run maturity"
+    "verify:all": "npm run generate && npm run generate:kanban && npm run generate:dashboard && npm run generate:settings && npm run generate:grid && npm run generate:catalog && npm run generate:ops && npm run generate:demo-shell && npm run verify:generated && npm run test:native && npm run test:browser && npm run bench && npm run gauntlet && npm run maturity"
   },
   "keywords": [
     "llm",

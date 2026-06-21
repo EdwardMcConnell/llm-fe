@@ -197,8 +197,9 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Simple static file server
-  let filePath = path.join(rootDir, req.url === '/' ? 'demo/index.html' : req.url);
+  let relativeUrl = req.url === '/' ? 'demo/index.html' : req.url;
+  if (relativeUrl.startsWith('/')) relativeUrl = relativeUrl.substring(1);
+  let filePath = path.join(rootDir, relativeUrl);
   
   const extname = path.extname(filePath);
   const mimeTypes = {
