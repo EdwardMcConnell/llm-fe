@@ -25,14 +25,14 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "create board with 10 cards": 4.7946,
-          "create board with 100 cards": 46.4289,
-          "create board with 1,000 cards": 476.08,
-          "patch one card title 10,000 times": 84.2327,
-          "move one card between columns 1,000 times": 19.0603,
-          "Render 100 cards (Mount)": 103.63,
-          "Patch Card Title (Hot Path)": 0.009,
-          "Move Card Between Columns": 0.1241
+          "create board with 10 cards": 4.8782,
+          "create board with 100 cards": 47.4825,
+          "create board with 1,000 cards": 455.9,
+          "patch one card title 10,000 times": 84.3937,
+          "move one card between columns 1,000 times": 19.2538,
+          "Render 100 cards (Mount)": 106.53,
+          "Patch Card Title (Hot Path)": 0.0089,
+          "Move Card Between Columns": 0.1232
         },
         "notes": []
       },
@@ -81,8 +81,8 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "create dashboard with 10 widgets": 1.4438,
-          "patch one widget 10,000 times (high-frequency stream)": 41.9644
+          "create dashboard with 10 widgets": 1.4184,
+          "patch one widget 10,000 times (high-frequency stream)": 43.0332
         },
         "notes": []
       },
@@ -131,8 +131,8 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Render Form (Mount)": 0.6093,
-          "Patch Form Field (Hot Path)": 1.3661
+          "Render Form (Mount)": 0.479,
+          "Patch Form Field (Hot Path)": 1.2153
         },
         "notes": []
       },
@@ -181,9 +181,9 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Render first window (10,000 rows virtualized)": 98.6447,
-          "Scroll window (10,000 rows virtualized)": 1.2203,
-          "Filter 10,000 rows": 0.1906
+          "Render first window (10,000 rows virtualized)": 111.31,
+          "Scroll window (10,000 rows virtualized)": 1.251,
+          "Filter 10,000 rows": 1.4549
         },
         "notes": []
       },
@@ -232,9 +232,9 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Mount Catalog Component": 1.0479,
+          "Mount Catalog Component": 1.0539,
           "Patch Cart State Reactively": 0.0034,
-          "Dispose Catalog": 0.9083
+          "Dispose Catalog": 1.0653
         },
         "notes": []
       },
@@ -283,8 +283,8 @@
         "source": "Benchmarks",
         "proof": "All required benchmarks executed successfully",
         "results": {
-          "Mount Full Console": 1.9118,
-          "Cross-Component Patch (Select Row & Update Form)": 0.0136
+          "Mount Full Console": 1.9971,
+          "Cross-Component Patch (Select Row & Update Form)": 0.014
         },
         "notes": []
       },

@@ -109,11 +109,11 @@
   ],
   "wireup": {
     "moduleName": "demo-shell-app-wireup.generated.js",
-    "exportName": "createDemoShell",
+    "exportName": "createDemoShellAppWireup",
     "rootComponent": "demo-shell",
     "appImports": [
       {
-        "name": "createDemoShellApp",
+        "name": "createDemoShell",
         "module": "./demo-shell.generated.js"
       }
     ],

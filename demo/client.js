@@ -1,5 +1,5 @@
 import { SharedMap } from '../src/crdt.js';
-import { createDemoShell } from '../generated-examples/demo-shell/demo-shell-app-wireup.generated.js';
+import { createDemoShellAppWireup } from '../generated-examples/demo-shell/demo-shell-app-wireup.generated.js';
 
 import { createKanbanApp } from '../generated-examples/normalized-kanban/kanban-app.generated.js';
 import { createGridApp } from '../generated-examples/data-grid/data-grid-app-wireup.generated.js';
@@ -89,7 +89,7 @@ sharedMap.set('kanban:column:done:index', { itemIds: ['3'] });
 
 sharedMap.set('demo:route', { route: 'kanban' }); // Initial route
 
-const shell = createDemoShell(sharedMap);
+const shell = createDemoShellAppWireup(sharedMap);
 rootElement.appendChild(shell.root);
 
 const appContainer = shell.root.querySelector('.demo-app-container');

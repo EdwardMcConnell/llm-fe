@@ -1,7 +1,7 @@
 // Compiled deterministically from demo-shell App IR
-import { createDemoShellApp } from './demo-shell.generated.js';
+import { createDemoShell } from './demo-shell.generated.js';
 
-export function createDemoShell(sharedMap) {
+export function createDemoShellAppWireup(sharedMap) {
   function handleEvent(ev) {
     if (ev.type === 'demo:nav:kanban') {
       ev.sourceEvent.preventDefault();
@@ -24,7 +24,7 @@ export function createDemoShell(sharedMap) {
     }
   }
 
-  const app = createDemoShellApp({}, handleEvent);
+  const app = createDemoShell({}, handleEvent);
 
   const cleanups = [];
 
